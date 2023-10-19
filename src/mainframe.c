@@ -9,7 +9,6 @@ State* init_mainframe()
 
 	// TODO:
 	// - check if terrain map exists
-	// - check if assets exists
 	// - load user config
 
 #ifdef _DEBUG
@@ -54,6 +53,14 @@ void load_assets(State* state)
 	state->render = LoadRenderTexture(960, 540);
 	state->src_rnd = (Rectangle){ 0.0f, 0.0f, (float)state->render.texture.width, -(float)state->render.texture.height };
 	state->dest_rnd = (Rectangle){ 0.0f, 0.0f, (float)GetScreenWidth(), (float)GetScreenHeight() };
+
+	// load assets from ressource -> IDR_ASSETS_PACK1
+	// LoadImageFromMemory
+	//
+	// resource pack structure (gzip) :
+	// folder/file.ext
+	// <file_content>
+	// ...
 
 	state->loading = LS_OK;
 }

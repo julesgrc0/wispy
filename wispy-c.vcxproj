@@ -201,6 +201,7 @@
     <ClCompile Include="src\terrain\world.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\resource.h" />
     <ClInclude Include="src\mainframe.h" />
     <ClInclude Include="src\terrain\block.h" />
     <ClInclude Include="src\terrain\chunk.h" />
@@ -210,6 +211,10 @@
   <ItemGroup>
     <None Include=".gitignore" />
     <None Include="README.md" />
+    <None Include="tools\assets.pack" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="src\ressource.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

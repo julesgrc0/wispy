@@ -11,8 +11,11 @@ def write_to_pack(out_file: TextIOWrapper, folder_path: str) -> None:
             file_path = os.path.join(root, file)
             relative_path = os.path.relpath(file_path, folder_path)
 
-            out_file.write(relative_path.encode("utf-8") + b"\n")
-
+            
+            out_file.write(relative_path.encode("utf-8"))
+            out_file.write(b"\0")
+            out_file.write(os.path.getsize(file_path).to_bytes())
+            
             with open(file_path, "rb") as file:
                 out_file.write(file.read())
 
