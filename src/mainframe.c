@@ -56,11 +56,27 @@ void load_assets(State* state)
 
 	// load assets from ressource -> IDR_ASSETS_PACK1
 	// LoadImageFromMemory
-	//
-	// resource pack structure (gzip) :
-	// folder/file.ext
-	// <file_content>
-	// ...
+	
+	size_t len;
+	AssetItem* items = unpack_assets(state->hInstance, &len);
+	if (!items)
+	{
+		state->loading = LS_FAILED;
+		return;
+	}
+
+	state->len = len;
+	state->textures = malloc(sizeof(Texture) * len);
+	state->textures_id = malloc(sizeof(char*) * len);
+	
+	for (size_t i = 0; i < len; i++)
+	{
+		Image image = LoadImageFromMemory("PNG", items[i].buffer, items[i].size);
+		state->textures[i] = LoadTextureFromImage(image);
+		state->textures_id[i] = items[i].name;
+		
+		UnloadImage(image);
+	}
 
 	state->loading = LS_OK;
 }

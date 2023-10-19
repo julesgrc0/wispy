@@ -14,6 +14,11 @@ int main(int argc, const char** argv)
     State* state = init_mainframe();
     if (!state) return EXIT_FAILURE;
 
+#ifdef _WIN32
+    state->hInstance = hInstance;
+#endif // _WIN32
+
+
     loop_mainframe(state);
     destroy_mainframe(state);
 

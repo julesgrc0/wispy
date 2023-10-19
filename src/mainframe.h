@@ -1,5 +1,6 @@
 #pragma once
 #include "stdafx.h"
+#include "unpack/unpack.h"
 
 typedef enum LoadingState {
 	LS_DISPLAY,
@@ -10,12 +11,19 @@ typedef enum LoadingState {
 
 typedef struct State {
 	LoadingState loading;
+
+	char** textures_id;
 	Texture* textures;
 	size_t len;
 
 	RenderTexture render;
 	Rectangle src_rnd;
 	Rectangle dest_rnd;
+
+#ifdef _WIN32
+	HINSTANCE hInstance;
+#endif // _WIN32
+
 } State;
 
 
