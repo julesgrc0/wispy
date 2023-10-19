@@ -1,0 +1,31 @@
+#pragma once
+#include "stdafx.h"
+
+typedef enum LoadingState {
+	LS_DISPLAY,
+	LS_LOAD,
+	LS_OK,
+	LS_FAILED,
+} LoadingState;
+
+typedef struct State {
+	LoadingState loading;
+	Texture* textures;
+	size_t len;
+
+	RenderTexture render;
+	Rectangle src_rnd;
+	Rectangle dest_rnd;
+} State;
+
+
+State* init_mainframe();
+void destroy_mainframe(State* state);
+
+void loop_mainframe(State* state);
+
+void load_assets(State*);
+void load_config(State*);
+
+void loading_screen(State* state);
+void game_screen(State* state);
