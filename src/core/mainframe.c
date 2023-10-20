@@ -15,9 +15,6 @@ State* init_mainframe()
 	state->src_rnd = (Rectangle){ 0 };
 	state->dest_rnd = (Rectangle){ 0 };
 
-	// TODO:
-	// - check if terrain map exists
-	// - load user config
 
 #ifdef _DEBUG
 	SetTraceLogLevel(LOG_ALL);
@@ -28,10 +25,10 @@ State* init_mainframe()
 #endif // _DEBUG
 
 
-	//SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_FULLSCREEN_MODE);
+	SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_FULLSCREEN_MODE);
 	SetTargetFPS(0);
 
-	InitWindow(500, 500, "Wispy");
+	InitWindow(0, 0, "Wispy");
 
 	return state;
 }
@@ -62,8 +59,6 @@ void loop_mainframe(State* state)
 	loading_screen(state);
 	if (state->loading != LS_OK) return;
 
-	// TODO: menu screen (maps, config, etc...)
 	menu_screen(state);
-	
 	game_screen(state);
 }

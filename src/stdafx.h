@@ -3,6 +3,9 @@
 #define _CRT_SECURE_NO_WARNINGS
 #define _CRTDBG_MAP_ALLOC
 
+#define RENDER_WIDTH  500//960 
+#define RENDER_HEIGHT 500//540
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

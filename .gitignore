@@ -1,4 +1,6 @@
 /.vs
 /x64
+/Release
+/Debug
 *.user
 *.filters

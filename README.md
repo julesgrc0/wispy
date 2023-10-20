@@ -1,6 +1,6 @@
 # 🎮 Wispy-C
 
-**Concept**: Wispy-C  this is a version of wispy initially developed in java. Wipsy is a kind of 2D minecrat.
+**Concept**: Wispy-C  this is a version of wispy initially developed in java. Wipsy is a kind of 2D Minecraft.
 
 ## 🚀 Project Insight
 

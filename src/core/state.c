@@ -1,6 +1,6 @@
 #include "state.h"
 
-Texture get_texture_from_id(State* state, char* id)
+Texture get_texture_by_id(State* state, char* id)
 {
 	for (size_t i = 0; i < state->len; i++)
 	{

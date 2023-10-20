@@ -1,5 +1,5 @@
 #pragma once
-#include "stdafx.h"
+#include "../stdafx.h"
 
 typedef enum LoadingState {
 	LS_DISPLAY,
@@ -27,4 +27,4 @@ typedef struct State {
 
 } State;
 
-Texture get_texture_from_id(State* state, char* id);
+Texture get_texture_by_id(State* state, char* id);
