@@ -194,6 +194,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\screen\game.c" />
+    <ClCompile Include="src\screen\loading.c" />
+    <ClCompile Include="src\screen\menu.c" />
+    <ClCompile Include="src\state.c" />
     <ClCompile Include="src\terrain\block.c" />
     <ClCompile Include="src\terrain\chunk.c" />
     <ClCompile Include="src\main.c" />
@@ -202,8 +206,12 @@
     <ClCompile Include="src\unpack\unpack.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\resource.h" />
     <ClInclude Include="src\mainframe.h" />
+    <ClInclude Include="src\resource.h" />
+    <ClInclude Include="src\screen\game.h" />
+    <ClInclude Include="src\screen\loading.h" />
+    <ClInclude Include="src\screen\menu.h" />
+    <ClInclude Include="src\state.h" />
     <ClInclude Include="src\terrain\block.h" />
     <ClInclude Include="src\terrain\chunk.h" />
     <ClInclude Include="src\stdafx.h" />
