@@ -18,7 +18,7 @@ def write_to_pack(out_file: TextIOWrapper, folder_path: str) -> int:
             total_size += file_size
             
             out_file.write(relative_path.encode("utf-8"))
-            out_file.write(null.to_bytes(length=1, byteorder="little", signed=False)) # sizeof(unsigned int) = 4
+            out_file.write(null.to_bytes(length=1, byteorder="little", signed=False)) # end of string
             out_file.write(file_size.to_bytes(length=4, byteorder="little", signed=False)) # sizeof(unsigned int) = 4
             print(f"[+] {file_path:100}{file_size} o")
             
