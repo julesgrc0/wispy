@@ -107,9 +107,9 @@ AssetItem* unpack_assets(HINSTANCE hInstance, size_t* size)
         
             current_size++;
             index++;
-        } while (index < out_size && out_buffer[index - 1] != 0);
-       
-        item.name[current_size] = '\0';
+
+            if (out_buffer[index - 1] == 0) break;
+        } while (index < out_size);
         current_size = 0;
 
         char file_size_bytes[sizeof(unsigned int)];

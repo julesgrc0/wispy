@@ -40,6 +40,17 @@ void destroy_mainframe(State* state)
 {
 	if (state == NULL) return;
 	
+
+	for (size_t i = 0; i < state->len; i++)
+	{
+		sfree(state->textures_id[i]);
+		UnloadTexture(state->textures[i]);
+	}
+
+	sfree(state->textures);
+	sfree(state->textures_id);
+
+	UnloadFont(state->font);
 	UnloadRenderTexture(state->render);
 	CloseWindow();
 	
@@ -75,9 +86,6 @@ void load_assets(State* state)
 	state->render = LoadRenderTexture(960, 540);
 	state->src_rnd = (Rectangle){ 0.0f, 0.0f, (float)state->render.texture.width, -(float)state->render.texture.height };
 	state->dest_rnd = (Rectangle){ 0.0f, 0.0f, (float)GetScreenWidth(), (float)GetScreenHeight() };
-
-	// load assets from ressource -> IDR_ASSETS_PACK1
-	// LoadImageFromMemory
 	
 	size_t len;
 	AssetItem* items = unpack_assets(state->hInstance, &len);
@@ -87,37 +95,45 @@ void load_assets(State* state)
 		return;
 	}
 
-	state->len = len;
 	state->textures = malloc(sizeof(Texture) * len);
 	state->textures_id = malloc(sizeof(char*) * len);
 	
+	size_t textures_index = 0;
 	for (size_t i = 0; i < len; i++)
 	{
 		const char* ext = strrchr(items[i].name, '.');
 
-		if (ext == NULL)
-		{
-			sfree(items[i].name);
-			sfree(items[i].buffer);
-		}
-		else if (strcmp(ext, ".png") == 0)
+		if (strcmp(ext, ".png") == 0)
 		{
 			Image image = LoadImageFromMemory(".png", items[i].buffer, items[i].size);
-			state->textures[i] = LoadTextureFromImage(image);
-			state->textures_id[i] = items[i].name;
-
+			state->textures[textures_index] = LoadTextureFromImage(image);
 			UnloadImage(image);
+
+			state->textures_id[textures_index] = items[i].name;
+			textures_index++;
 		}
 		else if (strcmp(ext, ".ttf") == 0)
 		{
 			const int fontSize = 72;
 			const char fontChars[73] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789()?:+-=*\"'";
 			state->font = LoadFontFromMemory(".ttf", items[i].buffer, items[i].size, fontSize, fontChars, 73);
+			
+			sfree(items[i].name);
 		}
-		// etc...
-
+		else 
+		{
+			sfree(items[i].name);
+			sfree(items[i].buffer);
+			continue;
+		}
+		
 		sfree(items[i].buffer);
 	}
+
+	state->len = textures_index;
+	state->textures = realloc(state->textures, sizeof(Texture) * state->len);
+	state->textures_id = realloc(state->textures_id, sizeof(char*) * state->len);
+
 	sfree(items);
 
 	state->loading = LS_OK;
