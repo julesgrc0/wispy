@@ -70,6 +70,7 @@ char* load_resource(HINSTANCE hInstance, size_t* size)
 
 AssetItem* unpack_assets(HINSTANCE hInstance, size_t* size)
 {
+    *size = 0;
     size_t in_size = 0;
     char* in_buffer = load_resource(hInstance, &in_size);
 
@@ -77,75 +78,58 @@ AssetItem* unpack_assets(HINSTANCE hInstance, size_t* size)
 
     size_t out_size = 0;
     char* out_buffer = NULL;
-    
+
     if (decompress(in_buffer, in_size, &out_buffer, &out_size) != Z_OK)
     {
-        sfree(in_buffer);
         sfree(out_buffer);
-
         return NULL;
     }
-    sfree(in_buffer);
 
-
-    AssetItem* items = malloc(sizeof(0));
+    AssetItem* items = malloc(sizeof(AssetItem));
+    size_t len = 0;
     if (items == NULL)
     {
-        sfree(in_buffer);
         sfree(out_buffer);
-
         return NULL;
     }
 
     size_t index = 0;
-    while (index < size)
+    while (index < out_size)
     {
         AssetItem item = { 0 };
-
         size_t current_size = 0;
-        item.name = malloc(sizeof(current_size));
-       
-        while (index < size)
+
+        item.name = malloc(0);
+        do
         {
             item.name = realloc(item.name, current_size + 1);
             item.name[current_size] = out_buffer[index];
-              
-            current_size++;
-            index++;
-
-            if (out_buffer[index] == 0)
-            {
-                current_size = 0;
-                break;
-            }
-        }
-
-        char* file_size = NULL;
-        while (index < size)
-        {
-            if (out_buffer[index] == 0)
-            {
-                current_size = 0;
-                index++;
-                break;
-            }
-
-            file_size = realloc(file_size, current_size + 1);
-            file_size[current_size] = out_buffer[index];
-            current_size++;
-            index++;
-        }
-
-        item.size = (int)memcpy(item.size, file_size, sizeof(unsigned int));
         
-        item.buffer = malloc(sizeof(item.size));
-        item.buffer = memcpy(item.buffer, out_buffer + index, item.size);
+            current_size++;
+            index++;
+        } while (index < out_size && out_buffer[index - 1] != 0);
+       
+        item.name[current_size] = '\0';
+        current_size = 0;
+
+        char file_size_bytes[sizeof(unsigned int)];
+        memcpy(file_size_bytes, out_buffer + index, sizeof(unsigned int));
+        index += sizeof(unsigned int);
+
+        item.size = *(unsigned int*)file_size_bytes;
+
+        item.buffer = malloc(item.size);
+        memcpy(item.buffer, out_buffer + index, item.size);
         index += item.size;
 
-        items = realloc(items, ((*size) + 1) * sizeof(AssetItem));
-        memcpy(items + (*size), &item, sizeof(AssetItem));
-        (*size)++;
+        items = realloc(items, (len + 1) * sizeof(AssetItem));
+        memcpy(&items[len], &item, sizeof(AssetItem));
+        len++;
     }
 
-	return items;
+    sfree(out_buffer);
+
+    *size = len;
+    return items;
 }
+

@@ -8,6 +8,7 @@ import time
 
 def write_to_pack(out_file: TextIOWrapper, folder_path: str) -> int:
     total_size = 0
+    null = 0
     for root, _, files in os.walk(folder_path):
         for file in files:
             file_path = os.path.join(root, file)
@@ -17,10 +18,8 @@ def write_to_pack(out_file: TextIOWrapper, folder_path: str) -> int:
             total_size += file_size
             
             out_file.write(relative_path.encode("utf-8"))
-            out_file.write(b"\0")
-            out_file.write(file_size.to_bytes(length=4)) # sizeof(unsigned int) = 4
-            out_file.write(b"\0")
-            
+            out_file.write(null.to_bytes(length=1, byteorder="little", signed=False)) # sizeof(unsigned int) = 4
+            out_file.write(file_size.to_bytes(length=4, byteorder="little", signed=False)) # sizeof(unsigned int) = 4
             print(f"[+] {file_path:100}{file_size} o")
             
             with open(file_path, "rb") as file:

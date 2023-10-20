@@ -7,9 +7,23 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 int main(int argc, const char** argv)
 #endif
 {
-
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
     _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_DEBUG);
+
+#ifdef _DEBUG && _WIN32
+    if (AllocConsole())
+    {
+        FILE* fDummy;
+        freopen_s(&fDummy, "CONOUT$", "w", stdout);
+        freopen_s(&fDummy, "CONOUT$", "w", stderr);
+        freopen_s(&fDummy, "CONIN$", "r", stdin);
+
+        fflush(stdout);
+        fflush(stderr);
+        fflush(stdin);
+    }
+#endif // _DEBUG && _WIN32
+
 
     State* state = init_mainframe();
     if (!state) return EXIT_FAILURE;

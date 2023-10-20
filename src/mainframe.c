@@ -92,7 +92,7 @@ void load_assets(State* state)
 	
 	for (size_t i = 0; i < len; i++)
 	{
-		Image image = LoadImageFromMemory("PNG", items[i].buffer, items[i].size);
+		Image image = LoadImageFromMemory(".png", items[i].buffer, items[i].size);
 		state->textures[i] = LoadTextureFromImage(image);
 		state->textures_id[i] = items[i].name;
 		
