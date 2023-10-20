@@ -3,7 +3,6 @@
 Chunk* generate_chunk(Image image, unsigned int position)
 {
     Chunk* chunk = malloc(sizeof(Chunk));
-    chunk->position = position;
     chunk->len = 0;
     chunk->blocks = malloc(sizeof(Block) * (CHUNK_WIDTH * CHUNK_HEIGHT));
     

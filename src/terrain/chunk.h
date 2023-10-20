@@ -8,8 +8,6 @@
 #define BLOCK_SIZE   RENDER_WIDTH/CHUNK_WIDTH
 
 typedef struct Chunk {
-	unsigned int position;
-
 	Block* blocks;
 	size_t len;
 } Chunk;

@@ -21,6 +21,8 @@ typedef struct State {
 	Rectangle src_rnd;
 	Rectangle dest_rnd;
 
+	Camera2D camera;
+
 #ifdef _WIN32
 	HINSTANCE hInstance;
 #endif // _WIN32
