@@ -1,37 +1,45 @@
 #include "unpack.h"
 
-int decompress(char* in_buffer, size_t in_size, char** out_buffer, size_t* out_size)
-{
-    z_stream stream;
+int decompress(const char* in_buffer, size_t in_size, char** out_buffer, size_t* out_size) {
+    z_stream strm;
     int ret;
 
-    stream.zalloc = Z_NULL;
-    stream.zfree = Z_NULL;
-    stream.opaque = Z_NULL;
-    stream.avail_in = 0;
-    stream.next_in = Z_NULL;
+    strm.zalloc = Z_NULL;
+    strm.zfree = Z_NULL;
+    strm.opaque = Z_NULL;
+    strm.avail_in = in_size;
+    strm.next_in = (Bytef*)in_buffer;
 
-    ret = inflateInit(&stream);
-    if (ret != Z_OK) {
-        return ret;
+    if (inflateInit(&strm) != Z_OK) return Z_ERRNO;
+
+    *out_buffer = malloc(sizeof(0));
+    while (1) 
+    {
+        char buffer[BUFSIZ];
+        strm.avail_out = BUFSIZ;
+        strm.next_out = (Bytef*)buffer;
+
+        ret = inflate(&strm, Z_NO_FLUSH);
+
+        if (ret == Z_NEED_DICT || ret == Z_DATA_ERROR || ret == Z_MEM_ERROR) 
+        {
+            inflateEnd(&strm);
+            return ret;
+        }
+
+        size_t have = BUFSIZ - strm.avail_out;
+
+        *out_buffer = (char*)realloc(*out_buffer, *out_size + have);
+        memcpy(*out_buffer + *out_size, buffer, have);
+        *out_size += have;
+
+        if (ret == Z_STREAM_END) break;
     }
 
-    stream.avail_in = in_size;
-    stream.next_in = (Bytef*)in_buffer;
-    stream.avail_out = *out_size;
-    stream.next_out = (Bytef*)*out_buffer;
-
-    ret = inflate(&stream, Z_NO_FLUSH);
-    if (ret != Z_STREAM_END) {
-        inflateEnd(&stream);
-        return ret;
-    }
-
-    *out_size = stream.total_out;
-    ret = inflateEnd(&stream);
-
-    return ret;
+    inflateEnd(&strm);
+    return Z_OK;
 }
+
 
 char* load_resource(HINSTANCE hInstance, size_t* size)
 {

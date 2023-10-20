@@ -1,6 +1,6 @@
 import os
 import sys
-import gzip
+import zlib
 
 from io import TextIOWrapper
 import time
@@ -45,9 +45,12 @@ def main(args: list[str]) -> int:
         total_size = write_to_pack(fp, assets_dir)
         fp.close()
         
-    with open(out_tmp, 'rb') as fp_in, gzip.open(out_gz, 'wb') as fp_out:
-        fp_out.writelines(fp_in)
-
+    with open(out_tmp, 'rb') as fp_in:
+        with open(out_gz, 'wb') as fp_out:
+            fp_out.write(zlib.compress(fp_in.read()))
+            fp_out.close()
+        fp_in.close()
+        
     if os.path.exists(out_tmp):
         os.remove(out_tmp)
     

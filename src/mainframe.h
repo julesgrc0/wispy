@@ -32,6 +32,8 @@ void destroy_mainframe(State* state);
 
 void loop_mainframe(State* state);
 
+Texture get_texture_from_id(State* state, char* id);
+
 void load_assets(State*);
 void load_config(State*);
 

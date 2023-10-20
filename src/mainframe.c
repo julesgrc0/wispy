@@ -7,6 +7,13 @@ State* init_mainframe()
 
 	state->loading = LS_DISPLAY;
 
+	state->len = 0;
+	state->textures = NULL;
+	state->textures_id = NULL;
+	state->render = (RenderTexture){ 0 };
+	state->src_rnd = (Rectangle){ 0 };
+	state->dest_rnd = (Rectangle){ 0 };
+
 	// TODO:
 	// - check if terrain map exists
 	// - load user config
@@ -19,10 +26,11 @@ State* init_mainframe()
 	SetTraceLogLevel(LOG_NONE);
 #endif // _DEBUG
 
-	SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_FULLSCREEN_MODE);
+
+	//SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_FULLSCREEN_MODE);
 	SetTargetFPS(0);
 
-	InitWindow(0, 0, "Wispy");
+	InitWindow(500, 500, "Wispy");
 
 	return state;
 }
@@ -45,6 +53,19 @@ void loop_mainframe(State* state)
 	// TODO: menu screen (maps, config, etc...)
 
 	game_screen(state);
+}
+
+Texture get_texture_from_id(State* state, char* id)
+{
+	for (size_t i = 0; i < state->len; i++)
+	{
+		if (strcmp(state->textures_id[i], id) == 0)
+		{
+			return state->textures[i];
+		}
+	}
+
+	return (Texture){ 0 };
 }
 
 void load_assets(State* state)
