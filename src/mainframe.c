@@ -10,6 +10,7 @@ State* init_mainframe()
 	state->len = 0;
 	state->textures = NULL;
 	state->textures_id = NULL;
+	state->font = (Font){ 0 };
 	state->render = (RenderTexture){ 0 };
 	state->src_rnd = (Rectangle){ 0 };
 	state->dest_rnd = (Rectangle){ 0 };
@@ -92,12 +93,32 @@ void load_assets(State* state)
 	
 	for (size_t i = 0; i < len; i++)
 	{
-		Image image = LoadImageFromMemory(".png", items[i].buffer, items[i].size);
-		state->textures[i] = LoadTextureFromImage(image);
-		state->textures_id[i] = items[i].name;
-		
-		UnloadImage(image);
+		const char* ext = strrchr(items[i].name, '.');
+
+		if (ext == NULL)
+		{
+			sfree(items[i].name);
+			sfree(items[i].buffer);
+		}
+		else if (strcmp(ext, ".png") == 0)
+		{
+			Image image = LoadImageFromMemory(".png", items[i].buffer, items[i].size);
+			state->textures[i] = LoadTextureFromImage(image);
+			state->textures_id[i] = items[i].name;
+
+			UnloadImage(image);
+		}
+		else if (strcmp(ext, ".ttf") == 0)
+		{
+			const int fontSize = 72;
+			const char fontChars[73] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789()?:+-=*\"'";
+			state->font = LoadFontFromMemory(".ttf", items[i].buffer, items[i].size, fontSize, fontChars, 73);
+		}
+		// etc...
+
+		sfree(items[i].buffer);
 	}
+	sfree(items);
 
 	state->loading = LS_OK;
 }

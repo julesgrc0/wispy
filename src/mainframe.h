@@ -16,6 +16,8 @@ typedef struct State {
 	Texture* textures;
 	size_t len;
 
+	Font font;
+
 	RenderTexture render;
 	Rectangle src_rnd;
 	Rectangle dest_rnd;
