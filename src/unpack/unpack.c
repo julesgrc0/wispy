@@ -1,91 +1,5 @@
 #include "unpack.h"
 
-int decompress(const char* in_buffer, size_t in_size, char** out_buffer, size_t* out_size) {
-    z_stream strm;
-    int ret;
-
-    strm.zalloc = Z_NULL;
-    strm.zfree = Z_NULL;
-    strm.opaque = Z_NULL;
-    strm.avail_in = in_size;
-    strm.next_in = (Bytef*)in_buffer;
-
-    if (inflateInit(&strm) != Z_OK) return Z_ERRNO;
-
-    *out_buffer = malloc(sizeof(0));
-    while (1) 
-    {
-        char buffer[BUFSIZ];
-        strm.avail_out = BUFSIZ;
-        strm.next_out = (Bytef*)buffer;
-
-        ret = inflate(&strm, Z_NO_FLUSH);
-
-        if (ret == Z_NEED_DICT || ret == Z_DATA_ERROR || ret == Z_MEM_ERROR) 
-        {
-            inflateEnd(&strm);
-            return ret;
-        }
-
-        size_t have = BUFSIZ - strm.avail_out;
-
-        *out_buffer = (char*)realloc(*out_buffer, *out_size + have);
-        memcpy(*out_buffer + *out_size, buffer, have);
-        *out_size += have;
-
-        if (ret == Z_STREAM_END) break;
-    }
-
-    inflateEnd(&strm);
-    return Z_OK;
-}
-
-int compress(const char* in_buffer, size_t in_size, char** out_buffer, size_t* out_size) {
-    z_stream strm;
-    int ret;
-
-    strm.zalloc = Z_NULL;
-    strm.zfree = Z_NULL;
-    strm.opaque = Z_NULL;
-
-    if (deflateInit(&strm, Z_BEST_COMPRESSION) != Z_OK) return Z_ERRNO;
-
-    *out_buffer = malloc(sizeof(0));
-    *out_size = 0;
-    size_t chunk_size = 0;
-
-    do {
-        size_t remaining = in_size - chunk_size;
-        strm.avail_in = remaining < BUFSIZ ? remaining : BUFSIZ;
-        strm.next_in = (Bytef*)(in_buffer + chunk_size);
-
-        if (strm.avail_in == 0) break;
-
-        char buffer[BUFSIZ];
-        strm.avail_out = BUFSIZ;
-        strm.next_out = (Bytef*)buffer;
-
-        ret = deflate(&strm, Z_NO_FLUSH);
-        if (ret != Z_OK) {
-            deflateEnd(&strm);
-            return ret;
-        }
-
-        size_t have = BUFSIZ - strm.avail_out;
-
-        *out_buffer = (char*)realloc(*out_buffer, *out_size + have);
-        memcpy(*out_buffer + *out_size, buffer, have);
-        *out_size += have;
-
-        chunk_size += strm.avail_in;
-    } while (ret != Z_STREAM_END);
-
-    deflateEnd(&strm);
-    return Z_OK;
-}
-
-
-
 char* load_resource(HINSTANCE hInstance, size_t* size)
 {
 #ifdef _WIN32
@@ -121,14 +35,17 @@ AssetItem* unpack_assets(HINSTANCE hInstance, size_t* size)
 
     if (in_buffer == NULL) return NULL;
 
-    size_t out_size = 0;
-    char* out_buffer = NULL;
+    size_t out_size = in_size * 2;
+    char* out_buffer = malloc(out_size);
+    if (!out_buffer) return NULL;
 
-    if (decompress(in_buffer, in_size, &out_buffer, &out_size) != Z_OK)
+    if (uncompress(out_buffer, &out_size, in_buffer, in_size) != Z_OK)
     {
         sfree(out_buffer);
         return NULL;
     }
+    out_buffer = realloc(out_buffer, out_size);
+
 
     AssetItem* items = malloc(sizeof(AssetItem));
     size_t len = 0;
@@ -173,8 +90,8 @@ AssetItem* unpack_assets(HINSTANCE hInstance, size_t* size)
     }
 
     sfree(out_buffer);
-
     *size = len;
+
     return items;
 }
 

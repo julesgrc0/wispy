@@ -3,8 +3,7 @@
 
 void load_assets(State* state)
 {
-
-	state->render = LoadRenderTexture(RENDER_WIDTH, RENDER_HEIGHT);
+	state->render = LoadRenderTexture(RENDER_SIZE, RENDER_SIZE);
 	state->src_rnd = (Rectangle){ 0.0f, 0.0f, (float)state->render.texture.width, -(float)state->render.texture.height };
 	state->dest_rnd = (Rectangle){ 0.0f, 0.0f, (float)GetScreenWidth(), (float)GetScreenHeight() };
 
@@ -60,10 +59,6 @@ void load_assets(State* state)
 	state->loading = LS_OK;
 }
 
-void load_config(State* state)
-{
-
-}
 
 void loading_screen(State* state)
 {

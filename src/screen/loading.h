@@ -4,7 +4,5 @@
 #include "../unpack/unpack.h"
 
 
-void load_assets(State*);
-void load_config(State*);
-
+void load_assets(State* state);
 void loading_screen(State* state);

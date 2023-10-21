@@ -3,27 +3,24 @@
 #define _CRT_SECURE_NO_WARNINGS
 #define _CRTDBG_MAP_ALLOC
 
-#define RENDER_WIDTH  500//960 
-#define RENDER_HEIGHT 500//540
+#define RENDER_SIZE 500
+#define BLOCK_SIZE 25 // 500/25 = 20
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
 #include <memory.h>
-#include <time.h>
 
 #include <crtdbg.h>
 #include <crtdefs.h>
 
-
-//vcpkg install raylib:x86-windows-static  raylib:x64-windows-static
 #include <raylib.h>
 #include <raymath.h>
 #include <rlgl.h>
 
-//vcpkg install zlib:x86-windows-static  zlib:x64-windows-static
 #include <zlib.h>
+#include <omp.h>
 
 #if defined(_WIN32)
 #define NOGDI
@@ -40,3 +37,21 @@
 #endif
 
 #define sfree(x) if(x) free(x);
+
+#if defined(_DEBUG) && defined(_WIN32)
+
+#define measure(name, x)\
+LARGE_INTEGER start, end, frequency;\
+long long elapsed_time;\
+QueryPerformanceFrequency(&frequency);\
+QueryPerformanceCounter(&start);\
+x;\
+QueryPerformanceCounter(&end);\
+elapsed_time = (end.QuadPart - start.QuadPart) * 100000000 / frequency.QuadPart;\
+printf("[%s]: %lld ns\n", #name, elapsed_time);
+
+#else
+#define measure(name, x)
+#endif // _DEBUG && _WIN32
+
+

@@ -16,12 +16,13 @@ State* init_mainframe()
 	state->dest_rnd = (Rectangle){ 0 };
 	
 	state->camera =  (Camera2D){
-		.offset = {0},
-		.target = {RENDER_WIDTH / 2,RENDER_HEIGHT / 2},
+		.offset = {0}, // RENDER_SIZE / 2,RENDER_SIZE / 2
+		.target = {0},
 		.zoom = 1.f,
 		.rotation = 0
 	};
 
+	state->config = load_config();
 #ifdef _DEBUG
 	SetTraceLogLevel(LOG_ALL);
 	SetExitKey(KEY_ESCAPE);
@@ -31,10 +32,31 @@ State* init_mainframe()
 #endif // _DEBUG
 
 
-	SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_FULLSCREEN_MODE);
-	SetTargetFPS(0);
+	int flags = 0;
+	if (state->config->vsync)
+	{
+		flags |= FLAG_VSYNC_HINT;
+	}
 
-	InitWindow(0, 0, "Wispy");
+	if (state->config->msaa4x)
+	{
+		flags |= FLAG_MSAA_4X_HINT;
+	}
+
+	if (state->config->vsync)
+	{
+		flags |= FLAG_VSYNC_HINT;
+	}
+
+	if (state->config->fullscreen)
+	{
+		flags |= FLAG_FULLSCREEN_MODE;
+	}
+
+	SetConfigFlags(flags);
+	SetTargetFPS(state->config->max_fps);
+
+	InitWindow(state->config->width, state->config->height, "Wispy");
 
 	return state;
 }
@@ -56,8 +78,11 @@ void destroy_mainframe(State* state)
 	UnloadFont(state->font);
 	UnloadRenderTexture(state->render);
 	CloseWindow();
-	
-	free(state);
+
+	save_config(state->config);
+
+	sfree(state->config);
+	sfree(state);
 }
 
 void loop_mainframe(State* state)

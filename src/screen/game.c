@@ -1,21 +1,39 @@
 #include "game.h"
 
 
-static void render_chunk(State* state, int index, Rectangle blockDest, Rectangle blockSource, World* world)
+static rnd(World* world, unsigned int position, unsigned char min_x, unsigned char max_x)
 {
-	for (size_t i = 0; i < world->chunks[index]->len; i++)
+	for (size_t i = 0; i < world->chunks[position]->len; i++)
 	{
-		blockDest.x = world->chunks[index]->blocks[i].x * BLOCK_SIZE + index * CHUNK_WIDTH * BLOCK_SIZE;
-		blockDest.y = CHUNK_HEIGHT * BLOCK_SIZE - world->chunks[index]->blocks[i].y * BLOCK_SIZE;
+		if (world->chunks[position]->blocks[i].x >= max_x) break;
+
+		if (world->chunks[position]->blocks[i].x < min_x) continue;
+		if (world->chunks[position]->blocks[i].y >= 22) continue;
 		
-		if (blockDest.x < (state->camera.target.x - BLOCK_SIZE) || blockDest.x > state->camera.target.x + RENDER_WIDTH || blockDest.y > state->camera.target.y + RENDER_HEIGHT || blockDest.y < (state->camera.target.y - BLOCK_SIZE)) continue;
-		DrawTexturePro(state->textures[0], blockSource, blockDest, (Vector2) { 0 }, 0, WHITE);
+
+		
+		DrawRectangleLines(
+			(world->chunks[position]->blocks[i].x * BLOCK_SIZE) + (position * CHUNK_WIDTH * BLOCK_SIZE),
+			(world->chunks[position]->blocks[i].y * BLOCK_SIZE),
+			BLOCK_SIZE,
+			BLOCK_SIZE,
+			RED);
+		
 	}
+	
+	DrawRectangleLines(
+		position * CHUNK_WIDTH * BLOCK_SIZE,
+		0,
+		CHUNK_WIDTH * BLOCK_SIZE,
+		CHUNK_HEIGHT * BLOCK_SIZE,
+		BLUE
+	);
 }
 
 void game_screen(State* state)
 {
-	Texture blocks[6] = {
+
+Texture blocks[6] = {
 		get_texture_by_id(state,"blocks\\dirt.png"),
 		get_texture_by_id(state,"blocks\\grass.png"),
 		get_texture_by_id(state,"blocks\\leaves.png"),
@@ -28,57 +46,37 @@ void game_screen(State* state)
 
 #ifdef _DEBUG
 	int seed = 0;
-	char* map = "map.dat";
 #else
 	int seed = GetRandomValue(0, INT_MAX - 1);
 #endif // _DEBUG
-	
-	world = generate_world(seed);
-	/*
-	TODO: Fix world export/load
-	world = load_world(map);
+
+	char* map = "map.dat";
+	world = load_world(map); // TODO: load, generate, export in a thread
 	if (!world)
 	{
 		world = generate_world(seed);
 		export_world(map, world);
 	}
-	*/
 
-	
-	
-	float mid_size = (RENDER_WIDTH / 2);
-
-	Rectangle blockSource = { 0, 0, blocks[0].width, blocks[0].height };
-	Rectangle blockDest = { 0, 0, BLOCK_SIZE, BLOCK_SIZE };
+	int max_render_block_x = ((RENDER_SIZE + BLOCK_SIZE) / BLOCK_SIZE);
 	while (!WindowShouldClose())
 	{
 		BeginTextureMode(state->render);
 		ClearBackground(BLACK);
-		
+
 		BeginMode2D(state->camera);
 
-		LARGE_INTEGER start, end, frequency;
-		long long elapsed_time;
-
-		QueryPerformanceFrequency(&frequency);
-		QueryPerformanceCounter(&start);
-
-
-		int index = state->camera.target.x / (float)RENDER_WIDTH;
-		int rindex = round((state->camera.target.x + mid_size) / (float)RENDER_WIDTH);
-		int findex = floor((state->camera.target.x - mid_size) / (float)RENDER_WIDTH);
-
-		if (index < world->chunk_len) render_chunk(state, index, blockDest, blockSource, world);
-		if (rindex != index && rindex < world->chunk_len) render_chunk(state, rindex, blockDest, blockSource, world);
-		if (findex != index && findex < world->chunk_len) render_chunk(state, findex, blockDest, blockSource, world);
 		
-		QueryPerformanceCounter(&end);
-		elapsed_time = (end.QuadPart - start.QuadPart) * 100000000 / frequency.QuadPart;
-		printf("%lld ns\n", elapsed_time);
+		
+		int block_index = (state->camera.target.x / BLOCK_SIZE);
+		int index = block_index / CHUNK_WIDTH;
+		rnd(world, index, block_index % CHUNK_WIDTH, block_index % CHUNK_WIDTH + max_render_block_x);
 
+		int out_x = (CHUNK_WIDTH - (block_index % CHUNK_WIDTH)) - max_render_block_x;
+		if (out_x < 0) rnd(world, index + 1, 0, abs(out_x));
+		
 		EndMode2D();
 
-		
 		float speed = GetFrameTime() * 300.f;
 		if (IsKeyDown(KEY_UP))
 		{
@@ -98,7 +96,7 @@ void game_screen(State* state)
 			state->camera.target.x += speed;
 		}
 
-		
+
 
 		EndTextureMode();
 		BeginDrawing();
@@ -111,4 +109,13 @@ void game_screen(State* state)
 
 		EndDrawing();
 	}
+
+	for (size_t i = 0; i < world->len; i++)
+	{
+		sfree(world->chunks[i]->blocks);
+		sfree(world->chunks[i]);
+	}
+	sfree(world->chunks);
+	sfree(world);
 }
+
