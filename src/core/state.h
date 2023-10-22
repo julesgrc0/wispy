@@ -20,6 +20,7 @@ typedef struct Config {
 	unsigned int height : 12;
 
 	unsigned int max_fps : 10;
+	unsigned int max_chunk : 10;
 } Config;
 
 typedef struct State {

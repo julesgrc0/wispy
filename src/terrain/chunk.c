@@ -24,11 +24,11 @@ Chunk* generate_chunk(Image noise, unsigned int position)
             if (y >= (color.r / 10))
             {
                 BlockTypes type = B_GRASS;
-                if (level > 0 && level <= 2)
+                if (level > 0 && level <= 4)
                 {
                     type = B_DIRT;
                 }
-                else if (level > 2)
+                else if (level > 4)
                 {
                     type = B_STONE;
                 }

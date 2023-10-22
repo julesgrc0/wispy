@@ -6,15 +6,25 @@
 
 #define BASE_CHUNK 100
 
+typedef union Seed {
+    struct {
+        int offsetX;
+        int offsetY;
+    };
+    unsigned long long seed;
+}Seed;
+
 typedef struct World {
-	int seed;
+    Seed seed;
 
 	Chunk** chunks;
-	unsigned int len;
+    unsigned int len;
 
 } World;
 
-World* generate_world(int seed);
+
+
+World* generate_world(unsigned int len, Seed seed);
 
 World* load_world(char* map_name);
 void export_world(char* map_name, World* w);

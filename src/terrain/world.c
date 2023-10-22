@@ -1,12 +1,12 @@
 #include "world.h"
 
-World* generate_world(int seed)
+World* generate_world(unsigned int len, Seed seed)
 {
     World* world = malloc(sizeof(World));
     if (!world) return NULL;
 
     world->seed = seed;
-    world->len = BASE_CHUNK;
+    world->len = len;
     world->chunks = malloc(sizeof(Chunk*) * world->len);
     
     if (!world->chunks)
@@ -14,8 +14,8 @@ World* generate_world(int seed)
         sfree(world);
         return NULL;
     }
-
-    Image noise = GenImagePerlinNoise(CHUNK_WIDTH * world->len, 1, 0, seed, (32.f * world->len)/10.f);
+    
+    Image noise = GenImagePerlinNoise(CHUNK_WIDTH * world->len, 1, seed.offsetX, seed.offsetY, (32.f * world->len)/10.f);
 
     for (unsigned int position = 0; position < world->len; position++)
     {

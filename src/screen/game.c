@@ -4,26 +4,15 @@
 static rnd(World* world, Texture* blocks, unsigned int position, unsigned char min_x, unsigned char max_x)
 {
 	Chunk* chunk = world->chunks[position];
+	
 	for (size_t i = 0; i < chunk->len; i++)
 	{
 		if (chunk->blocks[i].x >= max_x) break;
 
 		if (chunk->blocks[i].x < min_x) continue;
-		if (chunk->blocks[i].y >= 22) continue;
+		if (chunk->blocks[i].y >= 50) continue; // TODO: calculate from camera
 		
-		Texture block = { 0 };
-		switch (chunk->blocks->type)
-		{
-		case B_STONE:
-			block = blocks[5];
-			break;
-		case B_DIRT:
-			block = blocks[0];
-			break;
-		case B_GRASS:
-			block = blocks[1];
-			break;
-		}
+		Texture block = blocks[chunk->blocks[i].type - 1];
 		DrawTexturePro(block,
 			(Rectangle) 
 			{
@@ -70,19 +59,24 @@ Texture blocks[6] = {
 	int seed = 0;
 	char* map_name = "map_dbg.dat";
 #else
-	int seed = GetRandomValue(0, INT_MAX - 1);
+	SetRandomSeed(time());
+	Seed seed = {
+		.seed = GetRandomValue(0, 100) 
+	};
+
 	char map_name[MAX_PATH];
-	sprintf(map_name, "map_%d.dat", seed);
+	sprintf(map_name, "map_%lld.dat", seed.seed);
 #endif // _DEBUG
 
 	
 	world = load_world(map_name); // TODO: load, generate, export in a thread
 	if (!world)
 	{
-		world = generate_world(seed);
+		world = generate_world(state->config->max_chunk, seed);
 		export_world(map_name, world);
 	}
 
+	
 
 	int max_render_block_x = ((RENDER_SIZE + BLOCK_SIZE) / BLOCK_SIZE);
 	while (!WindowShouldClose())
