@@ -20,7 +20,6 @@
 #include <rlgl.h>
 
 #include <zlib.h>
-#include <omp.h>
 
 #if defined(_WIN32)
 #define NOGDI
@@ -34,7 +33,12 @@
 #undef far
 
 #define MAKEINTRESOURCE(i) ((LPSTR)((ULONG_PTR)((WORD)(i))))
+#else 
+#define MAX_PATH 260
 #endif
+
+
+
 
 #define sfree(x) if(x) free(x);
 

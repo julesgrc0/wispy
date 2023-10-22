@@ -1,24 +1,46 @@
 #include "game.h"
 
 
-static rnd(World* world, unsigned int position, unsigned char min_x, unsigned char max_x)
+static rnd(World* world, Texture* blocks, unsigned int position, unsigned char min_x, unsigned char max_x)
 {
-	for (size_t i = 0; i < world->chunks[position]->len; i++)
+	Chunk* chunk = world->chunks[position];
+	for (size_t i = 0; i < chunk->len; i++)
 	{
-		if (world->chunks[position]->blocks[i].x >= max_x) break;
+		if (chunk->blocks[i].x >= max_x) break;
 
-		if (world->chunks[position]->blocks[i].x < min_x) continue;
-		if (world->chunks[position]->blocks[i].y >= 22) continue;
+		if (chunk->blocks[i].x < min_x) continue;
+		if (chunk->blocks[i].y >= 22) continue;
 		
+		Texture block = { 0 };
+		switch (chunk->blocks->type)
+		{
+		case B_STONE:
+			block = blocks[5];
+			break;
+		case B_DIRT:
+			block = blocks[0];
+			break;
+		case B_GRASS:
+			block = blocks[1];
+			break;
+		}
+		DrawTexturePro(block,
+			(Rectangle) 
+			{
+				0, 0,
+				block.width, block.height
+			},
 
-		
-		DrawRectangleLines(
-			(world->chunks[position]->blocks[i].x * BLOCK_SIZE) + (position * CHUNK_WIDTH * BLOCK_SIZE),
-			(world->chunks[position]->blocks[i].y * BLOCK_SIZE),
-			BLOCK_SIZE,
-			BLOCK_SIZE,
-			RED);
-		
+			(Rectangle)
+			{
+				(chunk->blocks[i].x * BLOCK_SIZE) + (position * CHUNK_WIDTH * BLOCK_SIZE),
+				(chunk->blocks[i].y * BLOCK_SIZE),
+				BLOCK_SIZE,
+				BLOCK_SIZE 
+			},
+			(Vector2) { 0 },
+			0,
+			WHITE);
 	}
 	
 	DrawRectangleLines(
@@ -46,17 +68,21 @@ Texture blocks[6] = {
 
 #ifdef _DEBUG
 	int seed = 0;
+	char* map_name = "map_dbg.dat";
 #else
 	int seed = GetRandomValue(0, INT_MAX - 1);
+	char map_name[MAX_PATH];
+	sprintf(map_name, "map_%d.dat", seed);
 #endif // _DEBUG
 
-	char* map = "map.dat";
-	world = load_world(map); // TODO: load, generate, export in a thread
+	
+	world = load_world(map_name); // TODO: load, generate, export in a thread
 	if (!world)
 	{
 		world = generate_world(seed);
-		export_world(map, world);
+		export_world(map_name, world);
 	}
+
 
 	int max_render_block_x = ((RENDER_SIZE + BLOCK_SIZE) / BLOCK_SIZE);
 	while (!WindowShouldClose())
@@ -70,10 +96,17 @@ Texture blocks[6] = {
 		
 		int block_index = (state->camera.target.x / BLOCK_SIZE);
 		int index = block_index / CHUNK_WIDTH;
-		rnd(world, index, block_index % CHUNK_WIDTH, block_index % CHUNK_WIDTH + max_render_block_x);
+		if (index < world->len)
+		{
+			rnd(world,blocks, index, block_index % CHUNK_WIDTH, block_index % CHUNK_WIDTH + max_render_block_x);
+			
+			int out_x = (CHUNK_WIDTH - (block_index % CHUNK_WIDTH)) - max_render_block_x;
+			if (out_x < 0 && index + 1 < world->len) 
+			{
+				rnd(world,blocks, index + 1, 0, abs(out_x));
+			}
+		}
 
-		int out_x = (CHUNK_WIDTH - (block_index % CHUNK_WIDTH)) - max_render_block_x;
-		if (out_x < 0) rnd(world, index + 1, 0, abs(out_x));
 		
 		EndMode2D();
 

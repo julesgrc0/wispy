@@ -30,7 +30,10 @@ World* generate_world(int seed)
 }
 
 World* load_world(char* map_name) {
-    char* path = GetApplicationDirectory();
+    char path[MAX_PATH];
+    path[0] = 0;
+
+    strcat(path, GetApplicationDirectory());
     strcat(path, "maps\\");
 
 #ifdef _WIN32
@@ -99,24 +102,13 @@ World* load_world(char* map_name) {
 }
 
 void export_world(char* map_name, World* w) {
-    char* path = GetApplicationDirectory();
-    strcat(path, "maps\\");
-
-#ifdef _WIN32
-    if (!DirectoryExists(path)) CreateDirectoryA(path, NULL);
-#endif // _WIN32
-
-    strcat(path, map_name);
-
     size_t in_size = sizeof(unsigned int) + sizeof(int);
     for (int i = 0; i < w->len; i++) {
-        in_size += sizeof(unsigned int);
-        for (int j = 0; j < w->chunks[i]->len; j++) {
-            in_size += sizeof(Block);
-        }
+        in_size += sizeof(unsigned int) + (w->chunks[i]->len * sizeof(Block));
     }
 
     char* in_data = (char*)malloc(in_size);
+    if (!in_data) return NULL;
 
     size_t offset = 0;
     memcpy(in_data + offset, &w->len, sizeof(unsigned int));
@@ -146,7 +138,18 @@ void export_world(char* map_name, World* w) {
         return NULL;
     }
 
-    out_data = realloc(out_data, out_size);
+
+    char path[MAX_PATH];
+    path[0] = 0;
+
+    strcat(path, GetApplicationDirectory());
+    strcat(path, "maps\\");
+
+#ifdef _WIN32
+    if (!DirectoryExists(path)) CreateDirectoryA(path, NULL);
+#endif // _WIN32
+
+    strcat(path, map_name);
     SaveFileData(path, out_data, out_size);
     
     sfree(in_data);

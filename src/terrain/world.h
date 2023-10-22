@@ -4,7 +4,7 @@
 
 #include "chunk.h"
 
-#define BASE_CHUNK 1000
+#define BASE_CHUNK 100
 
 typedef struct World {
 	int seed;
