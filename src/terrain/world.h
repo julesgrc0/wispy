@@ -1,10 +1,9 @@
 #pragma once
 #include "../stdafx.h"
+
+#include "../entity/player.h"
 #include "../unpack/unpack.h"
-
 #include "chunk.h"
-
-#define BASE_CHUNK 100
 
 typedef union Seed {
     struct {
@@ -20,9 +19,8 @@ typedef struct World {
 	Chunk** chunks;
     unsigned int len;
 
+    Player* player;
 } World;
-
-
 
 World* generate_world(unsigned int len, Seed seed);
 

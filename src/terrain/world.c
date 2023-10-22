@@ -5,6 +5,7 @@ World* generate_world(unsigned int len, Seed seed)
     World* world = malloc(sizeof(World));
     if (!world) return NULL;
 
+    world->player = NULL;
     world->seed = seed;
     world->len = len;
     world->chunks = malloc(sizeof(Chunk*) * world->len);
@@ -21,9 +22,6 @@ World* generate_world(unsigned int len, Seed seed)
     {
         world->chunks[position] = generate_chunk(noise, position);
     }
-
-    // TODO: place the player at the center (BASE_CHUNK/2)
-    // world->player
 
     UnloadImage(noise);
     return world;

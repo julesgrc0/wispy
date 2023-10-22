@@ -25,6 +25,8 @@ typedef struct Config {
 	unsigned int render_size : 12;
 	unsigned int render_distance : 6;
 
+	unsigned int max_render_block : 6;
+	unsigned int block_size : 8;
 } Config;
 #pragma pack(pop)
 
@@ -40,8 +42,6 @@ typedef struct State {
 	RenderTexture render;
 	Rectangle src_rnd;
 	Rectangle dest_rnd;
-
-	Camera2D camera;
 
 	Config* config;
 

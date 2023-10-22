@@ -15,13 +15,6 @@ State* init_mainframe()
 	state->src_rnd = (Rectangle){ 0 };
 	state->dest_rnd = (Rectangle){ 0 };
 	
-	state->camera =  (Camera2D){
-		.offset = {0}, 
-		.target = {0},
-		.zoom = 1.f,
-		.rotation = 0
-	};
-
 	state->config = load_config();
 #ifdef _DEBUG
 	SetTraceLogLevel(LOG_ALL);

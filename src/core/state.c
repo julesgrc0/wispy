@@ -15,6 +15,11 @@ Config* load_config()
 		cfg = (Config*)memmove(cfg, data, sizeof(Config));
 		
 		sfree(data);
+
+		if (cfg->render_distance == 0)
+		{
+			cfg->render_distance = 20;
+		}
 	}
 	else 
 	{
@@ -30,9 +35,7 @@ Config* load_config()
 
 		cfg->render_distance = 20;
 		cfg->render_size = 500;
-
-		//cfg->render_distance = 63; // max (2^6 - 1)
-		//cfg->render_size = 1000; // max (2^12 - 1)
+		
 #ifdef _DEBUG
 		cfg->fullscreen = 0;
 		cfg->height = 500;
@@ -40,6 +43,10 @@ Config* load_config()
 #endif // _DEBUG
 	}
 
+	float fblock = cfg->render_size / (float)cfg->render_distance;
+	cfg->block_size = round(fblock);
+	cfg->max_render_block = round((cfg->render_size + fblock) / fblock);
+	
 	return cfg;
 }
 
