@@ -17,6 +17,7 @@
 
 **🛠 Requirements**
 
+- [upx](https://github.com/upx/upx)
 - [vcpkg](https://github.com/microsoft/vcpkg.git)
 - [python](https://www.python.org/downloads/)
 - [MSBuild](https://visualstudio.microsoft.com/fr/downloads/)
