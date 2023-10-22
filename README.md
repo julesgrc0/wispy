@@ -1,8 +1,17 @@
-# 🎮 Wispy-C
+# 🎮 Wispy-C 
+![C](https://img.shields.io/badge/dev-pure%20c-ccc)
+![Language](https://img.shields.io/badge/lang-french%20🌍-blue)
+<!-- <a href="https://discord.gg/QjWsuaM3aB">
+<img src="https://img.shields.io/discord/1161296442577653802?logo=discord" alt="discord">
+</a> -->
+
+![Build Status](https://img.shields.io/badge/build-%20success%20✅-preview)
+![raylib](https://img.shields.io/badge/lib-raylib%20🎮-purple)
+![zlib](https://img.shields.io/badge/lib-zlib%20📦-fff)
 
 **Concept**: Wispy-C  this is a version of wispy initially developed in java. Wipsy is a kind of 2D Minecraft.
 
-## 🚀 Project Insight
+## 🚀 Project Insight 
 
 ### 📚 Libraries
 
