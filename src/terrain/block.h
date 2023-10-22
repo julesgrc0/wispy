@@ -2,11 +2,8 @@
 
 typedef enum BlockTypes {
 	B_NONE = 0,
-	B_DIRT,
 	B_GRASS,
-	B_LEAVES,
-	B_LOG,
-	B_SAND,
+	B_DIRT,
 	B_STONE
 } BlockTypes;
 

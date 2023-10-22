@@ -1,55 +1,27 @@
 #include "game.h"
 
-static int block_size = 0;
 
-static rnd(Chunk* chunk, Texture* blocks, unsigned int position, BoundingBox box)
-{
-	for (size_t i = 0; i < chunk->len; i++)
-	{
-		if (chunk->blocks[i].x >= box.max.x) break;
-
-		if (chunk->blocks[i].x < box.min.x) continue;
-		if (chunk->blocks[i].y >= box.max.y) continue;
-
-		Texture block = blocks[chunk->blocks[i].type - 1];
-		DrawTexturePro(block,
-			(Rectangle)
-		{
-			0, 0,
-				block.width, block.height
-		},
-
-			(Rectangle)
-		{
-			(chunk->blocks[i].x * block_size) + (position * CHUNK_WIDTH * block_size),
-				(chunk->blocks[i].y * block_size),
-				block_size,
-				block_size
-		},
-			(Vector2) {
-			0
-		},
-			0,
-			WHITE);
-	}
-
-	DrawRectangleLines(
-		position * CHUNK_WIDTH * block_size,
-		0,
-		CHUNK_WIDTH * block_size,
-		CHUNK_HEIGHT * block_size,
-		BLUE
-	);
-}
+#define render_chunk(chunk, position)							\
+	for (size_t i = 0; i < chunk->len; i++)						\
+	{															\
+		if (chunk->blocks[i].x	>=	box.max.x)	break;			\
+		if (chunk->blocks[i].x	<	box.min.x)	continue;		\
+		if (chunk->blocks[i].y	>=	box.max.y)	continue;		\
+																\
+		DrawTexturePro(											\
+		blocks[chunk->blocks[i].type - 1],						\
+		blockRect,												\
+		(Rectangle){											\
+		(chunk->blocks[i].x * block_size) + ((position) * CHUNK_WIDTH * block_size),(chunk->blocks[i].y * block_size), \
+		block_size, block_size	},								\
+		(Vector2){0}, 0,WHITE);									\
+	}															
 
 void game_screen(State* state)
 {
-Texture blocks[6] = {
-		get_texture_by_id(state,"blocks\\dirt.png"),
+	Texture blocks[3] = {
 		get_texture_by_id(state,"blocks\\grass.png"),
-		get_texture_by_id(state,"blocks\\leaves.png"),
-		get_texture_by_id(state,"blocks\\log.png"),
-		get_texture_by_id(state,"blocks\\sand.png"),
+		get_texture_by_id(state,"blocks\\dirt.png"),
 		get_texture_by_id(state,"blocks\\stone.png")
 	};
 
@@ -72,14 +44,15 @@ Texture blocks[6] = {
 	}
 #endif // _DEBUG
 
-	int block_index, index, out_x;
-	BoundingBox box;
 
+	int block_index = 0, index = 0, out_x = 0;
+	BoundingBox box = { 0 };
+	Rectangle blockRect = { 0,0, blocks[0].width, blocks[0].height };
 
 	float render_size = state->config->render_size;
 	float fblock = render_size/(float)state->config->render_distance;
-	block_size = round(fblock);
-
+	
+	int block_size = round(fblock);
 	int max_render_block = round((render_size + fblock)/fblock);
 	
 	while (!WindowShouldClose())
@@ -91,7 +64,7 @@ Texture blocks[6] = {
 
 		
 		
-		block_index = (state->camera.target.x / block_size);
+		block_index = (state->camera.target.x/block_size);
 		index = block_index/CHUNK_WIDTH;
 
 		if (index < world->len)
@@ -107,18 +80,17 @@ Texture blocks[6] = {
 					.y = ((int)(state->camera.target.y / block_size)%CHUNK_HEIGHT) + max_render_block
 				}
 			};
-			rnd(world->chunks[index], blocks, index, box);
+			 render_chunk(world->chunks[index], index)
 			
 			out_x = (CHUNK_WIDTH - (block_index % CHUNK_WIDTH)) - max_render_block;
 			if (out_x < 0 && index + 1 < world->len) 
 			{
 				box.min.x = 0;
 				box.max.x = abs(out_x);
-				rnd(world->chunks[index + 1], blocks, index + 1, box);
+
+				render_chunk(world->chunks[index + 1], index + 1);
 			}
 		}
-
-		
 		EndMode2D();
 
 		float speed = GetFrameTime() * 300.f;

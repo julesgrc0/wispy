@@ -27,15 +27,12 @@ Chunk* generate_chunk(Image noise, unsigned int position)
                 if (level > 0)
                 {
                     unsigned int value = GetImageColor(noise, position * CHUNK_WIDTH + x, y).r;
-                    if (value <= 150 && level < 10)
+                    if (level < 10 || value <= 80)
                     {
                         type = B_DIRT;
-                    }else if(value > 150)
+                    }else
                     {
                         type = B_STONE;
-                    }
-                    else {
-                        type = B_SAND;
                     }
                 }
 
