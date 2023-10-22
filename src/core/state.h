@@ -10,7 +10,7 @@ typedef enum LoadingState {
 	LS_FAILED,
 } LoadingState;
 
-
+#pragma pack(push,1)
 typedef struct Config {
 	unsigned int fullscreen : 1;
 	unsigned int msaa4x : 1;
@@ -22,6 +22,7 @@ typedef struct Config {
 	unsigned int max_fps : 10;
 	unsigned int max_chunks : 10;
 } Config;
+#pragma pack(pop)
 
 typedef struct State {
 	LoadingState loading;

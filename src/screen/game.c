@@ -1,16 +1,14 @@
 #include "game.h"
 
 
-static rnd(World* world, Texture* blocks, unsigned int position, unsigned char min_x, unsigned char max_x)
+static rnd(Chunk* chunk, Texture* blocks, unsigned int position, BoundingBox box)
 {
-	Chunk* chunk = world->chunks[position];
-	
 	for (size_t i = 0; i < chunk->len; i++)
 	{
-		if (chunk->blocks[i].x >= max_x) break;
+		if (chunk->blocks[i].x >= box.max.x) break;
 
-		if (chunk->blocks[i].x < min_x) continue;
-		if (chunk->blocks[i].y >= 50) continue; // TODO: calculate from camera
+		if (chunk->blocks[i].x < box.min.x) continue;
+		if (chunk->blocks[i].y >= box.max.y) continue;
 		
 		Texture block = blocks[chunk->blocks[i].type - 1];
 		DrawTexturePro(block,
@@ -71,8 +69,9 @@ Texture blocks[6] = {
 	}
 #endif // _DEBUG
 
+	int block_index, index, out_x;
+	BoundingBox box;
 
-	int max_render_block_x = ((RENDER_SIZE + BLOCK_SIZE) / BLOCK_SIZE);
 	while (!WindowShouldClose())
 	{
 		BeginTextureMode(state->render);
@@ -82,16 +81,30 @@ Texture blocks[6] = {
 
 		
 		
-		int block_index = (state->camera.target.x / BLOCK_SIZE);
-		int index = block_index / CHUNK_WIDTH;
+		block_index = (state->camera.target.x / BLOCK_SIZE);
+		index = block_index/CHUNK_WIDTH;
+
 		if (index < world->len)
 		{
-			rnd(world,blocks, index, block_index % CHUNK_WIDTH, block_index % CHUNK_WIDTH + max_render_block_x);
+			 box = (BoundingBox)
+			 {
+				.min = (Vector3){
+					.x = block_index % CHUNK_WIDTH,
+					.y = 0
+				},
+				.max = (Vector3){
+					.x = block_index % CHUNK_WIDTH + MAX_RENDER_BLOCK,
+					.y = ((int)(state->camera.target.y / BLOCK_SIZE)%CHUNK_HEIGHT) + MAX_RENDER_BLOCK
+				}
+			};
+			rnd(world->chunks[index], blocks, index, box);
 			
-			int out_x = (CHUNK_WIDTH - (block_index % CHUNK_WIDTH)) - max_render_block_x;
+			out_x = (CHUNK_WIDTH - (block_index % CHUNK_WIDTH)) - MAX_RENDER_BLOCK;
 			if (out_x < 0 && index + 1 < world->len) 
 			{
-				rnd(world,blocks, index + 1, 0, abs(out_x));
+				box.min.x = 0;
+				box.max.x = abs(out_x);
+				rnd(world->chunks[index + 1], blocks, index + 1, box);
 			}
 		}
 

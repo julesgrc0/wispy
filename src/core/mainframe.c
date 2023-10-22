@@ -16,7 +16,7 @@ State* init_mainframe()
 	state->dest_rnd = (Rectangle){ 0 };
 	
 	state->camera =  (Camera2D){
-		.offset = {0}, // RENDER_SIZE / 2,RENDER_SIZE / 2
+		.offset = {0}, 
 		.target = {0},
 		.zoom = 1.f,
 		.rotation = 0

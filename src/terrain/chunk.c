@@ -16,22 +16,29 @@ Chunk* generate_chunk(Image noise, unsigned int position)
 
     for (unsigned int x = 0; x < CHUNK_WIDTH; x++)
     {
-        Color color = GetImageColor(noise, position * CHUNK_WIDTH + x, 0);
-
+        unsigned int lineHeight = GetImageColor(noise, position * CHUNK_WIDTH + x, 0).r/10;
         unsigned int level = 0;
+
         for (unsigned int y = 0; y < CHUNK_HEIGHT; y++)
         {
-            if (y >= (color.r / 10))
+            if (y >= lineHeight)
             {
                 BlockTypes type = B_GRASS;
-                if (level > 0 && level <= 4)
+                if (level > 0)
                 {
-                    type = B_DIRT;
+                    unsigned int value = GetImageColor(noise, position * CHUNK_WIDTH + x, y).r;
+                    if (value <= 150 && level < 10)
+                    {
+                        type = B_DIRT;
+                    }else if(value > 150)
+                    {
+                        type = B_STONE;
+                    }
+                    else {
+                        type = B_SAND;
+                    }
                 }
-                else if (level > 4)
-                {
-                    type = B_STONE;
-                }
+
                 level++;
                 chunk->blocks[chunk->len] = (Block){
                     .x = x,

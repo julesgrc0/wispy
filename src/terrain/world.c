@@ -15,7 +15,7 @@ World* generate_world(unsigned int len, Seed seed)
         return NULL;
     }
     
-    Image noise = GenImagePerlinNoise(CHUNK_WIDTH * world->len, 1, seed.offsetX, seed.offsetY, (32.f * world->len)/10.f);
+    Image noise = GenImagePerlinNoise(CHUNK_WIDTH * world->len, CHUNK_HEIGHT, seed.offsetX, seed.offsetY, (32.f * world->len)/10.f);
 
     for (unsigned int position = 0; position < world->len; position++)
     {

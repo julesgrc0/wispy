@@ -5,6 +5,7 @@
 
 #define RENDER_SIZE 500
 #define BLOCK_SIZE 25 // 500/25 = 20
+#define MAX_RENDER_BLOCK 21 //((RENDER_SIZE + BLOCK_SIZE) / BLOCK_SIZE)
 
 #include <stdio.h>
 #include <stdlib.h>
