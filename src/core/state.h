@@ -21,6 +21,10 @@ typedef struct Config {
 
 	unsigned int max_fps : 10;
 	unsigned int max_chunks : 10;
+
+	unsigned int render_size : 12;
+	unsigned int render_distance : 6;
+
 } Config;
 #pragma pack(pop)
 

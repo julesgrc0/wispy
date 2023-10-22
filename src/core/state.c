@@ -28,6 +28,11 @@ Config* load_config()
 
 		cfg->max_chunks = 100;
 
+		cfg->render_distance = 20;
+		cfg->render_size = 500;
+
+		//cfg->render_distance = 63; // max (2^6 - 1)
+		//cfg->render_size = 1000; // max (2^12 - 1)
 #ifdef _DEBUG
 		cfg->fullscreen = 0;
 		cfg->height = 500;

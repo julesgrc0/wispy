@@ -1,5 +1,6 @@
 #include "game.h"
 
+static int block_size = 0;
 
 static rnd(Chunk* chunk, Texture* blocks, unsigned int position, BoundingBox box)
 {
@@ -9,32 +10,34 @@ static rnd(Chunk* chunk, Texture* blocks, unsigned int position, BoundingBox box
 
 		if (chunk->blocks[i].x < box.min.x) continue;
 		if (chunk->blocks[i].y >= box.max.y) continue;
-		
+
 		Texture block = blocks[chunk->blocks[i].type - 1];
 		DrawTexturePro(block,
-			(Rectangle) 
-			{
-				0, 0,
+			(Rectangle)
+		{
+			0, 0,
 				block.width, block.height
-			},
+		},
 
 			(Rectangle)
-			{
-				(chunk->blocks[i].x * BLOCK_SIZE) + (position * CHUNK_WIDTH * BLOCK_SIZE),
-				(chunk->blocks[i].y * BLOCK_SIZE),
-				BLOCK_SIZE,
-				BLOCK_SIZE 
-			},
-			(Vector2) { 0 },
+		{
+			(chunk->blocks[i].x * block_size) + (position * CHUNK_WIDTH * block_size),
+				(chunk->blocks[i].y * block_size),
+				block_size,
+				block_size
+		},
+			(Vector2) {
+			0
+		},
 			0,
 			WHITE);
 	}
-	
+
 	DrawRectangleLines(
-		position * CHUNK_WIDTH * BLOCK_SIZE,
+		position * CHUNK_WIDTH * block_size,
 		0,
-		CHUNK_WIDTH * BLOCK_SIZE,
-		CHUNK_HEIGHT * BLOCK_SIZE,
+		CHUNK_WIDTH * block_size,
+		CHUNK_HEIGHT * block_size,
 		BLUE
 	);
 }
@@ -72,6 +75,13 @@ Texture blocks[6] = {
 	int block_index, index, out_x;
 	BoundingBox box;
 
+
+	float render_size = state->config->render_size;
+	float fblock = render_size/(float)state->config->render_distance;
+	block_size = round(fblock);
+
+	int max_render_block = round((render_size + fblock)/fblock);
+	
 	while (!WindowShouldClose())
 	{
 		BeginTextureMode(state->render);
@@ -81,7 +91,7 @@ Texture blocks[6] = {
 
 		
 		
-		block_index = (state->camera.target.x / BLOCK_SIZE);
+		block_index = (state->camera.target.x / block_size);
 		index = block_index/CHUNK_WIDTH;
 
 		if (index < world->len)
@@ -93,13 +103,13 @@ Texture blocks[6] = {
 					.y = 0
 				},
 				.max = (Vector3){
-					.x = block_index % CHUNK_WIDTH + MAX_RENDER_BLOCK,
-					.y = ((int)(state->camera.target.y / BLOCK_SIZE)%CHUNK_HEIGHT) + MAX_RENDER_BLOCK
+					.x = block_index % CHUNK_WIDTH + max_render_block,
+					.y = ((int)(state->camera.target.y / block_size)%CHUNK_HEIGHT) + max_render_block
 				}
 			};
 			rnd(world->chunks[index], blocks, index, box);
 			
-			out_x = (CHUNK_WIDTH - (block_index % CHUNK_WIDTH)) - MAX_RENDER_BLOCK;
+			out_x = (CHUNK_WIDTH - (block_index % CHUNK_WIDTH)) - max_render_block;
 			if (out_x < 0 && index + 1 < world->len) 
 			{
 				box.min.x = 0;
