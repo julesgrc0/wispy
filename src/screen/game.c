@@ -43,7 +43,6 @@ static rnd(World* world, Texture* blocks, unsigned int position, unsigned char m
 
 void game_screen(State* state)
 {
-
 Texture blocks[6] = {
 		get_texture_by_id(state,"blocks\\dirt.png"),
 		get_texture_by_id(state,"blocks\\grass.png"),
@@ -53,30 +52,25 @@ Texture blocks[6] = {
 		get_texture_by_id(state,"blocks\\stone.png")
 	};
 
-	World* world = NULL;
-
 #ifdef _DEBUG
-	int seed = 0;
-	char* map_name = "map_dbg.dat";
+	World* world = generate_world(state->config->max_chunks, (Seed){ .seed = 0 });
 #else
-	SetRandomSeed(time());
+	SetRandomSeed(time(NULL));
 	Seed seed = {
 		.seed = GetRandomValue(0, 100) 
 	};
 
 	char map_name[MAX_PATH];
 	sprintf(map_name, "map_%lld.dat", seed.seed);
-#endif // _DEBUG
 
-	
-	world = load_world(map_name); // TODO: load, generate, export in a thread
+	World* world = load_world(map_name); // TODO: load, generate, export in a thread
 	if (!world)
 	{
-		world = generate_world(state->config->max_chunk, seed);
+		world = generate_world(state->config->max_chunks, seed);
 		export_world(map_name, world);
 	}
+#endif // _DEBUG
 
-	
 
 	int max_render_block_x = ((RENDER_SIZE + BLOCK_SIZE) / BLOCK_SIZE);
 	while (!WindowShouldClose())
@@ -130,9 +124,9 @@ Texture blocks[6] = {
 
 
 		DrawTexturePro(state->render.texture, state->src_rnd, state->dest_rnd, (Vector2) { 0.0f, 0.0f }, 0.0f, WHITE);
-#ifdef _DEBUG
+//#ifdef _DEBUG
 		DrawFPS(0, 0);
-#endif // _DEBUG
+//#endif // _DEBUG
 
 		EndDrawing();
 	}

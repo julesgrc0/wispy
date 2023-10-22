@@ -26,7 +26,7 @@ Config* load_config()
 		cfg->height = 0;
 		cfg->width = 0;
 
-		cfg->max_chunk = 100;
+		cfg->max_chunks = 100;
 #ifdef _DEBUG
 		cfg->fullscreen = 0;
 		cfg->height = 500;

@@ -11,6 +11,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <memory.h>
+#include <time.h>
 
 #include <crtdbg.h>
 #include <crtdefs.h>
