@@ -45,38 +45,40 @@ DWORD WINAPI player_thread(LPVOID arg)
 
 	Rectangle block = { 0,0, cfg->block_size, cfg->block_size };
 	Rectangle player = { 0,0, cfg->block_size, cfg->block_size * 2 };
-	Vector2 next_position = { 0 };
 
 	float dt = 0.f, next_dt;
+	float jump = 0.f;
+	float velocity = 0.f;
+
+	short stop_block_x = 0;
 	while (data->active)
 	{
 		next_dt = GetFrameTime();
 		if (data->chunk == NULL || next_dt == dt) continue;
 		dt = next_dt;
 
-		float speed = GetFrameTime() * 300.f;
-		next_position = data->player->position;
+		float speed = dt * 300.f;
 
-		if (IsKeyDown(KEY_SPACE))
+		
+		if (IsKeyPressed(KEY_SPACE) && jump != 0)
 		{
-			next_position.y -= speed;
+			jump += speed * 2;
 		}
 
 		if (IsKeyDown(KEY_LEFT))
 		{
-			next_position.x -= speed;
+			velocity = -speed;
 		}
 		else if (IsKeyDown(KEY_RIGHT))
 		{
-			next_position.x += speed;
+			velocity = speed;
 		}
 
 
-		// TODO: fix collision
-		if (next_position.x != data->player->position.x || next_position.y != data->player->position.y)
+		if (velocity != 0 && !(velocity < 0 && stop_block_x < 0) && !(velocity > 0 && stop_block_x > 0))
 		{
-			player.x = next_position.y;
-			player.y = next_position.x;
+			player.x = data->player->position.x + velocity;
+			player.y = (int)(data->player->position.y);
 
 			size_t i = 0;
 			for (; i < data->chunk->len; i++)
@@ -87,51 +89,43 @@ DWORD WINAPI player_thread(LPVOID arg)
 				if (CheckCollisionRecs(block, player)) break;
 			}
 
+			
 			if (i == data->chunk->len)
 			{
-				data->player->position = next_position;
-			}
-			else {
-				printf("collision");
-			}
-			/*else
-			{
-				if (data->player->position.x != next_position.x)
+				data->player->position.x += velocity;
+				stop_block_x = 0;
+			}else {
+				if (velocity > 0)
 				{
-					data->player->position.x += next_position.x - block.x;
+					data->player->position.x = block.x - cfg->block_size;
+					stop_block_x = 1;
 				}
+				else if(velocity < 0)
+				{
+					data->player->position.x = block.x + cfg->block_size;
+					stop_block_x = -1;
+				}
+			}
 
-				if (data->player->position.y != next_position.y)
-				{
-					data->player->position.y += next_position.y - block.x;
-				}
-			}*/
+			velocity = 0.f;
 		}
 
 		/*
-		TODO: add gravity
-
-
-		for (size_t i = 0; i < data->chunk->len; i++)
+		if (jump > 0 || next_position != data->player->position.x)
 		{
-			bx = data->chunk->blocks[i].x * cfg->block_size + data->position * CHUNK_WIDTH * cfg->block_size;
-			px = data->player->position.x;
-			if (bx != px) continue;
-
-			by = data->chunk->blocks[i].y * cfg->block_size;
-			if (by == py) break;
-
-			if (py > by)
+			int px = data->player->position.x;
+			int bx = 0;
+			for (size_t i = 0; i < data->chunk->len; i++)
 			{
-				int diff = py - by;
-				if (diff > speed)
+				bx = data->chunk->blocks[i].x * cfg->block_size + data->position * CHUNK_WIDTH * cfg->block_size;
+				if (bx != px) continue;
+
+				if (data->player->position.y > data->chunk->blocks[i].y)
 				{
-					data->player->position.y += diff;
-				}else
-				{
-					data->player->position.y += speed;
+					float diff = data->player->position.y - data->chunk->blocks[i].y; // floor ?
+					data->player->position.y += (diff > speed) ? diff : speed;
+					break;
 				}
-				break;
 			}
 		}
 		*/
@@ -142,8 +136,3 @@ DWORD WINAPI player_thread(LPVOID arg)
 
 	return 0;
 }
-
-/*
-		
-
-*/

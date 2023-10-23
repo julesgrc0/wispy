@@ -1,4 +1,5 @@
 /.vs
+/.nsight
 /x64
 /Release
 /Debug
