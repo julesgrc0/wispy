@@ -4,22 +4,25 @@
 #include "../terrain/chunk.h"
 
 typedef enum PlayerState {
-	NONE = 0,
-	IDLE_1,
-	IDLE_2,
-	WALK_1,
-	WALK_2
+	P_IDLE_1,
+	P_IDLE_2,
+	P_WALK_1,
+	P_WALK_2
 } PlayerState;
 
 #pragma pack(push,1)
 typedef struct Player {
 	Vector2 position;
+	unsigned int direction : 1;
 	PlayerState state;
 } Player;
 
 typedef struct PlayerThreadData {
-	Chunk* chunk;
-	unsigned int position;
+	Chunk* chunk_current;
+	unsigned int position_current;
+
+	Chunk* chunk_next;
+	unsigned int position_next;
 
 	Player* player;
 	Camera2D* camera;

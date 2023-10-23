@@ -61,7 +61,8 @@ void game_screen(State* state)
 
 	BoundingBox box = { 0 };
 	Rectangle blockRect = { 0,0, blocks[0].width, blocks[0].height };
-	Rectangle playerRect = { 0,0, players[0].width, players[0].height };
+	short player_h = players[0].height;
+	short player_w = players[0].width;
 
 
 
@@ -99,8 +100,8 @@ void game_screen(State* state)
 
 		if (index < world->len)
 		{
-			pl_thread->chunk = world->chunks[index];
-			pl_thread->position = index;
+			pl_thread->chunk_current = world->chunks[index];
+			pl_thread->position_current = index;
 
 			box = (BoundingBox)
 			{
@@ -122,12 +123,21 @@ void game_screen(State* state)
 				box.max.x = abs(out_x);
 
 				render_chunk(world->chunks[index + 1], index + 1);
+				
+				pl_thread->chunk_next = world->chunks[index + 1];
+				pl_thread->position_next = index + 1;
+			}
+			else 
+			{
+				pl_thread->chunk_next = NULL;
+				pl_thread->position_next = 0;
 			}
 
 			DrawTexturePro(players[world->player->state],
-				playerRect,
-				(Rectangle) { world->player->position.x, world->player->position.y, cfg->block_size, cfg->block_size*2 },
+				(Rectangle) { 0,0, player_w * (world->player->direction ? -1 : 1), player_h },
+				(Rectangle) { world->player->position.x, world->player->position.y, cfg->block_size, cfg->block_size * 2  },
 				(Vector2){ 0 }, 0, WHITE);
+			
 		}
 		EndMode2D();
 		EndTextureMode();
