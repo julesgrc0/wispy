@@ -53,6 +53,12 @@ DWORD WINAPI player_thread(LPVOID arg)
 	float dt = 0.f, next_dt;
 	float velocity = 0.f;
 	float animation = 0.f;
+	
+	float target_y = 0.f;
+	bool jump = false;
+	bool is_grounded = false;
+
+	float jump_delay = 0.f;
 
 	while (data->active)
 	{
@@ -61,107 +67,29 @@ DWORD WINAPI player_thread(LPVOID arg)
 		dt = next_dt;
 
 		animation += dt * 5.f;
-		/*
-		
-
-		if (IsKeyPressed(KEY_SPACE) && target_y == 0)
-		{
-			target_y = data->player->position.y - player.height;
-		}
-
-		if (IsKeyDown(KEY_LEFT) && stop_block_x >= 0)
-		{
-			vel_x = -dt * 300.f;
-			data->player->direction = 1;
-		}
-		else if (IsKeyDown(KEY_RIGHT) && stop_block_x <= 0)
-		{
-			vel_x = dt * 300.f;
-			data->player->direction = 0;
-		}
-
-
-
-		if (target_y != 0)
-		{
-			if (target_y > data->player->position.y)
-			{
-				data->player->position.y += dt * 200.f;
-
-				if (data->player->position.y > target_y)
-				{
-					data->player->position.y = target_y;
-					target_y = 0;
-
-				}
-			}
-			else if (target_y < data->player->position.y)
-			{
-				data->player->position.y -= dt * 150.f;
-
-				if (data->player->position.y < target_y)
-				{
-					data->player->position.y = target_y;
-					target_y = 0;
-
-				}
-			}
-
-		}
-		else if (data->player->position.y + player.height != target_block_y && target_block_y != 0)
-		{
-			target_y = target_block_y - player.height;
-		}
-
-		if (vel_x != 0 || target_y != 0)
-		{
-			
-
-
-			player.x = data->player->position.x + vel_x;
-			player.y = (int)(data->player->position.y);
-
-			unsigned int index = round((player.x - data->position * CHUNK_WIDTH * cfg->block_size) / cfg->block_size);
-			size_t i = 0;
-			for (; i < data->chunk->len; i++)
-			{
-				if (index == data->chunk->blocks[i].x) break;
-			}
-
-
-			block.x = data->chunk->blocks[i].x * cfg->block_size + data->position * CHUNK_WIDTH * cfg->block_size;
-			block.y = data->chunk->blocks[i].y * cfg->block_size;
-
-
-			if (!CheckCollisionRecs(block, player))
-			{
-				data->player->position.x += vel_x;
-				stop_block_x = 0;
-				target_block_y = block.y;
-			}
-			else {
-				target_block_y = block.y - cfg->block_size;
-				stop_block_x = vel_x > 0 ? 1 : -1;
-				data->player->position.x = vel_x > 0 ? block.x - cfg->block_size : block.x + cfg->block_size;
-			}
-
-			vel_x = 0.f;
-		}
-		
-		*/
 
 		if (IsKeyDown(KEY_RIGHT))
 		{
-			velocity = 300.f;
+			velocity = 200.f;
 			data->player->direction = 0;
 		}
 		else if (IsKeyDown(KEY_LEFT))
 		{
-			velocity = -300.f;
+			velocity = -200.f;
 			data->player->direction = 1;
 		}
 
-		if (velocity != 0)
+		if (IsKeyDown(KEY_SPACE) && target_y == 0 && !jump && is_grounded && jump_delay <= 0)
+		{
+			jump = true;
+			target_y = data->player->position.y - player.height*1.5;
+		}
+		else if(jump_delay > 0)
+		{
+			jump_delay -= dt;
+		}
+
+		if (velocity != 0 || jump || !is_grounded)
 		{
 			data->player->state = ((int)animation % 2 == 0) ? P_WALK_1 : P_WALK_2;
 
@@ -174,13 +102,17 @@ DWORD WINAPI player_thread(LPVOID arg)
 				position = data->position_next;
 			}
 
-			
 			player.x = data->player->position.x + velocity * dt;
 			player.y = data->player->position.y;
 
-			unsigned int px = (player.x - position * CHUNK_WIDTH * cfg->block_size) / cfg->block_size;
-			float target_y = 0.f;
+
+			unsigned int px = round((player.x - position * CHUNK_WIDTH * cfg->block_size) / cfg->block_size);
 			size_t i = 0;
+			
+			if (!jump)
+			{
+				target_y = 0;
+			}
 
 			for (; i < chunk->len; i++)
 			{
@@ -191,19 +123,42 @@ DWORD WINAPI player_thread(LPVOID arg)
 
 				if (CheckCollisionRecs(player, block))
 				{
-					player.x = player.x > block.x ? block.x - cfg->block_size : block.x;
-					if (target_y >= player.y - cfg->block_size) target_y = block.y;
-
-					break;
+					player.x = (player.x > block.x) ? block.x + cfg->block_size : block.x - cfg->block_size;
 				}
 			}
-
 			if (i == chunk->len) data->player->position.x = player.x;
-			if (target_y != 0) data->player->position.y = target_y - player.height;
-			
+
 			velocity = 0;
 		}
 		else data->player->state = ((int)animation % 2 == 0) ? P_IDLE_1 : P_IDLE_2;
+
+
+		if (target_y > 0)
+		{
+			if (!jump)
+			{
+				data->player->position.y += dt * 200.f;
+				if (target_y <= data->player->position.y + player.height)
+				{
+					data->player->position.y = target_y - player.height;
+					target_y = 0;
+					is_grounded = true;
+				}
+			}
+			else {
+				data->player->position.y -= dt * 200.f;
+				if (target_y >= data->player->position.y)
+				{
+					data->player->position.y = target_y + player.height;
+					target_y = 0;
+					jump = false;
+					is_grounded = false;
+					jump_delay = 0.2f;
+				}
+			}
+			
+		}
+
 
 		data->camera->target.x = data->player->position.x - cfg->render_size / 2;
 		data->camera->target.y = data->player->position.y - cfg->render_size / 2;
