@@ -1,20 +1,21 @@
 #include "mainframe.h"
 
-State* init_mainframe()
+State *init_mainframe()
 {
-	State* state = malloc(sizeof(State));
-	if (state == NULL) return NULL;
+	State *state = malloc(sizeof(State));
+	if (state == NULL)
+		return NULL;
 
 	state->loading = LS_DISPLAY;
 
 	state->len = 0;
 	state->textures = NULL;
 	state->textures_id = NULL;
-	state->font = (Font){ 0 };
-	state->render = (RenderTexture){ 0 };
-	state->src_rnd = (Rectangle){ 0 };
-	state->dest_rnd = (Rectangle){ 0 };
-	
+	state->font = (Font){0};
+	state->render = (RenderTexture){0};
+	state->src_rnd = (Rectangle){0};
+	state->dest_rnd = (Rectangle){0};
+
 	state->config = load_config();
 #ifdef _DEBUG
 	SetTraceLogLevel(LOG_ALL);
@@ -23,7 +24,6 @@ State* init_mainframe()
 	SetExitKey(0);
 	SetTraceLogLevel(LOG_NONE);
 #endif // _DEBUG
-
 
 	int flags = 0;
 	if (state->config->vsync)
@@ -54,10 +54,10 @@ State* init_mainframe()
 	return state;
 }
 
-void destroy_mainframe(State* state)
+void destroy_mainframe(State *state)
 {
-	if (state == NULL) return;
-	
+	if (state == NULL)
+		return;
 
 	for (size_t i = 0; i < state->len; i++)
 	{
@@ -78,10 +78,11 @@ void destroy_mainframe(State* state)
 	sfree(state);
 }
 
-void loop_mainframe(State* state)
+void loop_mainframe(State *state)
 {
 	loading_screen(state);
-	if (state->loading != LS_OK) return;
+	if (state->loading != LS_OK)
+		return;
 
 	menu_screen(state);
 	game_screen(state);

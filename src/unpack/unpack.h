@@ -2,12 +2,13 @@
 #include "../stdafx.h"
 #include "../resource.h"
 
-typedef struct AssetItem {
-	char* name;
+typedef struct AssetItem
+{
+	char *name;
 
-	char* buffer;
+	char *buffer;
 	unsigned int size;
-}AssetItem;
+} AssetItem;
 
-char* load_resource(HINSTANCE hInstance, size_t* size);
-AssetItem* unpack_assets(HINSTANCE hInstance, size_t* size);
+char *load_resource(HINSTANCE hInstance, size_t *size);
+AssetItem *unpack_assets(HINSTANCE hInstance, size_t *size);

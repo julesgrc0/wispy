@@ -1,9 +1,10 @@
 #include "player.h"
 
-PlayerThreadData* start_player_thread(Player* player, Camera2D* camera, State* state)
+PlayerThreadData *start_player_thread(Player *player, Camera2D *camera, State *state)
 {
-	PlayerThreadData* data = malloc(sizeof(PlayerThreadData));
-	if (!data) return NULL;
+	PlayerThreadData *data = malloc(sizeof(PlayerThreadData));
+	if (!data)
+		return NULL;
 
 	data->player = player;
 	data->camera = camera;
@@ -14,7 +15,6 @@ PlayerThreadData* start_player_thread(Player* player, Camera2D* camera, State* s
 
 	data->chunk_next = NULL;
 	data->position_next = 0;
-
 
 	data->active = 1;
 
@@ -29,7 +29,7 @@ PlayerThreadData* start_player_thread(Player* player, Camera2D* camera, State* s
 	return data;
 }
 
-void stop_player_thread(PlayerThreadData* data)
+void stop_player_thread(PlayerThreadData *data)
 {
 	data->active = 0;
 
@@ -42,18 +42,16 @@ void stop_player_thread(PlayerThreadData* data)
 
 DWORD WINAPI player_thread(LPVOID arg)
 {
-	PlayerThreadData* data = (PlayerThreadData*)arg;
-	Config* cfg = data->state->config;
+	PlayerThreadData *data = (PlayerThreadData *)arg;
+	Config *cfg = data->state->config;
 
-
-
-	Rectangle block = { 0,0, cfg->block_size, cfg->block_size };
-	Rectangle player = { 0,0, cfg->block_size, cfg->block_size * 2 };
+	Rectangle block = {0, 0, cfg->block_size, cfg->block_size};
+	Rectangle player = {0, 0, cfg->block_size, cfg->block_size * 2};
 
 	float dt = 0.f, next_dt;
 	float velocity = 0.f;
 	float animation = 0.f;
-	
+
 	float target_y = 0.f;
 	bool jump = false;
 	bool is_grounded = false;
@@ -63,7 +61,8 @@ DWORD WINAPI player_thread(LPVOID arg)
 	while (data->active)
 	{
 		next_dt = GetFrameTime();
-		if (next_dt == dt) continue;
+		if (next_dt == dt)
+			continue;
 		dt = next_dt;
 
 		animation += dt * 5.f;
@@ -82,9 +81,9 @@ DWORD WINAPI player_thread(LPVOID arg)
 		if (IsKeyDown(KEY_SPACE) && target_y == 0 && !jump && is_grounded && jump_delay <= 0)
 		{
 			jump = true;
-			target_y = data->player->position.y - player.height*1.5;
+			target_y = data->player->position.y - player.height * 1.5;
 		}
-		else if(jump_delay > 0)
+		else if (jump_delay > 0)
 		{
 			jump_delay -= dt;
 		}
@@ -93,7 +92,7 @@ DWORD WINAPI player_thread(LPVOID arg)
 		{
 			data->player->state = ((int)animation % 2 == 0) ? P_WALK_1 : P_WALK_2;
 
-			Chunk* chunk = data->chunk_current;
+			Chunk *chunk = data->chunk_current;
 			unsigned int position = data->position_current;
 
 			if (data->player->position.x > ((data->position_current + 1) * CHUNK_WIDTH * cfg->block_size))
@@ -105,10 +104,9 @@ DWORD WINAPI player_thread(LPVOID arg)
 			player.x = data->player->position.x + velocity * dt;
 			player.y = data->player->position.y;
 
-
 			unsigned int px = round((player.x - position * CHUNK_WIDTH * cfg->block_size) / cfg->block_size);
 			size_t i = 0;
-			
+
 			if (!jump)
 			{
 				target_y = 0;
@@ -119,19 +117,21 @@ DWORD WINAPI player_thread(LPVOID arg)
 				block.x = chunk->blocks[i].x * cfg->block_size + position * CHUNK_WIDTH * cfg->block_size;
 				block.y = chunk->blocks[i].y * cfg->block_size;
 
-				if (px == chunk->blocks[i].x && target_y == 0) target_y = block.y;
+				if (px == chunk->blocks[i].x && target_y == 0)
+					target_y = block.y;
 
 				if (CheckCollisionRecs(player, block))
 				{
 					player.x = (player.x > block.x) ? block.x + cfg->block_size : block.x - cfg->block_size;
 				}
 			}
-			if (i == chunk->len) data->player->position.x = player.x;
+			if (i == chunk->len)
+				data->player->position.x = player.x;
 
 			velocity = 0;
 		}
-		else data->player->state = ((int)animation % 2 == 0) ? P_IDLE_1 : P_IDLE_2;
-
+		else
+			data->player->state = ((int)animation % 2 == 0) ? P_IDLE_1 : P_IDLE_2;
 
 		if (target_y > 0)
 		{
@@ -145,8 +145,9 @@ DWORD WINAPI player_thread(LPVOID arg)
 					is_grounded = true;
 				}
 			}
-			else {
-				data->player->position.y -= dt * 200.f;
+			else
+			{
+				data->player->position.y -= dt * 400.f;
 				if (target_y >= data->player->position.y)
 				{
 					data->player->position.y = target_y + player.height;
@@ -156,14 +157,10 @@ DWORD WINAPI player_thread(LPVOID arg)
 					jump_delay = 0.2f;
 				}
 			}
-			
 		}
-
 
 		data->camera->target.x = data->player->position.x - cfg->render_size / 2;
 		data->camera->target.y = data->player->position.y - cfg->render_size / 2;
-
 	}
-
 	return 0;
 }

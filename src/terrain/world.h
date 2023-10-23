@@ -5,24 +5,27 @@
 #include "../unpack/unpack.h"
 #include "chunk.h"
 
-typedef union Seed {
-    struct {
+typedef union Seed
+{
+    struct
+    {
         int offsetX;
         int offsetY;
     };
     unsigned long long seed;
-}Seed;
+} Seed;
 
-typedef struct World {
+typedef struct World
+{
     Seed seed;
 
-	Chunk** chunks;
+    Chunk **chunks;
     unsigned int len;
 
-    Player* player;
+    Player *player;
 } World;
 
-World* generate_world(unsigned int len, Seed seed);
+World *generate_world(unsigned int len, Seed seed);
 
-World* load_world(char* map_name);
-void export_world(char* map_name, World* w);
+World *load_world(char *map_name);
+void export_world(char *map_name, World *w);

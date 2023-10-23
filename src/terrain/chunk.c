@@ -1,12 +1,13 @@
 #include "chunk.h"
 
-Chunk* generate_chunk(Image noise, unsigned int position)
+Chunk *generate_chunk(Image noise, unsigned int position)
 {
-    Chunk* chunk = malloc(sizeof(Chunk));
-    if (!chunk) return NULL;
+    Chunk *chunk = malloc(sizeof(Chunk));
+    if (!chunk)
+        return NULL;
 
     chunk->blocks = malloc(sizeof(Block) * (CHUNK_WIDTH * CHUNK_HEIGHT));
-    if (!chunk->blocks) 
+    if (!chunk->blocks)
     {
         sfree(chunk);
         return NULL;
@@ -16,7 +17,7 @@ Chunk* generate_chunk(Image noise, unsigned int position)
 
     for (unsigned int x = 0; x < CHUNK_WIDTH; x++)
     {
-        unsigned int lineHeight = GetImageColor(noise, position * CHUNK_WIDTH + x, 0).r/10; // 5
+        unsigned int lineHeight = GetImageColor(noise, position * CHUNK_WIDTH + x, 0).r / 10; // 5
         unsigned int level = 0;
 
         for (unsigned int y = 0; y < CHUNK_HEIGHT; y++)
@@ -30,7 +31,8 @@ Chunk* generate_chunk(Image noise, unsigned int position)
                     if (level < 10 || value <= 80)
                     {
                         type = B_DIRT;
-                    }else
+                    }
+                    else
                     {
                         type = B_STONE;
                     }
@@ -41,14 +43,13 @@ Chunk* generate_chunk(Image noise, unsigned int position)
                     .x = x,
                     .y = y,
                     .type = type,
-                    .active = 0
-                };
+                    .active = 0};
                 chunk->len++;
             }
         }
     }
 
-    void* tmp = realloc(chunk->blocks, sizeof(Block) * chunk->len);
+    void *tmp = realloc(chunk->blocks, sizeof(Block) * chunk->len);
     if (!tmp)
     {
         sfree(chunk->blocks);

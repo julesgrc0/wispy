@@ -1,14 +1,13 @@
 #include "loading.h"
 
-
-void load_assets(State* state)
+void load_assets(State *state)
 {
 	state->render = LoadRenderTexture(state->config->render_size, state->config->render_size);
-	state->src_rnd = (Rectangle){ 0.0f, 0.0f, (float)state->render.texture.width, -(float)state->render.texture.height };
-	state->dest_rnd = (Rectangle){ 0.0f, 0.0f, (float)GetScreenWidth(), (float)GetScreenHeight() };
+	state->src_rnd = (Rectangle){0.0f, 0.0f, (float)state->render.texture.width, -(float)state->render.texture.height};
+	state->dest_rnd = (Rectangle){0.0f, 0.0f, (float)GetScreenWidth(), (float)GetScreenHeight()};
 
 	size_t len;
-	AssetItem* items = unpack_assets(state->hInstance, &len);
+	AssetItem *items = unpack_assets(state->hInstance, &len);
 	if (!items)
 	{
 		state->loading = LS_FAILED;
@@ -16,12 +15,12 @@ void load_assets(State* state)
 	}
 
 	state->textures = malloc(sizeof(Texture) * len);
-	state->textures_id = malloc(sizeof(char*) * len);
+	state->textures_id = malloc(sizeof(char *) * len);
 
 	size_t textures_index = 0;
 	for (size_t i = 0; i < len; i++)
 	{
-		const char* ext = strrchr(items[i].name, '.');
+		const char *ext = strrchr(items[i].name, '.');
 
 		if (strcmp(ext, ".png") == 0)
 		{
@@ -52,32 +51,29 @@ void load_assets(State* state)
 
 	state->len = textures_index;
 	state->textures = realloc(state->textures, sizeof(Texture) * state->len);
-	state->textures_id = realloc(state->textures_id, sizeof(char*) * state->len);
+	state->textures_id = realloc(state->textures_id, sizeof(char *) * state->len);
 
 	sfree(items);
 
 	state->loading = LS_OK;
 }
 
-
-void loading_screen(State* state)
+void loading_screen(State *state)
 {
 	bool loaded = false;
 
 	int text_size = 50;
 
-	const char* loading_text = "Loading...";
-	const char* error_text = "Failed to load resources !";
+	const char *loading_text = "Loading...";
+	const char *error_text = "Failed to load resources !";
 
 	Vector2 loading_pos = {
 		.x = (GetScreenWidth() - MeasureText(loading_text, text_size)) / 2.f,
-		.y = (GetScreenHeight() - text_size) / 2.f
-	};
+		.y = (GetScreenHeight() - text_size) / 2.f};
 
 	Vector2 error_pos = {
 		.x = (GetScreenWidth() - MeasureText(error_text, text_size)) / 2.f,
-		.y = (GetScreenHeight() - text_size) / 2.f
-	};
+		.y = (GetScreenHeight() - text_size) / 2.f};
 
 	while (!loaded && !WindowShouldClose())
 	{

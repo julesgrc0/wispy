@@ -1,6 +1,6 @@
 #include "unpack.h"
 
-char* load_resource(HINSTANCE hInstance, size_t* size)
+char *load_resource(HINSTANCE hInstance, size_t *size)
 {
 #ifdef _WIN32
 
@@ -17,8 +17,8 @@ char* load_resource(HINSTANCE hInstance, size_t* size)
     }
 
     *size = SizeofResource(hInstance, hResInfo);
-    const char* data = (const char*)LockResource(hResData);
-    
+    const char *data = (const char *)LockResource(hResData);
+
     FreeResource(hResData);
 
     return data;
@@ -27,17 +27,19 @@ char* load_resource(HINSTANCE hInstance, size_t* size)
 #endif
 }
 
-AssetItem* unpack_assets(HINSTANCE hInstance, size_t* size)
+AssetItem *unpack_assets(HINSTANCE hInstance, size_t *size)
 {
     *size = 0;
     size_t in_size = 0;
-    char* in_buffer = load_resource(hInstance, &in_size);
+    char *in_buffer = load_resource(hInstance, &in_size);
 
-    if (in_buffer == NULL) return NULL;
+    if (in_buffer == NULL)
+        return NULL;
 
     size_t out_size = in_size * 2;
-    char* out_buffer = malloc(out_size);
-    if (!out_buffer) return NULL;
+    char *out_buffer = malloc(out_size);
+    if (!out_buffer)
+        return NULL;
 
     if (uncompress(out_buffer, &out_size, in_buffer, in_size) != Z_OK)
     {
@@ -46,8 +48,7 @@ AssetItem* unpack_assets(HINSTANCE hInstance, size_t* size)
     }
     out_buffer = realloc(out_buffer, out_size);
 
-
-    AssetItem* items = malloc(sizeof(AssetItem));
+    AssetItem *items = malloc(sizeof(AssetItem));
     size_t len = 0;
     if (items == NULL)
     {
@@ -58,7 +59,7 @@ AssetItem* unpack_assets(HINSTANCE hInstance, size_t* size)
     size_t index = 0;
     while (index < out_size)
     {
-        AssetItem item = { 0 };
+        AssetItem item = {0};
         size_t current_size = 0;
 
         item.name = malloc(0);
@@ -66,11 +67,12 @@ AssetItem* unpack_assets(HINSTANCE hInstance, size_t* size)
         {
             item.name = realloc(item.name, current_size + 1);
             item.name[current_size] = out_buffer[index];
-        
+
             current_size++;
             index++;
 
-            if (out_buffer[index - 1] == 0) break;
+            if (out_buffer[index - 1] == 0)
+                break;
         } while (index < out_size);
         current_size = 0;
 
@@ -78,7 +80,7 @@ AssetItem* unpack_assets(HINSTANCE hInstance, size_t* size)
         memcpy(file_size_bytes, out_buffer + index, sizeof(unsigned int));
         index += sizeof(unsigned int);
 
-        item.size = *(unsigned int*)file_size_bytes;
+        item.size = *(unsigned int *)file_size_bytes;
 
         item.buffer = malloc(item.size);
         memcpy(item.buffer, out_buffer + index, item.size);
@@ -94,4 +96,3 @@ AssetItem* unpack_assets(HINSTANCE hInstance, size_t* size)
 
     return items;
 }
-

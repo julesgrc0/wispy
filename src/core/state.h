@@ -1,17 +1,19 @@
 #pragma once
 #include "../stdafx.h"
 
-#define CONFIG_NAME  "config.dat"
+#define CONFIG_NAME "config.dat"
 
-typedef enum LoadingState {
+typedef enum LoadingState
+{
 	LS_DISPLAY,
 	LS_LOAD,
 	LS_OK,
 	LS_FAILED,
 } LoadingState;
 
-#pragma pack(push,1)
-typedef struct Config {
+#pragma pack(push, 1)
+typedef struct Config
+{
 	unsigned int fullscreen : 1;
 	unsigned int msaa4x : 1;
 	unsigned int vsync : 1;
@@ -30,11 +32,12 @@ typedef struct Config {
 } Config;
 #pragma pack(pop)
 
-typedef struct State {
+typedef struct State
+{
 	LoadingState loading;
 
-	char** textures_id;
-	Texture* textures;
+	char **textures_id;
+	Texture *textures;
 	size_t len;
 
 	Font font;
@@ -43,7 +46,7 @@ typedef struct State {
 	Rectangle src_rnd;
 	Rectangle dest_rnd;
 
-	Config* config;
+	Config *config;
 
 #ifdef _WIN32
 	HINSTANCE hInstance;
@@ -51,9 +54,7 @@ typedef struct State {
 
 } State;
 
+Config *load_config();
+void save_config(Config *config);
 
-
-Config* load_config();
-void save_config(Config* config);
-
-Texture get_texture_by_id(State* state, char* id);
+Texture get_texture_by_id(State *state, char *id);
