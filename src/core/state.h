@@ -27,7 +27,7 @@ typedef struct Config
 	unsigned int render_size : 12;
 	unsigned int render_distance : 6;
 
-	unsigned int max_render_block : 6;
+	unsigned int max_render_block : 8;
 	unsigned int block_size : 8;
 } Config;
 #pragma pack(pop)

@@ -17,11 +17,12 @@
 				(chunk->blocks[i].x * cfg->block_size) + ((position)*CHUNK_WIDTH * cfg->block_size), (chunk->blocks[i].y * cfg->block_size), \
 				cfg->block_size, cfg->block_size},                                                                                           \
 			(Vector2){0}, 0, WHITE);                                                                                                         \
-	}                                                                                                                                        \
-	DrawRectangleLines(position *CHUNK_WIDTH * cfg->block_size, 0, CHUNK_WIDTH * cfg->block_size, CHUNK_HEIGHT * cfg->block_size, RED);
+	}                                                                                                                                        
 
 void game_screen(State *state)
 {
+	HideCursor();
+
 	Config *cfg = state->config;
 
 	Texture blocks[3] = {
@@ -148,4 +149,6 @@ void game_screen(State *state)
 	sfree(world);
 
 	sfree(camera);
+
+	ShowCursor();
 }

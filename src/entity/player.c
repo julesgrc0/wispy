@@ -1,5 +1,7 @@
 #include "player.h"
 
+#define smooth_camera(camera, player, speed) camera = (camera < player) ? fmin(camera + dt * speed, player) : fmax(camera - dt * speed, player);
+
 PlayerThreadData *start_player_thread(Player *player, Camera2D *camera, State *state)
 {
 	PlayerThreadData *data = malloc(sizeof(PlayerThreadData));
@@ -58,6 +60,10 @@ DWORD WINAPI player_thread(LPVOID arg)
 
 	float jump_delay = 0.f;
 
+
+	data->camera->target.x = data->player->position.x - cfg->render_size / 2;
+	data->camera->target.y = data->player->position.y - cfg->render_size / 2;
+
 	while (data->active)
 	{
 		next_dt = GetFrameTime();
@@ -92,7 +98,7 @@ DWORD WINAPI player_thread(LPVOID arg)
 		{
 			data->player->state = ((int)animation % 2 == 0) ? P_WALK_1 : P_WALK_2;
 
-			Chunk *chunk = data->chunk_current;
+			Chunk* chunk = data->chunk_current;
 			unsigned int position = data->position_current;
 
 			if (data->player->position.x > ((data->position_current + 1) * CHUNK_WIDTH * cfg->block_size))
@@ -101,34 +107,37 @@ DWORD WINAPI player_thread(LPVOID arg)
 				position = data->position_next;
 			}
 
-			player.x = data->player->position.x + velocity * dt;
-			player.y = data->player->position.y;
-
-			unsigned int px = round((player.x - position * CHUNK_WIDTH * cfg->block_size) / cfg->block_size);
-			size_t i = 0;
-
-			if (!jump)
+			if (chunk != NULL)
 			{
-				target_y = 0;
-			}
+				player.x = data->player->position.x + velocity * dt;
+				player.y = data->player->position.y;
 
-			for (; i < chunk->len; i++)
-			{
-				block.x = chunk->blocks[i].x * cfg->block_size + position * CHUNK_WIDTH * cfg->block_size;
-				block.y = chunk->blocks[i].y * cfg->block_size;
+				unsigned int px = round((player.x - position * CHUNK_WIDTH * cfg->block_size) / cfg->block_size);
+				size_t i = 0;
 
-				if (px == chunk->blocks[i].x && target_y == 0)
-					target_y = block.y;
-
-				if (CheckCollisionRecs(player, block))
+				if (!jump)
 				{
-					player.x = (player.x > block.x) ? block.x + cfg->block_size : block.x - cfg->block_size;
+					target_y = 0;
 				}
-			}
-			if (i == chunk->len)
-				data->player->position.x = player.x;
 
-			velocity = 0;
+				for (; i < chunk->len; i++)
+				{
+					block.x = chunk->blocks[i].x * cfg->block_size + position * CHUNK_WIDTH * cfg->block_size;
+					block.y = chunk->blocks[i].y * cfg->block_size;
+
+					if (px == chunk->blocks[i].x && target_y == 0)
+						target_y = block.y;
+
+					if (CheckCollisionRecs(player, block))
+					{
+						player.x = (player.x > block.x) ? block.x + cfg->block_size : block.x - cfg->block_size;
+					}
+				}
+				if (i == chunk->len)
+					data->player->position.x = player.x;
+
+				velocity = 0;
+			}
 		}
 		else
 			data->player->state = ((int)animation % 2 == 0) ? P_IDLE_1 : P_IDLE_2;
@@ -159,8 +168,8 @@ DWORD WINAPI player_thread(LPVOID arg)
 			}
 		}
 
-		data->camera->target.x = data->player->position.x - cfg->render_size / 2;
-		data->camera->target.y = data->player->position.y - cfg->render_size / 2;
+		smooth_camera(data->camera->target.x, data->player->position.x - (cfg->render_size / 2), 200.f);
+		smooth_camera(data->camera->target.y, data->player->position.y - (cfg->render_size / 2), 200.f);
 	}
 	return 0;
 }
