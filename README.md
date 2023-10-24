@@ -7,7 +7,7 @@
 <img src="https://img.shields.io/discord/1161296442577653802?logo=discord" alt="discord">
 </a> -->
 
-![Build Status](https://img.shields.io/badge/build-%20success%20✅-preview)
+[![Release Build](https://github.com/julesgrc0/wispy-c/actions/workflows/msbuild.yml/badge.svg)](https://github.com/julesgrc0/wispy-c/actions/workflows/msbuild.yml)
 ![raylib](https://img.shields.io/badge/lib-raylib%20🎮-purple)
 ![zlib](https://img.shields.io/badge/lib-zlib%20📦-fff)
 
