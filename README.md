@@ -1,6 +1,8 @@
-# 🎮 Wispy-C 
+# 🎮 Wispy-C
+
 ![C](https://img.shields.io/badge/dev-pure%20c-ccc)
 ![Language](https://img.shields.io/badge/lang-french%20🌍-blue)
+
 <!-- <a href="https://discord.gg/QjWsuaM3aB">
 <img src="https://img.shields.io/discord/1161296442577653802?logo=discord" alt="discord">
 </a> -->
@@ -9,9 +11,9 @@
 ![raylib](https://img.shields.io/badge/lib-raylib%20🎮-purple)
 ![zlib](https://img.shields.io/badge/lib-zlib%20📦-fff)
 
-**Concept**: Wispy-C  this is a version of wispy initially developed in java. Wipsy is a kind of 2D Minecraft.
+**Concept**: Wispy-C this is a version of wispy initially developed in java. Wipsy is a kind of 2D Minecraft.
 
-## 🚀 Project Insight 
+## 🚀 Project Insight
 
 ### 📚 Libraries
 
@@ -41,10 +43,9 @@ python ./tools/pack_assets.py
 
 > I use VSCode
 
-<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd>
-```
->task: Build
-```
+On your keyboard type this shortcut to run the build command:
+
+<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>B</kbd>
 
 Then enter the path to msbuild and select the desired configuration and platform from this one:
 
@@ -53,10 +54,10 @@ Then enter the path to msbuild and select the desired configuration and platform
 - Release x64
 - Release x86
 
-
 > I use Visual Studio (2017/2019/2022)
 
 Open the solution with Visual Studio
+
 ```
 wispy-c.sln
 ```
@@ -66,9 +67,9 @@ wispy-c.sln
 > TODO
 
 ## 🤝 Get Involved
-**Fork First**: 
-Want to be part of this fun journey? Join Aywen's [Discord server](https://discord.gg/QjWsuaM3aB)! Look for the "AYWEN-LOGICIELS" category and the "#vos-projets" and then search for **Wispy-C**
 
+**Fork First**:
+Want to be part of this fun journey? Join Aywen's [Discord server](https://discord.gg/QjWsuaM3aB)! Look for the "AYWEN-LOGICIELS" category and the "#vos-projets" and then search for **Wispy-C**
 
 ## 📃 License
 

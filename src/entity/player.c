@@ -60,7 +60,6 @@ DWORD WINAPI player_thread(LPVOID arg)
 
 	float jump_delay = 0.f;
 
-
 	data->camera->target.x = data->player->position.x - cfg->render_size / 2;
 	data->camera->target.y = data->player->position.y - cfg->render_size / 2;
 
@@ -98,7 +97,7 @@ DWORD WINAPI player_thread(LPVOID arg)
 		{
 			data->player->state = ((int)animation % 2 == 0) ? P_WALK_1 : P_WALK_2;
 
-			Chunk* chunk = data->chunk_current;
+			Chunk *chunk = data->chunk_current;
 			unsigned int position = data->position_current;
 
 			if (data->player->position.x > ((data->position_current + 1) * CHUNK_WIDTH * cfg->block_size))
@@ -146,7 +145,7 @@ DWORD WINAPI player_thread(LPVOID arg)
 		{
 			if (!jump)
 			{
-				data->player->position.y += dt * 200.f;
+				data->player->position.y += dt * 100.f;
 				if (target_y <= data->player->position.y + player.height)
 				{
 					data->player->position.y = target_y - player.height;
@@ -156,7 +155,7 @@ DWORD WINAPI player_thread(LPVOID arg)
 			}
 			else
 			{
-				data->player->position.y -= dt * 400.f;
+				data->player->position.y -= dt * 50.f;
 				if (target_y >= data->player->position.y)
 				{
 					data->player->position.y = target_y + player.height;

@@ -14,7 +14,10 @@
             "problemMatcher": [
                 "$msCompile"
             ],
-            "group": "build"
+            "group": {
+                "isDefault": true,
+                "kind": "build"
+            }
         }
     ],
     "inputs": [
@@ -33,7 +36,8 @@
             "type": "pickString",
             "options": [
                 "Debug",
-                "Release"
+                "Release",
+                "Release Light Size"
             ],
             "default": "Debug",
             "description": "Target configuration"

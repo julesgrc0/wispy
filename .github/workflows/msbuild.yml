@@ -26,9 +26,7 @@ jobs:
         uses: lukka/run-vcpkg@v11.1
         with:
           vcpkgGitCommitId: 3265c187c74914aa5569b75355badebfdbab7987
-          vcpkgJsonGlob: "**/.github/vcpkg.json"
-          runVcpkgInstall: true
-      
+
       - name: Integrate vcpkg
         run: vcpkg integrate install
 

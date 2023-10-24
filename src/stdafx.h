@@ -5,9 +5,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <stdbool.h>
+#include <stdint.h>
+
+#include <string.h>
 #include <memory.h>
+#include <math.h>
 #include <time.h>
 
 #include <crtdbg.h>

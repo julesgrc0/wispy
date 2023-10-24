@@ -1,6 +1,6 @@
 #include "structure.h"
 
-Block *push_structure(Block *blocks, unsigned int count, StructureBlock structure)
+Block *push_structure(Block *blocks, unsigned int *count, StructureBlock structure)
 {
 	Block *new_blocks = malloc(count + structure.len); // max possible size
 	if (!new_blocks)

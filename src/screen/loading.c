@@ -17,6 +17,8 @@ void load_assets(State *state)
 	state->textures = malloc(sizeof(Texture) * len);
 	state->textures_id = malloc(sizeof(char *) * len);
 
+	state->font = GetFontDefault();
+
 	size_t textures_index = 0;
 	for (size_t i = 0; i < len; i++)
 	{
@@ -33,8 +35,8 @@ void load_assets(State *state)
 		}
 		else if (strcmp(ext, ".ttf") == 0)
 		{
-			const int fontSize = 72;
-			const char fontChars[73] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789()?:+-=*\"'";
+			int fontSize = 72;
+			char fontChars[73] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789()?:+-=*\"'";
 			state->font = LoadFontFromMemory(".ttf", items[i].buffer, items[i].size, fontSize, fontChars, 73);
 
 			sfree(items[i].name);

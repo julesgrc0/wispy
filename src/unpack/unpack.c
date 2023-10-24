@@ -17,7 +17,7 @@ char *load_resource(HINSTANCE hInstance, size_t *size)
     }
 
     *size = SizeofResource(hInstance, hResInfo);
-    const char *data = (const char *)LockResource(hResData);
+    char *data = LockResource(hResData);
 
     FreeResource(hResData);
 
@@ -41,7 +41,7 @@ AssetItem *unpack_assets(HINSTANCE hInstance, size_t *size)
     if (!out_buffer)
         return NULL;
 
-    if (uncompress(out_buffer, &out_size, in_buffer, in_size) != Z_OK)
+    if (uncompress(out_buffer, (uLongf*)&out_size, in_buffer, (uLong)in_size) != Z_OK)
     {
         sfree(out_buffer);
         return NULL;

@@ -58,7 +58,7 @@ World *load_world(char *map_name)
         return NULL;
     }
 
-    while (uncompress(out_data, &out_size, in_data, in_size) != Z_OK)
+    while (uncompress(out_data, &out_size, in_data, (uLong)in_size) != Z_OK)
     {
         out_size += in_size;
         void *tmp = realloc(out_data, out_size);
@@ -92,7 +92,7 @@ World *load_world(char *map_name)
         offset += sizeof(unsigned int);
 
         w->chunks[i]->blocks = (Block *)malloc(sizeof(Block) * len);
-        for (int j = 0; j < w->chunks[i]->len; j++)
+        for (unsigned int j = 0; j < w->chunks[i]->len; j++)
         {
             memcpy(&(w->chunks[i]->blocks[j]), out_data + offset, sizeof(Block));
             offset += sizeof(Block);
@@ -115,7 +115,7 @@ void export_world(char *map_name, World *w)
 
     char *in_data = (char *)malloc(in_size);
     if (!in_data)
-        return NULL;
+        return;
 
     size_t offset = 0;
     memcpy(in_data + offset, &w->len, sizeof(unsigned int));
@@ -124,13 +124,13 @@ void export_world(char *map_name, World *w)
     memcpy(in_data + offset, &w->seed, sizeof(int));
     offset += sizeof(int);
 
-    for (int i = 0; i < w->len; i++)
+    for (unsigned int i = 0; i < w->len; i++)
     {
         unsigned int len = w->chunks[i]->len;
         memcpy(in_data + offset, &len, sizeof(unsigned int));
         offset += sizeof(unsigned int);
 
-        for (int j = 0; j < w->chunks[i]->len; j++)
+        for (unsigned int j = 0; j < w->chunks[i]->len; j++)
         {
             memcpy(in_data + offset, &(w->chunks[i]->blocks[j]), sizeof(Block));
             offset += sizeof(Block);
@@ -140,11 +140,11 @@ void export_world(char *map_name, World *w)
     size_t out_size = in_size;
     char *out_data = malloc(out_size);
 
-    if (compress(out_data, &out_size, in_data, in_size) != Z_OK)
+    if (compress(out_data, &out_size, in_data, (uLong)in_size) != Z_OK)
     {
         sfree(in_data);
         sfree(out_data);
-        return NULL;
+        return;
     }
 
     char path[MAX_PATH];
@@ -159,7 +159,7 @@ void export_world(char *map_name, World *w)
 #endif // _WIN32
 
     strcat(path, map_name);
-    SaveFileData(path, out_data, out_size);
+    SaveFileData(path, out_data, (unsigned int)out_size);
 
     sfree(in_data);
     sfree(out_data);
