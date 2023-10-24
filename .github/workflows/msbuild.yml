@@ -33,7 +33,7 @@ jobs:
         run: vcpkg integrate install
 
       - name: Install Packages
-        run: vcpkg install zlib:x64windows-static raylib:x64-windows-static
+        run: vcpkg install zlib:x64-windows-static raylib:x64-windows-static
 
       - name: Build
         working-directory: ${{env.GITHUB_WORKSPACE}}
