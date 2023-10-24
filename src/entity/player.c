@@ -63,6 +63,8 @@ DWORD WINAPI player_thread(LPVOID arg)
 	data->camera->target.x = data->player->position.x - cfg->render_size / 2;
 	data->camera->target.y = data->player->position.y - cfg->render_size / 2;
 
+	//RunPhysicsStep
+
 	while (data->active)
 	{
 		next_dt = GetFrameTime();

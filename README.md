@@ -8,8 +8,8 @@
 </a> -->
 
 [![Release Build](https://github.com/julesgrc0/wispy-c/actions/workflows/msbuild.yml/badge.svg)](https://github.com/julesgrc0/wispy-c/actions/workflows/msbuild.yml)
-![raylib](https://img.shields.io/badge/lib-raylib%20🎮-purple)
-![zlib](https://img.shields.io/badge/lib-zlib%20📦-fff)
+[![raylib](https://img.shields.io/badge/lib-raylib%20🎮-purple)]()
+[![zlib](https://img.shields.io/badge/lib-zlib%20📦-fff)]()
 
 **Concept**: Wispy-C this is a version of wispy initially developed in java. Wipsy is a kind of 2D Minecraft.
 

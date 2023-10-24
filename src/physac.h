@@ -42,6 +42,7 @@
 #define PHYSAC_DEBUG
 #endif
 
+// #define PHYSAC_THREADS
 #define PHYSACDEF static
 
 #define PHYSAC_MAX_BODIES 64
@@ -153,7 +154,7 @@ PHYSACDEF void ClosePhysics(void);
 #define PHYSAC_VECTOR_ZERO \
     (Vector2) { 0.0f, 0.0f }
 
-#if _WIN32
+#if defined(_WIN32) && defined(PHYSAC_NO_THREADS)
 static HANDLE physicsThreadId = INVALID_HANDLE_VALUE;
 #endif
 
@@ -177,7 +178,7 @@ static int FindAvailableBodyIndex();
 static PolygonData CreateRandomPolygon(float radius, int sides);
 static PolygonData CreateRectanglePolygon(Vector2 pos, Vector2 size);
 
-#ifdef _WIN32
+#if defined(_WIN32)
 static DWORD WINAPI PhysicsLoop(LPVOID arg);
 #else
 static void *PhysicsLoop(void *arg);
@@ -223,7 +224,7 @@ static inline Vector2 Mat2MultiplyVector2(Mat2 matrix, Vector2 vector);
 PHYSACDEF void InitPhysics(void)
 {
 
-#if defined(_WIN32)
+#if defined(_WIN32) && defined(PHYSAC_THREADS)
     physicsThreadId = CreateThread(NULL, 0, &PhysicsLoop, NULL, 0, NULL);
 #endif
 
@@ -776,7 +777,7 @@ PHYSACDEF void ClosePhysics(void)
 
     physicsThreadEnabled = false;
 
-#if _WIN32
+#if defined(_WIN32) && defined(PHYSAC_THREADS)
     if (physicsThreadId != physicsThreadId)
         WaitForSingleObject(physicsThreadId, INFINITE);
 #endif
@@ -868,7 +869,7 @@ static PolygonData CreateRectanglePolygon(Vector2 pos, Vector2 size)
     return data;
 }
 
-#ifdef _WIN32
+#if defined(_WIN32)
 static DWORD WINAPI PhysicsLoop(LPVOID arg)
 #else
 static void *PhysicsLoop(void *arg)
