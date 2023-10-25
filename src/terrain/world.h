@@ -1,8 +1,7 @@
 #pragma once
 #include "../stdafx.h"
-
-#include "../entity/player.h"
 #include "../unpack/unpack.h"
+
 #include "chunk.h"
 
 typedef union Seed
@@ -22,7 +21,6 @@ typedef struct World
     Chunk **chunks;
     unsigned int len;
 
-    Player *player;
 } World;
 
 World *generate_world(unsigned int len, Seed seed);

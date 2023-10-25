@@ -6,7 +6,6 @@ World *generate_world(unsigned int len, Seed seed)
     if (!world)
         return NULL;
 
-    world->player = NULL;
     world->seed = seed;
     world->len = len;
     world->chunks = malloc(sizeof(Chunk *) * world->len);

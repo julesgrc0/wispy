@@ -1,4 +1,5 @@
 #include "game.h"
+#include "../physac.h"
 
 #define render_chunk(chunk, position)                                                                                                        \
 	for (size_t i = 0; i < chunk->len; i++)                                                                                                  \
@@ -65,29 +66,29 @@ void game_screen(State *state)
 	short player_w = players[0].width;
 
 	int block_index = 0, index = 0, out_x = 0;
-	if (!world->player)
-	{
-		world->player = malloc(sizeof(Player));
-		memset(world->player, 0, sizeof(Player));
 
-		int mid_index = world->len / 2;
-		Chunk *chunk = world->chunks[mid_index];
-		for (size_t i = 0; i < chunk->len; i++)
+	Player* player = malloc(sizeof(Player));
+	memset(player, 0, sizeof(Player));
+
+	int mid_index = world->len / 2;
+	Chunk* chunk = world->chunks[mid_index];
+	for (size_t i = 0; i < chunk->len; i++)
+	{
+		if (chunk->blocks[i].x == CHUNK_WIDTH / 2)
 		{
-			if (chunk->blocks[i].x == CHUNK_WIDTH / 2)
-			{
-				world->player->position.x = chunk->blocks[i].x * cfg->block_size + (mid_index * CHUNK_WIDTH * cfg->block_size);
-				world->player->position.y = chunk->blocks[i].y * cfg->block_size - cfg->block_size * 2;
-				break;
-			}
+			player->position.x = chunk->blocks[i].x * cfg->block_size + (mid_index * CHUNK_WIDTH * cfg->block_size);
+			player->position.y = chunk->blocks[i].y * cfg->block_size - cfg->block_size * 2;
+			break;
 		}
 	}
-	PlayerThreadData *pl_thread = start_player_thread(world->player, camera, state);
 
+	ControllerThreadData *ctrl_thread = start_controller(state, camera, player);
+	
 	while (!WindowShouldClose())
 	{
 
 		BeginTextureMode(state->render);
+		
 		ClearBackground(BLUE);
 		BeginMode2D(*camera);
 
@@ -96,8 +97,8 @@ void game_screen(State *state)
 
 		if (index < world->len)
 		{
-			pl_thread->chunk_current = world->chunks[index];
-			pl_thread->position_current = index;
+			ctrl_thread->chunk_current = world->chunks[index];
+			ctrl_thread->position_current = index;
 
 			box = (BoundingBox){
 				.min = (Vector3){
@@ -114,20 +115,21 @@ void game_screen(State *state)
 
 				render_chunk(world->chunks[index + 1], index + 1);
 
-				pl_thread->chunk_next = world->chunks[index + 1];
-				pl_thread->position_next = index + 1;
+				ctrl_thread->chunk_next = world->chunks[index + 1];
+				ctrl_thread->position_next = index + 1;
 			}
 			else
 			{
-				pl_thread->chunk_next = NULL;
-				pl_thread->position_next = 0;
+				ctrl_thread->chunk_next = NULL;
+				ctrl_thread->position_next = 0;
 			}
 
-			DrawTexturePro(players[world->player->state],
-						   (Rectangle){0, 0, player_w * (world->player->direction ? -1 : 1), player_h},
-						   (Rectangle){world->player->position.x, world->player->position.y, cfg->block_size, cfg->block_size * 2},
+			DrawTexturePro(players[player->state],
+						   (Rectangle){0, 0, player_w * (player->direction ? -1 : 1), player_h},
+						   (Rectangle){player->position.x, player->position.y, cfg->block_size, cfg->block_size * 2},
 						   (Vector2){0}, 0, WHITE);
 		}
+
 		EndMode2D();
 		EndTextureMode();
 
@@ -136,18 +138,17 @@ void game_screen(State *state)
 		DrawFPS(0, 0);
 		EndDrawing();
 	}
-	stop_player_thread(pl_thread);
+	stop_controller(ctrl_thread);
 
 	for (size_t i = 0; i < world->len; i++)
 	{
 		sfree(world->chunks[i]->blocks);
 		sfree(world->chunks[i]);
 	}
-
-	sfree(world->player);
 	sfree(world->chunks);
 	sfree(world);
 
+	sfree(player);
 	sfree(camera);
 
 	ShowCursor();

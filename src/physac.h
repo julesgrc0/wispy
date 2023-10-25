@@ -1014,7 +1014,7 @@ PHYSACDEF void RunPhysicsStep(void)
         accumulator -= deltaTime;
     }
 
-    startTime = currentTime;
+    startTime = currentTime;;
 }
 
 PHYSACDEF void SetPhysicsTimeStep(double delta)
