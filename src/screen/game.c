@@ -82,23 +82,27 @@ void game_screen(State *state)
 		}
 	}
 
-	ControllerThreadData *ctrl_thread = start_controller(state, camera, player);
-	
+	ControllerThreadData* ctd = malloc(sizeof(ControllerThreadData));//start_controller(state, camera, player);
+
+	camera->target.x = player->position.x - state->config->render_size / 2;
+	camera->target.y = player->position.y - state->config->render_size / 2;
+
+	InitPhysics();
 	while (!WindowShouldClose())
 	{
 
 		BeginTextureMode(state->render);
 		
-		ClearBackground(BLUE);
+		ClearBackground(BLACK);
 		BeginMode2D(*camera);
 
-		block_index = (camera->target.x / cfg->block_size);
+		/*block_index = (camera->target.x / cfg->block_size);
 		index = block_index / CHUNK_WIDTH;
 
 		if (index < world->len)
 		{
-			ctrl_thread->chunk_current = world->chunks[index];
-			ctrl_thread->position_current = index;
+			ctd->chunk_current = world->chunks[index];
+			ctd->position_current = index;
 
 			box = (BoundingBox){
 				.min = (Vector3){
@@ -115,20 +119,61 @@ void game_screen(State *state)
 
 				render_chunk(world->chunks[index + 1], index + 1);
 
-				ctrl_thread->chunk_next = world->chunks[index + 1];
-				ctrl_thread->position_next = index + 1;
+				ctd->chunk_next = world->chunks[index + 1];
+				ctd->position_next = index + 1;
 			}
 			else
 			{
-				ctrl_thread->chunk_next = NULL;
-				ctrl_thread->position_next = 0;
+				ctd->chunk_next = NULL;
+				ctd->position_next = 0;
 			}
 
 			DrawTexturePro(players[player->state],
 						   (Rectangle){0, 0, player_w * (player->direction ? -1 : 1), player_h},
 						   (Rectangle){player->position.x, player->position.y, cfg->block_size, cfg->block_size * 2},
 						   (Vector2){0}, 0, WHITE);
+		}*/
+
+		static bool moved = true;
+		if (moved)
+		{
+			moved = false;
+
+			for (size_t i = 0; i < chunk->len; i++)
+			{
+				if (abs((chunk->blocks[i].y * cfg->block_size) - player->position.y) > cfg->block_size * 3) continue;
+				if (abs((chunk->blocks[i].x * cfg->block_size + ctd->position_current * CHUNK_WIDTH * cfg->block_size) - player->position.x) > cfg->block_size * 3) continue;
+
+				PhysicsBody blockBody = CreatePhysicsBodyRectangle((Vector2)
+				{ 
+					.x = (chunk->blocks[i].x * cfg->block_size + ctd->position_current * CHUNK_WIDTH * cfg->block_size) - cfg->block_size/2,
+					.y = (chunk->blocks[i].y * cfg->block_size) - cfg->block_size/2
+				}, 
+				cfg->block_size,
+				cfg->block_size,
+				10);
+
+				blockBody->enabled = false;
+			}
 		}
+
+		int bodiesCount = GetPhysicsBodiesCount();
+		for (int i = 0; i < bodiesCount; i++)
+		{
+			PhysicsBody body = GetPhysicsBody(i);
+
+			int vertexCount = GetPhysicsShapeVerticesCount(i);
+			for (int j = 0; j < vertexCount; j++)
+			{
+				Vector2 vertexA = GetPhysicsShapeVertex(body, j);
+
+				int jj = (((j + 1) < vertexCount) ? (j + 1) : 0);
+				Vector2 vertexB = GetPhysicsShapeVertex(body, jj);
+
+				DrawLineV(vertexA, vertexB, GREEN);
+			}
+		}
+
 
 		EndMode2D();
 		EndTextureMode();
@@ -136,9 +181,15 @@ void game_screen(State *state)
 		BeginDrawing();
 		DrawTexturePro(state->render.texture, state->src_rnd, state->dest_rnd, (Vector2){0.0f, 0.0f}, 0.0f, WHITE);
 		DrawFPS(0, 0);
+		
+		char info[500];
+		sprintf(info, "%f %f", player->position.x, player->position.y);
+		DrawText(info, 0, 30, 20, WHITE);
 		EndDrawing();
 	}
-	stop_controller(ctrl_thread);
+	ClosePhysics();
+
+	//stop_controller(ctrl_thread);
 
 	for (size_t i = 0; i < world->len; i++)
 	{

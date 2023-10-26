@@ -42,7 +42,7 @@
 #define PHYSAC_DEBUG
 #endif
 
-// #define PHYSAC_THREADS
+#define PHYSAC_THREADS //remove
 #define PHYSACDEF static
 
 #define PHYSAC_MAX_BODIES 64
@@ -154,7 +154,7 @@ PHYSACDEF void ClosePhysics(void);
 #define PHYSAC_VECTOR_ZERO \
     (Vector2) { 0.0f, 0.0f }
 
-#if defined(_WIN32) && defined(PHYSAC_NO_THREADS)
+#if defined(_WIN32) && defined(PHYSAC_THREADS)
 static HANDLE physicsThreadId = INVALID_HANDLE_VALUE;
 #endif
 
@@ -220,6 +220,7 @@ static Mat2 Mat2Radians(float radians);
 static void Mat2Set(Mat2 *matrix, float radians);
 static inline Mat2 Mat2Transpose(Mat2 matrix);
 static inline Vector2 Mat2MultiplyVector2(Mat2 matrix, Vector2 vector);
+
 
 PHYSACDEF void InitPhysics(void)
 {
