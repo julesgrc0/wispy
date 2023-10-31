@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../stdafx.h"
-#include "../physac.h"
 
 
 #include "state.h"

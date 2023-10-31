@@ -1,18 +1,31 @@
 #include "player.h"
 
-void update_player(Player* player, PhysicsBody body)
+void update_player(Player* player, float dt)
 {
-	if (IsKeyDown(KEY_LEFT) && body->velocity.x > -(PLAYER_VELOCITY/2))
+	if (IsKeyDown(KEY_RIGHT) && player->velocity.x < (PLAYER_VELOCITY/2))
 	{
-		body->velocity.x = PLAYER_VELOCITY;
+		player->velocity.x = PLAYER_VELOCITY;
+		player->direction = 0;
 	}
-	else if (IsKeyDown(KEY_RIGHT) && body->velocity.x < (PLAYER_VELOCITY/2))
+	else if (IsKeyDown(KEY_LEFT) && player->velocity.x > -(PLAYER_VELOCITY/2))
 	{
-		body->velocity.x = -PLAYER_VELOCITY;
+		player->velocity.x = -PLAYER_VELOCITY;
+		player->direction = 1;
 	}
 
-	if (IsKeyPressed(KEY_SPACE) && body->velocity.y >= 0)
+	if (player->delay > 0)
 	{
-		body->velocity.y = -(PLAYER_VELOCITY * 2);
+		player->delay -= dt;
+	}
+
+	if (IsKeyDown(KEY_SPACE) && player->onground == 1 && player->delay <= 0)
+	{
+		player->velocity.y = -(PLAYER_VELOCITY*20);
+		player->delay = 0.8f;
+		player->onground = 0;
+	}
+	else if(player->velocity.y >= 0 && player->onground == 0)
+	{
+		player->velocity.y = PLAYER_VELOCITY*5;
 	}
 }

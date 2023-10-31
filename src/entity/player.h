@@ -1,11 +1,10 @@
 #pragma once
 #include "../stdafx.h"
-#include "../physac.h"
 
 #include "../core/state.h"
 #include "../terrain/chunk.h"
 
-#define PLAYER_VELOCITY 0.5
+#define PLAYER_VELOCITY 200
 
 typedef enum PlayerState
 {
@@ -18,9 +17,14 @@ typedef enum PlayerState
 typedef struct Player
 {
 	Vector2 position;
+	Vector2 velocity;
 
+	float delay;
+	float animation;
+
+	unsigned int onground  : 1;
 	unsigned int direction : 1;
 	PlayerState state;
 } Player;
 
-void update_player(Player*, PhysicsBody);
+void update_player(Player* player, float dt);

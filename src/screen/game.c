@@ -1,8 +1,7 @@
 #include "game.h"
-#include "../physac.h"
 
 #define render_chunk(chunk, position)                                                                                                        \
-	for (size_t i = 0; i < chunk->len; i++)                                                                                                  \
+	for (size_t i = 0; i < chunk->len; i++)																							 \
 	{                                                                                                                                        \
 		if (chunk->blocks[i].x >= box.max.x)                                                                                                 \
 			break;                                                                                                                           \
@@ -22,7 +21,10 @@
 
 void game_screen(State *state)
 {
+#ifndef _DEBUG
 	HideCursor();
+#endif // !_DEBUG
+
 
 	Config *cfg = state->config;
 
@@ -76,18 +78,17 @@ void game_screen(State *state)
 	{
 		if (chunk->blocks[i].x == CHUNK_WIDTH / 2)
 		{
-			player->position.x = chunk->blocks[i].x * cfg->block_size + (mid_index * CHUNK_WIDTH * cfg->block_size);
-			player->position.y = chunk->blocks[i].y * cfg->block_size - cfg->block_size * 2;
+			player->position.x = (chunk->blocks[i].x * cfg->block_size) + (mid_index * CHUNK_WIDTH * cfg->block_size);
+			player->position.y = (chunk->blocks[i].y * cfg->block_size) - (cfg->block_size * 2);
 			break;
 		}
 	}
 
-	ControllerThreadData* ctd = malloc(sizeof(ControllerThreadData));//start_controller(state, camera, player);
+	ControllerThreadData* ctd = start_controller(state, camera, player);
 
 	camera->target.x = player->position.x - state->config->render_size / 2;
 	camera->target.y = player->position.y - state->config->render_size / 2;
 
-	InitPhysics();
 	while (!WindowShouldClose())
 	{
 
@@ -96,7 +97,7 @@ void game_screen(State *state)
 		ClearBackground(BLACK);
 		BeginMode2D(*camera);
 
-		/*block_index = (camera->target.x / cfg->block_size);
+		block_index = (camera->target.x / cfg->block_size);
 		index = block_index / CHUNK_WIDTH;
 
 		if (index < world->len)
@@ -132,48 +133,7 @@ void game_screen(State *state)
 						   (Rectangle){0, 0, player_w * (player->direction ? -1 : 1), player_h},
 						   (Rectangle){player->position.x, player->position.y, cfg->block_size, cfg->block_size * 2},
 						   (Vector2){0}, 0, WHITE);
-		}*/
-
-		static bool moved = true;
-		if (moved)
-		{
-			moved = false;
-
-			for (size_t i = 0; i < chunk->len; i++)
-			{
-				if (abs((chunk->blocks[i].y * cfg->block_size) - player->position.y) > cfg->block_size * 3) continue;
-				if (abs((chunk->blocks[i].x * cfg->block_size + ctd->position_current * CHUNK_WIDTH * cfg->block_size) - player->position.x) > cfg->block_size * 3) continue;
-
-				PhysicsBody blockBody = CreatePhysicsBodyRectangle((Vector2)
-				{ 
-					.x = (chunk->blocks[i].x * cfg->block_size + ctd->position_current * CHUNK_WIDTH * cfg->block_size) - cfg->block_size/2,
-					.y = (chunk->blocks[i].y * cfg->block_size) - cfg->block_size/2
-				}, 
-				cfg->block_size,
-				cfg->block_size,
-				10);
-
-				blockBody->enabled = false;
-			}
 		}
-
-		int bodiesCount = GetPhysicsBodiesCount();
-		for (int i = 0; i < bodiesCount; i++)
-		{
-			PhysicsBody body = GetPhysicsBody(i);
-
-			int vertexCount = GetPhysicsShapeVerticesCount(i);
-			for (int j = 0; j < vertexCount; j++)
-			{
-				Vector2 vertexA = GetPhysicsShapeVertex(body, j);
-
-				int jj = (((j + 1) < vertexCount) ? (j + 1) : 0);
-				Vector2 vertexB = GetPhysicsShapeVertex(body, jj);
-
-				DrawLineV(vertexA, vertexB, GREEN);
-			}
-		}
-
 
 		EndMode2D();
 		EndTextureMode();
@@ -187,9 +147,8 @@ void game_screen(State *state)
 		DrawText(info, 0, 30, 20, WHITE);
 		EndDrawing();
 	}
-	ClosePhysics();
 
-	//stop_controller(ctrl_thread);
+	stop_controller(ctd);
 
 	for (size_t i = 0; i < world->len; i++)
 	{
@@ -202,5 +161,7 @@ void game_screen(State *state)
 	sfree(player);
 	sfree(camera);
 
+#ifndef _DEBUG
 	ShowCursor();
+#endif // !_DEBUG
 }

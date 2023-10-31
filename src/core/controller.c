@@ -45,36 +45,41 @@ DWORD WINAPI controller_thread(LPVOID arg)
 	ControllerThreadData* ctd = arg;
 	Config* cfg = ctd->state->config;
 
-	float dt = 1.f/(float)(cfg->max_fps == 0 ? (1/60.0) : cfg->max_fps);
-	float animation = 0.f;
-
-	InitPhysics(dt * 100.);
 	
 
 	Camera2D* camera = ctd->camera;
 
 	Player* player = ctd->player;
-	PhysicsBody playerBody = CreatePhysicsBodyRectangle((Vector2){
-		.x = player->position.x,
-		.y = player->position.y - cfg->block_size * 3
-	}, cfg->block_size, cfg->block_size * 2, 1);
+	player->velocity = (Vector2){ 0 };
+	player->animation = 0.f;
 
-	playerBody->freezeOrient = true;
+	Rectangle playerRect = { .x = player->position.x, .y = player->position.y, .width = cfg->block_size, .height = cfg->block_size * 2 };
+
+	Rectangle blockRect = { .x = 0, .y = 0, .width = cfg->block_size, .height = cfg->block_size };
+	const unsigned int maxBlockDistance = cfg->block_size * 3;
+	const float damping = 0.7f;
+	const float minVelocity = 20.0f;
+
+	double dt = 1.0 / (float)(cfg->max_fps == 0 ? 120 : cfg->max_fps);
+	double accumulator = 0.0;
+	double frameTime = 0.0;
+
+	LARGE_INTEGER frequency, startTime, currentTime;
+	QueryPerformanceFrequency(&frequency);
+	QueryPerformanceCounter(&startTime);
 
 	while (ctd->active)
 	{
-		if (ctd->chunk_current == NULL || (ctd->chunk_current == NULL && ctd->chunk_next == NULL)) continue;
+		QueryPerformanceCounter(&currentTime);
 
-		update_player(player, playerBody);
+		frameTime = (double)(currentTime.QuadPart - startTime.QuadPart) / frequency.QuadPart;
+		accumulator += frameTime;
+		startTime = currentTime;
 
-		animation += dt * .5f;
-		if (playerBody->velocity.x != 0)
-		{
-			player->state = ((int)animation % 2 == 0) ? P_WALK_1 : P_WALK_2;
-		}else player->state = ((int)animation % 2 == 0) ? P_IDLE_1 : P_IDLE_2;
+		if (accumulator < dt) continue;
+		accumulator -= dt;
 
 		
-
 		Chunk* chunk = ctd->chunk_current;
 		unsigned int position = ctd->position_current;
 
@@ -84,39 +89,74 @@ DWORD WINAPI controller_thread(LPVOID arg)
 			position = ctd->position_next;
 		}
 
+		if (chunk == NULL) continue;
 
+		player->animation += dt * 4.f;
+		update_player(player, dt);
 
-		unsigned int bodiesCount = GetPhysicsBodiesCount();
-		for (unsigned int id = 0; id < bodiesCount; id++)
+		if (abs(player->velocity.x) > minVelocity || player->onground == 0)
 		{
-			PhysicsBody body = GetPhysicsBody(id);
-			if (body->id != playerBody->id)
+			player->state = ((int)player->animation % 2 == 0) ? P_WALK_1 : P_WALK_2;
+
+			player->onground = 0;
+			playerRect.x = player->position.x + player->velocity.x * dt;
+			playerRect.y = player->position.y + player->velocity.y * dt;
+
+
+			for (size_t i = 0; i < chunk->len; i++)
 			{
-				DestroyPhysicsBody(body);
+				blockRect.x = chunk->blocks[i].x * cfg->block_size + position * CHUNK_WIDTH * cfg->block_size;
+				blockRect.y = chunk->blocks[i].y * cfg->block_size;
+
+				if (abs(blockRect.y - playerRect.y) > maxBlockDistance || abs(blockRect.x - playerRect.x) > maxBlockDistance)
+					continue;
+
+				if (!CheckCollisionRecs(blockRect, playerRect))
+					continue;
+
+
+				
+				if ((playerRect.y + playerRect.height) > blockRect.y && (playerRect.y - playerRect.height) < (blockRect.y + blockRect.height))
+				{
+					player->position.y = blockRect.y - playerRect.height;
+
+					player->velocity.y = 0;
+					player->onground = 1;
+					continue;
+
+				}
+
+
+				if (blockRect.y < playerRect.y + playerRect.height)
+				{
+					if ((playerRect.x + playerRect.width) > blockRect.x && playerRect.x < (blockRect.x + blockRect.width))
+					{
+						player->velocity.x = 0;
+					}
+				}
+
+
 			}
-		}
+			player->velocity.x *= damping;
+			player->velocity.y *= damping;
 
-		Vector2 block = { 0 };
-		for (size_t i = 0; i < chunk->len; i++)
-		{
-			block.x = chunk->blocks[i].x * cfg->block_size + position * CHUNK_WIDTH * cfg->block_size;
-			block.y = chunk->blocks[i].y * cfg->block_size;
-
-			if (Vector2Distance(block, player->position) < cfg->block_size * 2)
+			if (player->velocity.y < 0 && abs(player->velocity.y) < minVelocity)
 			{
-				PhysicsBody blockBody = CreatePhysicsBodyRectangle(block, cfg->block_size, cfg->block_size, 10);
-				blockBody->enabled = false;
-
+				player->velocity.y = 0;
 			}
-		}
 
-		RunPhysicsStep();
-		player->position = playerBody->position;
-		//smooth_camera(camera->target.x, player->position.x - (cfg->render_size / 2), 200.f);
-		//smooth_camera(camera->target.y, player->position.y - (cfg->render_size / 2), 200.f);
+			player->position.x += player->velocity.x * dt;
+			player->position.y += player->velocity.y * dt;
+		}
+		else {
+			player->state = ((int)player->animation % 2 == 0) ? P_IDLE_1 : P_IDLE_2;
+		}
+		
+
+		smooth_camera(camera->target.x, player->position.x - (cfg->render_size / 2), 200.f);
+		smooth_camera(camera->target.y, player->position.y - (cfg->render_size / 2), 200.f);
 	}
 
-	ClosePhysics();
 
 	return 0;
 }

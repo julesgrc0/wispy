@@ -17,7 +17,7 @@ Chunk *generate_chunk(Image noise, unsigned int position)
 
     for (unsigned int x = 0; x < CHUNK_WIDTH; x++)
     {
-        unsigned int lineHeight = GetImageColor(noise, position * CHUNK_WIDTH + x, 0).r / 10; // 5
+        unsigned int lineHeight = GetImageColor(noise, position * CHUNK_WIDTH + x, 0).r / 5; // 5
         unsigned int level = 0;
 
         for (unsigned int y = 0; y < CHUNK_HEIGHT; y++)
