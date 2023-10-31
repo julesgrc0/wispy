@@ -47,13 +47,15 @@ Config *load_config()
 #endif // _DEBUG
 	}
 
-	if (cfg->render_distance == 0) cfg->render_distance = 20;
+	if (cfg->render_distance == 0)
+		cfg->render_distance = 20;
 
 	float fblock = round(cfg->render_size / (float)cfg->render_distance);
 	cfg->block_size = fblock;
 	cfg->max_render_block = round((cfg->render_size + fblock) / fblock);
 
-	if (cfg->max_render_block == 0) cfg->max_render_block = 255;
+	if (cfg->max_render_block == 0)
+		cfg->max_render_block = 255;
 
 	return cfg;
 }

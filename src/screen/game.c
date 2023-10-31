@@ -1,7 +1,7 @@
 #include "game.h"
 
 #define render_chunk(chunk, position)                                                                                                        \
-	for (size_t i = 0; i < chunk->len; i++)																							 \
+	for (size_t i = 0; i < chunk->len; i++)                                                                                                  \
 	{                                                                                                                                        \
 		if (chunk->blocks[i].x >= box.max.x)                                                                                                 \
 			break;                                                                                                                           \
@@ -17,14 +17,13 @@
 				(chunk->blocks[i].x * cfg->block_size) + ((position)*CHUNK_WIDTH * cfg->block_size), (chunk->blocks[i].y * cfg->block_size), \
 				cfg->block_size, cfg->block_size},                                                                                           \
 			(Vector2){0}, 0, WHITE);                                                                                                         \
-	}                                                                                                                                        
+	}
 
 void game_screen(State *state)
 {
 #ifndef _DEBUG
 	HideCursor();
 #endif // !_DEBUG
-
 
 	Config *cfg = state->config;
 
@@ -69,11 +68,11 @@ void game_screen(State *state)
 
 	int block_index = 0, index = 0, out_x = 0;
 
-	Player* player = malloc(sizeof(Player));
+	Player *player = malloc(sizeof(Player));
 	memset(player, 0, sizeof(Player));
 
 	int mid_index = world->len / 2;
-	Chunk* chunk = world->chunks[mid_index];
+	Chunk *chunk = world->chunks[mid_index];
 	for (size_t i = 0; i < chunk->len; i++)
 	{
 		if (chunk->blocks[i].x == CHUNK_WIDTH / 2)
@@ -84,7 +83,7 @@ void game_screen(State *state)
 		}
 	}
 
-	ControllerThreadData* ctd = start_controller(state, camera, player);
+	ControllerThreadData *ctd = start_controller(state, camera, player);
 
 	camera->target.x = player->position.x - state->config->render_size / 2;
 	camera->target.y = player->position.y - state->config->render_size / 2;
@@ -93,7 +92,7 @@ void game_screen(State *state)
 	{
 
 		BeginTextureMode(state->render);
-		
+
 		ClearBackground(BLACK);
 		BeginMode2D(*camera);
 
@@ -138,8 +137,7 @@ void game_screen(State *state)
 				player->position.y,
 				cfg->block_size,
 				cfg->block_size * 2,
-				RED
-			);
+				RED);
 		}
 
 		EndMode2D();
@@ -148,7 +146,7 @@ void game_screen(State *state)
 		BeginDrawing();
 		DrawTexturePro(state->render.texture, state->src_rnd, state->dest_rnd, (Vector2){0.0f, 0.0f}, 0.0f, WHITE);
 		DrawFPS(0, 0);
-		
+
 		char info[500];
 		sprintf(info, "Position: %f %f\nVel: %f %f\nOn ground: %d\nDelay: %f", player->position.x, player->position.y, player->velocity.x, player->velocity.y, player->onground, player->delay);
 

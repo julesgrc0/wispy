@@ -22,9 +22,9 @@ typedef struct Player
 	float delay;
 	float animation;
 
-	unsigned int onground  : 1;
+	unsigned int onground : 1;
 	unsigned int direction : 1;
 	PlayerState state;
 } Player;
 
-void update_player(Player* player, float dt);
+void update_player(Player *player, float dt);

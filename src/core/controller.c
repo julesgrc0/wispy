@@ -1,9 +1,10 @@
 #include "controller.h"
 
-ControllerThreadData* start_controller(State* state, Camera2D* camera, Player* player)
+ControllerThreadData *start_controller(State *state, Camera2D *camera, Player *player)
 {
-	ControllerThreadData* ctd = malloc(sizeof(ControllerThreadData));
-	if (ctd == NULL) return NULL;
+	ControllerThreadData *ctd = malloc(sizeof(ControllerThreadData));
+	if (ctd == NULL)
+		return NULL;
 
 	ctd->active = 1;
 
@@ -17,7 +18,6 @@ ControllerThreadData* start_controller(State* state, Camera2D* camera, Player* p
 	ctd->position_current = 0;
 	ctd->position_next = 0;
 
-
 	ctd->camera->target.x = ctd->player->position.x - ctd->state->config->render_size / 2;
 	ctd->camera->target.y = ctd->player->position.y - ctd->state->config->render_size / 2;
 
@@ -29,12 +29,13 @@ ControllerThreadData* start_controller(State* state, Camera2D* camera, Player* p
 	return ctd;
 }
 
-void stop_controller(ControllerThreadData* ctd)
+void stop_controller(ControllerThreadData *ctd)
 {
 	ctd->active = 0;
 
 #ifdef _WIN32
-	if(ctd->handle != INVALID_HANDLE_VALUE) WaitForSingleObject(ctd->handle, INFINITE);
+	if (ctd->handle != INVALID_HANDLE_VALUE)
+		WaitForSingleObject(ctd->handle, INFINITE);
 #endif // _WIN32
 
 	sfree(ctd)
@@ -42,20 +43,18 @@ void stop_controller(ControllerThreadData* ctd)
 
 DWORD WINAPI controller_thread(LPVOID arg)
 {
-	ControllerThreadData* ctd = arg;
-	Config* cfg = ctd->state->config;
+	ControllerThreadData *ctd = arg;
+	Config *cfg = ctd->state->config;
 
-	
+	Camera2D *camera = ctd->camera;
 
-	Camera2D* camera = ctd->camera;
-
-	Player* player = ctd->player;
-	player->velocity = (Vector2){ 0 };
+	Player *player = ctd->player;
+	player->velocity = (Vector2){0};
 	player->animation = 0.f;
 
-	Rectangle playerRect = { .x = player->position.x, .y = player->position.y, .width = cfg->block_size, .height = cfg->block_size * 2 };
+	Rectangle playerRect = {.x = player->position.x, .y = player->position.y, .width = cfg->block_size, .height = cfg->block_size * 2};
 
-	Rectangle blockRect = { .x = 0, .y = 0, .width = cfg->block_size, .height = cfg->block_size };
+	Rectangle blockRect = {.x = 0, .y = 0, .width = cfg->block_size, .height = cfg->block_size};
 	const unsigned int maxBlockDistance = cfg->block_size * 2;
 	const float damping = 0.7f;
 	const float minVelocity = 20.0f;
@@ -76,11 +75,11 @@ DWORD WINAPI controller_thread(LPVOID arg)
 		accumulator += frameTime;
 		startTime = currentTime;
 
-		if (accumulator < dt) continue;
+		if (accumulator < dt)
+			continue;
 		accumulator -= dt;
 
-		
-		Chunk* chunk = ctd->chunk_current;
+		Chunk *chunk = ctd->chunk_current;
 		unsigned int position = ctd->position_current;
 
 		if (ctd->player->position.x > ((ctd->position_current + 1) * CHUNK_WIDTH * cfg->block_size))
@@ -89,7 +88,8 @@ DWORD WINAPI controller_thread(LPVOID arg)
 			position = ctd->position_next;
 		}
 
-		if (chunk == NULL) continue;
+		if (chunk == NULL)
+			continue;
 
 		player->animation += dt * 4.f;
 		update_player(player, dt);
@@ -113,23 +113,20 @@ DWORD WINAPI controller_thread(LPVOID arg)
 				if (!CheckCollisionRecs(blockRect, playerRect))
 					continue;
 
-
-				if (CheckCollisionRecs(blockRect, (Rectangle){ 
-					.x = playerRect.x,
-					.y = player->position.y,
-					.width = playerRect.width,
-					.height = playerRect.height
-					}))
+				if (CheckCollisionRecs(blockRect, (Rectangle){
+													  .x = playerRect.x,
+													  .y = player->position.y,
+													  .width = playerRect.width,
+													  .height = playerRect.height}))
 				{
 					player->velocity.x = -player->velocity.x * dt;
 				}
 
-				if (CheckCollisionRecs(blockRect, (Rectangle) {
-					.x = player->position.x,
-					.y = playerRect.y,
-					.width = playerRect.width,
-					.height = playerRect.height
-					}))
+				if (CheckCollisionRecs(blockRect, (Rectangle){
+													  .x = player->position.x,
+													  .y = playerRect.y,
+													  .width = playerRect.width,
+													  .height = playerRect.height}))
 				{
 
 					player->velocity.y = 0;
@@ -137,8 +134,6 @@ DWORD WINAPI controller_thread(LPVOID arg)
 
 					player->position.y = ((int)round(player->position.y / cfg->block_size)) * cfg->block_size;
 				}
-
-
 			}
 
 			player->velocity.x *= damping;
@@ -157,15 +152,14 @@ DWORD WINAPI controller_thread(LPVOID arg)
 			player->position.x += player->velocity.x * dt;
 			player->position.y += player->velocity.y * dt;
 		}
-		else {
+		else
+		{
 			player->state = ((int)player->animation % 2 == 0) ? P_IDLE_1 : P_IDLE_2;
 		}
-		
 
 		smooth_camera(camera->target.x, player->position.x - (cfg->render_size / 2), 200.f);
 		smooth_camera(camera->target.y, player->position.y - (cfg->render_size / 2), 200.f);
 	}
-
 
 	return 0;
 }
