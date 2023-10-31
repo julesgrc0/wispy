@@ -17,15 +17,16 @@ void update_player(Player* player, float dt)
 	{
 		player->delay -= dt;
 	}
-
-	if (IsKeyDown(KEY_SPACE) && player->onground == 1 && player->delay <= 0)
-	{
-		player->velocity.y = -(PLAYER_VELOCITY*20);
-		player->delay = 0.8f;
-		player->onground = 0;
-	}
-	else if(player->velocity.y >= 0 && player->onground == 0)
-	{
-		player->velocity.y = PLAYER_VELOCITY*5;
+	else {
+		if (IsKeyDown(KEY_SPACE) && player->onground == 1)
+		{
+			player->velocity.y = -(PLAYER_VELOCITY * 20);
+			player->delay = 0.3f;
+			player->onground = 0;
+		}
+		else if (player->velocity.y >= 0 && player->onground == 0)
+		{
+			player->velocity.y = PLAYER_VELOCITY * 5;
+		}
 	}
 }

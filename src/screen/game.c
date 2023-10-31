@@ -133,6 +133,13 @@ void game_screen(State *state)
 						   (Rectangle){0, 0, player_w * (player->direction ? -1 : 1), player_h},
 						   (Rectangle){player->position.x, player->position.y, cfg->block_size, cfg->block_size * 2},
 						   (Vector2){0}, 0, WHITE);
+			DrawRectangleLines(
+				player->position.x,
+				player->position.y,
+				cfg->block_size,
+				cfg->block_size * 2,
+				RED
+			);
 		}
 
 		EndMode2D();
@@ -143,7 +150,8 @@ void game_screen(State *state)
 		DrawFPS(0, 0);
 		
 		char info[500];
-		sprintf(info, "%f %f", player->position.x, player->position.y);
+		sprintf(info, "Position: %f %f\nVel: %f %f\nOn ground: %d\nDelay: %f", player->position.x, player->position.y, player->velocity.x, player->velocity.y, player->onground, player->delay);
+
 		DrawText(info, 0, 30, 20, WHITE);
 		EndDrawing();
 	}

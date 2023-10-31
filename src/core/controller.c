@@ -56,7 +56,7 @@ DWORD WINAPI controller_thread(LPVOID arg)
 	Rectangle playerRect = { .x = player->position.x, .y = player->position.y, .width = cfg->block_size, .height = cfg->block_size * 2 };
 
 	Rectangle blockRect = { .x = 0, .y = 0, .width = cfg->block_size, .height = cfg->block_size };
-	const unsigned int maxBlockDistance = cfg->block_size * 3;
+	const unsigned int maxBlockDistance = cfg->block_size * 2;
 	const float damping = 0.7f;
 	const float minVelocity = 20.0f;
 
@@ -102,7 +102,6 @@ DWORD WINAPI controller_thread(LPVOID arg)
 			playerRect.x = player->position.x + player->velocity.x * dt;
 			playerRect.y = player->position.y + player->velocity.y * dt;
 
-
 			for (size_t i = 0; i < chunk->len; i++)
 			{
 				blockRect.x = chunk->blocks[i].x * cfg->block_size + position * CHUNK_WIDTH * cfg->block_size;
@@ -115,34 +114,44 @@ DWORD WINAPI controller_thread(LPVOID arg)
 					continue;
 
 
-				
-				if ((playerRect.y + playerRect.height) > blockRect.y && (playerRect.y - playerRect.height) < (blockRect.y + blockRect.height))
+				if (CheckCollisionRecs(blockRect, (Rectangle){ 
+					.x = playerRect.x,
+					.y = player->position.y,
+					.width = playerRect.width,
+					.height = playerRect.height
+					}))
 				{
-					player->position.y = blockRect.y - playerRect.height;
+					player->velocity.x = -player->velocity.x * dt;
+				}
+
+				if (CheckCollisionRecs(blockRect, (Rectangle) {
+					.x = player->position.x,
+					.y = playerRect.y,
+					.width = playerRect.width,
+					.height = playerRect.height
+					}))
+				{
 
 					player->velocity.y = 0;
 					player->onground = 1;
-					continue;
 
-				}
-
-
-				if (blockRect.y < playerRect.y + playerRect.height)
-				{
-					if ((playerRect.x + playerRect.width) > blockRect.x && playerRect.x < (blockRect.x + blockRect.width))
-					{
-						player->velocity.x = 0;
-					}
+					player->position.y = ((int)round(player->position.y / cfg->block_size)) * cfg->block_size;
 				}
 
 
 			}
+
 			player->velocity.x *= damping;
 			player->velocity.y *= damping;
 
 			if (player->velocity.y < 0 && abs(player->velocity.y) < minVelocity)
 			{
 				player->velocity.y = 0;
+			}
+
+			if (abs(player->velocity.x) < minVelocity)
+			{
+				player->velocity.x = 0;
 			}
 
 			player->position.x += player->velocity.x * dt;
