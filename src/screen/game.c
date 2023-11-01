@@ -70,16 +70,27 @@ void game_screen(State *state)
 					   bridge->player->direction ? player_src_rev : player_src,
 					   bridge->player_rect, (Vector2){0}, 0, WHITE);
 
-		int mx = (GetMouseX() * cfg->render_size)/GetRenderWidth();
-		int my = (GetMouseY() * cfg->render_size)/GetRenderHeight();
+		/*
+		Vector2 mouse = {
+			.x = round_to((GetMouseX() * cfg->render_size) / GetRenderWidth(), cfg->block_size) + round_to(bridge->camera->target.x, cfg->block_size),
+			.y = round_to((GetMouseY() * cfg->render_size) / GetRenderHeight(), cfg->block_size) + round_to(bridge->camera->target.y, cfg->block_size),
+		};
+		Vector2 pcenter = {
+			.x = bridge->player->position.x + bridge->player_rect.width/2,
+			.y = bridge->player->position.y + bridge->player_rect.height/2
+		};
 
-		DrawRectangleLines(
-			round_to(mx, cfg->block_size) + round_to(bridge->camera->target.x, cfg->block_size),
-			round_to(my, cfg->block_size) + round_to(bridge->camera->target.y, cfg->block_size),
-			cfg->block_size,
-			cfg->block_size,
-			WHITE
-		);
+		if (Vector2Distance(mouse, pcenter) < cfg->block_size * 5)
+		{
+			DrawRectangleLines(
+				mouse.x,
+				mouse.y,
+				cfg->block_size,
+				cfg->block_size,
+				WHITE
+			);
+		}
+		*/
 
 		EndMode2D();
 		EndTextureMode();

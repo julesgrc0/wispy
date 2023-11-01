@@ -4,8 +4,6 @@
 #include "../core/state.h"
 #include "../terrain/chunk.h"
 
-#define PLAYER_VELOCITY 200
-
 typedef enum PlayerState
 {
 	P_IDLE_1,
@@ -27,4 +25,4 @@ typedef struct Player
 	PlayerState state;
 } Player;
 
-void update_player(Player *player, float dt);
+void update_player(Player *player, float velocity, float dt);

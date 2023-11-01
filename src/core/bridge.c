@@ -111,7 +111,9 @@ DWORD WINAPI bridge_thread(LPVOID arg)
 	const float damping = 0.7f;
 	const float minVelocity = 20.0f;
 
-	double dt = 1.0 / (float)(cfg->max_fps == 0 ? 120 : cfg->max_fps);
+	const double dt = 1.0/120.0;
+	const float baseVelocity = 0.4f * cfg->render_size;
+
 	double accumulator = 0.0;
 	double frameTime = 0.0;
 
@@ -170,7 +172,7 @@ DWORD WINAPI bridge_thread(LPVOID arg)
 			continue;
 
 		player->animation += dt * 4.f;
-		update_player(player, dt);
+		update_player(player, baseVelocity, dt);
 
 		if (abs(player->velocity.x) > minVelocity || player->onground == 0)
 		{
@@ -238,8 +240,8 @@ DWORD WINAPI bridge_thread(LPVOID arg)
 		bridge->player_rect.x = player->position.x;
 		bridge->player_rect.y = player->position.y;
 
-		smooth_camera(camera->target.x, player->position.x - (cfg->render_size / 2), 200.f);
-		smooth_camera(camera->target.y, player->position.y - (cfg->render_size / 2), 200.f);
+		smooth_camera(camera->target.x, player->position.x - (cfg->render_size / 2), baseVelocity);
+		smooth_camera(camera->target.y, player->position.y - (cfg->render_size / 2), baseVelocity);
 	}
 
 	return 0;
