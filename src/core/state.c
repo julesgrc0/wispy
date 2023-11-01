@@ -63,7 +63,7 @@ Config *load_config()
 void save_config(Config *config)
 {
 #ifndef _DEBUG
-	char* config_path = GetApplicationDirectory();
+	char *config_path = GetApplicationDirectory();
 	strcat(config_path, CONFIG_NAME);
 	SaveFileData(config_path, config, sizeof(Config));
 #endif // !_DEBUG

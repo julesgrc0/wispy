@@ -11,24 +11,23 @@
 
 #define smooth_camera(camera, player, speed) camera = (camera < player) ? fmin(camera + dt * speed, player) : fmax(camera - dt * speed, player);
 
-typedef struct ControllerThreadData
+typedef struct BridgeThreadData
 {
 	unsigned int active : 1;
 
-	
 	Chunk *chunk_current;
 	unsigned int position_current : 6;
 	BoundingBox camera_view_current;
 
-	Chunk* chunk_next;
+	Chunk *chunk_next;
 	unsigned int position_next : 6;
 	BoundingBox camera_view_next;
 
 	Player *player;
 	Rectangle player_rect;
 
-	Camera2D* camera;
-	World* world;
+	Camera2D *camera;
+	World *world;
 	State *state;
 
 #ifdef _WIN32

@@ -6,7 +6,7 @@ BridgeThreadData *start_thread(State *state)
 	if (bridge == NULL)
 		return NULL;
 	memset(bridge, 0, sizeof(BridgeThreadData));
-	
+
 	bridge->active = 1;
 
 	bridge->state = state;
@@ -15,7 +15,7 @@ BridgeThreadData *start_thread(State *state)
 	memset(bridge->player, 0, sizeof(Player));
 
 	bridge->camera = malloc(sizeof(Camera2D));
-	memset(bridge->camera, 0, sizeof(Player));
+	memset(bridge->camera, 0, sizeof(Camera2D));
 
 #ifdef _WIN32
 	bridge->handle = INVALID_HANDLE_VALUE;
@@ -43,7 +43,7 @@ void stop_thread(BridgeThreadData *bridge)
 	sfree(bridge->world);
 
 	sfree(bridge->player);
-	//sfree(bridge->camera);
+	sfree(bridge->camera);
 
 	sfree(bridge);
 }
@@ -52,13 +52,12 @@ DWORD WINAPI bridge_thread(LPVOID arg)
 {
 	BridgeThreadData *bridge = arg;
 
-
 #ifdef _DEBUG
-	bridge->world = generate_world(bridge->state->config->max_chunks, (Seed) { .seed = 0 });
+	bridge->world = generate_world(bridge->state->config->max_chunks, (Seed){.seed = 0});
 #else
 	SetRandomSeed(time(NULL));
 	Seed seed = {
-		.seed = GetRandomValue(0, 100) };
+		.seed = GetRandomValue(0, 100)};
 
 	char map_name[MAX_PATH];
 	sprintf(map_name, "map_%lld.dat", seed.seed);
@@ -74,9 +73,9 @@ DWORD WINAPI bridge_thread(LPVOID arg)
 	Config *cfg = bridge->state->config;
 	Camera2D *camera = bridge->camera;
 	Player *player = bridge->player;
-	World* world = bridge->world;
+	World *world = bridge->world;
 
-	unsigned int middle_index = world->len/2;
+	unsigned int middle_index = world->len / 2;
 	for (size_t i = 0; i < world->chunks[middle_index]->len; i++)
 	{
 		if (world->chunks[middle_index]->blocks[i].x == CHUNK_WIDTH / 2)
@@ -91,12 +90,11 @@ DWORD WINAPI bridge_thread(LPVOID arg)
 	bridge->camera->target.x = bridge->player->position.x - bridge->state->config->render_size / 2;
 	bridge->camera->target.y = bridge->player->position.y - bridge->state->config->render_size / 2;
 
-	bridge->player_rect = (Rectangle) {
+	bridge->player_rect = (Rectangle){
 		player->position.x,
 		player->position.y,
 		cfg->block_size,
-		cfg->block_size * 2
-	};
+		cfg->block_size * 2};
 	Rectangle player_rect_next = bridge->player_rect;
 	Rectangle block_rect = {.x = 0, .y = 0, .width = cfg->block_size, .height = cfg->block_size};
 
@@ -135,7 +133,6 @@ DWORD WINAPI bridge_thread(LPVOID arg)
 
 				bridge->camera_view_next.max.x = abs(out_x);
 				bridge->camera_view_next.max.y = bridge->camera_view_current.max.y;
-
 			}
 			else if (bridge->chunk_next != NULL)
 			{
@@ -188,19 +185,19 @@ DWORD WINAPI bridge_thread(LPVOID arg)
 					continue;
 
 				if (CheckCollisionRecs(block_rect, (Rectangle){
-													  .x = player_rect_next.x,
-													  .y = player->position.y,
-													  .width = player_rect_next.width,
-													  .height = player_rect_next.height}))
+													   .x = player_rect_next.x,
+													   .y = player->position.y,
+													   .width = player_rect_next.width,
+													   .height = player_rect_next.height}))
 				{
 					player->velocity.x = -player->velocity.x * dt;
 				}
 
 				if (CheckCollisionRecs(block_rect, (Rectangle){
-													  .x = player->position.x,
-													  .y = player_rect_next.y,
-													  .width = player_rect_next.width,
-													  .height = player_rect_next.height}))
+													   .x = player->position.x,
+													   .y = player_rect_next.y,
+													   .width = player_rect_next.width,
+													   .height = player_rect_next.height}))
 				{
 
 					player->velocity.y = 0;
@@ -225,13 +222,11 @@ DWORD WINAPI bridge_thread(LPVOID arg)
 
 			player->position.x += player->velocity.x * dt;
 			player->position.y += player->velocity.y * dt;
-			
 		}
 		else
 		{
 			player->state = ((int)player->animation % 2 == 0) ? P_IDLE_1 : P_IDLE_2;
 		}
-
 
 		bridge->player_rect.x = player->position.x;
 		bridge->player_rect.y = player->position.y;

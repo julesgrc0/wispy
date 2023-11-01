@@ -42,8 +42,7 @@ Chunk *generate_chunk(Image noise, unsigned int position)
                 chunk->blocks[chunk->len] = (Block){
                     .x = x,
                     .y = y,
-                    .type = type,
-                    .active = 0};
+                    .type = type};
                 chunk->len++;
             }
         }
