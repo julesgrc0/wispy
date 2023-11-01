@@ -62,9 +62,11 @@ Config *load_config()
 
 void save_config(Config *config)
 {
-	char *config_path = GetApplicationDirectory();
+#ifndef _DEBUG
+	char* config_path = GetApplicationDirectory();
 	strcat(config_path, CONFIG_NAME);
 	SaveFileData(config_path, config, sizeof(Config));
+#endif // !_DEBUG
 }
 
 Texture get_texture_by_id(State *state, char *id)

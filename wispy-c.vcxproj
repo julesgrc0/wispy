@@ -322,7 +322,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\core\controller.c" />
+    <ClCompile Include="src\core\bridge.c" />
     <ClCompile Include="src\entity\player.c" />
     <ClCompile Include="src\screen\game.c" />
     <ClCompile Include="src\screen\loading.c" />
@@ -336,7 +336,7 @@
     <ClCompile Include="src\unpack\unpack.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\core\controller.h" />
+    <ClInclude Include="src\core\bridge.h" />
     <ClInclude Include="src\core\mainframe.h" />
     <ClInclude Include="src\entity\player.h" />
     <ClInclude Include="src\resource.h" />

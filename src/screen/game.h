@@ -2,7 +2,7 @@
 #include "../stdafx.h"
 
 #include "../core/state.h"
-#include "../core/controller.h"
+#include "../core/bridge.h"
 
 #include "../terrain/world.h"
 #include "../entity/player.h"
