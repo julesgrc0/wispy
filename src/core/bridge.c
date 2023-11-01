@@ -52,6 +52,13 @@ DWORD WINAPI bridge_thread(LPVOID arg)
 {
 	BridgeThreadData *bridge = arg;
 
+
+	/*
+	TODO: 
+	- only load the chunks near the player in memory, not all the chunks
+	- export the world in another thread
+	- display a loading world animation (load in a thread)
+	*/
 #ifdef _DEBUG
 	bridge->world = generate_world(bridge->state->config->max_chunks, (Seed){.seed = 0});
 #else

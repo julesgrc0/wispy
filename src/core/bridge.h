@@ -16,11 +16,11 @@ typedef struct BridgeThreadData
 	unsigned int active : 1;
 
 	Chunk *chunk_current;
-	unsigned int position_current : 6;
+	unsigned int position_current;
 	BoundingBox camera_view_current;
 
 	Chunk *chunk_next;
-	unsigned int position_next : 6;
+	unsigned int position_next;
 	BoundingBox camera_view_next;
 
 	Player *player;

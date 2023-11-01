@@ -18,6 +18,8 @@
 			(Vector2){0}, 0, WHITE);                                                                                                         \
 	}
 
+#define round_to(x, to) (round(x/to) * to)
+
 void game_screen(State *state)
 {
 #ifndef _DEBUG
@@ -67,6 +69,17 @@ void game_screen(State *state)
 		DrawTexturePro(players[bridge->player->state],
 					   bridge->player->direction ? player_src_rev : player_src,
 					   bridge->player_rect, (Vector2){0}, 0, WHITE);
+
+		int mx = (GetMouseX() * cfg->render_size)/GetRenderWidth();
+		int my = (GetMouseY() * cfg->render_size)/GetRenderHeight();
+
+		DrawRectangleLines(
+			round_to(mx, cfg->block_size) + round_to(bridge->camera->target.x, cfg->block_size),
+			round_to(my, cfg->block_size) + round_to(bridge->camera->target.y, cfg->block_size),
+			cfg->block_size,
+			cfg->block_size,
+			WHITE
+		);
 
 		EndMode2D();
 		EndTextureMode();
