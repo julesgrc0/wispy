@@ -1,6 +1,7 @@
 #include "game.h"
 
-#define render_chunk(chunk, position, box)                                                                                                   \
+/*
+#define render_chunk(chunk, view)																											\
 	for (size_t i = 0; i < chunk->len; i++)                                                                                                  \
 	{                                                                                                                                        \
 		if (chunk->blocks[i].x >= box.max.x)                                                                                                 \
@@ -17,6 +18,36 @@
 				cfg->block_size, cfg->block_size},                                                                                           \
 			(Vector2){0}, 0, WHITE);                                                                                                         \
 	}
+*/
+static void render_chunk(Chunk* chunk, BoundingBox view, Rectangle block_rect, Texture* textures, Config* cfg)
+{
+	const unsigned int chunkPosition = chunk->position * CHUNK_WIDTH * cfg->block_size;
+	unsigned int y = view.min.y;
+	unsigned int x = view.min.x;
+
+	while (y <= view.max.y && x <= view.max.x)
+	{
+		if (chunk->blocks[y * CHUNK_WIDTH + x].type) // !B_NONE
+		{
+			DrawTexturePro(
+				textures[chunk->blocks[y * CHUNK_WIDTH + x].type - 1],
+				block_rect,
+				(Rectangle)
+			{
+				.x = (chunk->blocks[y * CHUNK_WIDTH + x].x * cfg->block_size) + chunkPosition,
+					.y = (chunk->blocks[y * CHUNK_WIDTH + x].y * cfg->block_size),
+					.width = cfg->block_size,
+					.height = cfg->block_size
+			}, (Vector2) { 0 }, 0, WHITE);
+		}
+
+		x++;
+		if (x > view.max.x) {
+			x = view.min.x;
+			y++;
+		}
+	}
+}
 
 #define round_to(x, to) (round(x/to) * to)
 
@@ -54,22 +85,24 @@ void game_screen(State *state)
 		ClearBackground(BLACK);
 		BeginMode2D(*(bridge->camera));
 
-		chunk = bridge->chunk_current;
+		/*
+		chunk = bridge->world->current;
 		if (chunk != NULL)
 		{
-			render_chunk(chunk, bridge->position_current, bridge->camera_view_current);
+			render_chunk(chunk, bridge->view_current, block_rect, blocks, cfg);
 
-			chunk = bridge->chunk_next;
+			chunk = bridge->world->next;
 			if (chunk != NULL)
 			{
-				render_chunk(chunk, bridge->position_next, bridge->camera_view_next);
+				render_chunk(chunk, bridge->view_next, block_rect, blocks, cfg);
 			}
 		}
-
+		
 		DrawTexturePro(players[bridge->player->state],
 					   bridge->player->direction ? player_src_rev : player_src,
 					   bridge->player_rect, (Vector2){0}, 0, WHITE);
-
+		
+		*/
 		/*
 		Vector2 mouse = {
 			.x = round_to((GetMouseX() * cfg->render_size) / GetRenderWidth(), cfg->block_size) + round_to(bridge->camera->target.x, cfg->block_size),

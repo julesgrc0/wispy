@@ -38,8 +38,8 @@ Config *load_config()
 		cfg->render_size = 1000;
 
 #ifdef _DEBUG
-		cfg->render_distance = 20;
-		cfg->render_size = 500;
+		cfg->render_distance = 50;
+		cfg->render_size = 1000;
 
 		cfg->fullscreen = 0;
 		cfg->height = 720;
@@ -63,8 +63,11 @@ Config *load_config()
 void save_config(Config *config)
 {
 #ifndef _DEBUG
-	char *config_path = GetApplicationDirectory();
-	strcat(config_path, CONFIG_NAME);
+	const char *base = GetApplicationDirectory();
+	char config_path[MAX_PATH];
+	config_path = strcpy(config_path, base);
+	config_path = strcat(config_path + strlen(base) + 1, CONFIG_NAME);
+
 	SaveFileData(config_path, config, sizeof(Config));
 #endif // !_DEBUG
 }

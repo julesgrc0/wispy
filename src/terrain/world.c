@@ -1,165 +1,166 @@
 #include "world.h"
 
-World *generate_world(unsigned int len, Seed seed)
+Chunk** generate_chunks(unsigned int len, Seed seed)
 {
-    World *world = malloc(sizeof(World));
-    if (!world)
+    Chunk** chunks = malloc(sizeof(Chunk*));
+    if (!chunks)
         return NULL;
 
-    world->seed = seed;
-    world->len = len;
-    world->chunks = malloc(sizeof(Chunk *) * world->len);
 
-    if (!world->chunks)
+    Image noise = GenImagePerlinNoise(CHUNK_WIDTH * len, CHUNK_HEIGHT, seed.offsetX, seed.offsetY, (32.f * len) / 10.f);
+
+    for (unsigned int position = 0; position < len; position++)
     {
-        sfree(world);
-        return NULL;
-    }
-
-    Image noise = GenImagePerlinNoise(CHUNK_WIDTH * world->len, CHUNK_HEIGHT, seed.offsetX, seed.offsetY, (32.f * world->len) / 10.f);
-
-    for (unsigned int position = 0; position < world->len; position++)
-    {
-        world->chunks[position] = generate_chunk(noise, position);
+        chunks[position] = generate_chunk(noise, position);
     }
 
     UnloadImage(noise);
+    return chunks;
+}
+
+void export_chunks(char* map_name, Chunk** chunks, unsigned int len)
+{
+    WorldThreadData* wtd = malloc(sizeof(WorldThreadData));
+    if (!wtd)
+        return;
+
+    wtd->map_name = map_name;
+    wtd->chunks = chunks;
+    wtd->len = len;
+
+    char path[MAX_PATH];
+    path[0] = 0;
+#ifdef _WIN32
+    strcat(path, GetApplicationDirectory());
+    strcat(path, "maps\\");
+    if (!DirectoryExists(path))
+        CreateDirectoryA(path, NULL);
+
+    strcat(path, map_name);
+    strcat(path, "\\");
+    if (!DirectoryExists(path))
+        CreateDirectoryA(path, NULL);
+
+    CreateThread(NULL, NULL, &export_world_thread, wtd, 0, NULL);
+#endif // _WIN32
+}
+
+
+World* new_world(unsigned int position, unsigned int len, Seed seed, char* map_name)
+{
+    Chunk** chunks = generate_chunks(len, seed);
+
+    World* world = malloc(sizeof(World));
+    world->map_name = map_name;
+
+    char path[MAX_PATH];
+    path[0] = 0;
+
+    strcat(path, GetApplicationDirectory());
+    strcat(path, "maps\\");
+    strcat(path, map_name);
+    strcat(path, "\\");
+
+    FilePathList files = LoadDirectoryFiles(path);
+    world->len = files.count;
+    UnloadDirectoryFiles(files);
+
+    if (position - 1 < len) world->prev = chunks[position - 1];
+    if (position < len) world->current = chunks[position];
+    if (position + 1 < len) world->next = chunks[position + 1];
+
+    export_chunks(map_name, chunks, len);
+
     return world;
 }
 
-World *load_world(char *map_name)
+World* load_world(char* map_name, unsigned int base_position)
 {
     char path[MAX_PATH];
     path[0] = 0;
 
     strcat(path, GetApplicationDirectory());
     strcat(path, "maps\\");
+    strcat(path, map_name);
+    strcat(path, "\\");
 
 #ifdef _WIN32
     if (!DirectoryExists(path))
-        CreateDirectoryA(path, NULL);
+        return NULL;
 #endif // _WIN32
 
-    strcat(path, map_name);
-    if (!FileExists(path))
+    World* world = malloc(sizeof(World));
+    if (!world)
         return NULL;
 
-    size_t in_size = 0;
-    char *in_data = LoadFileData(path, &in_size);
-    if (!in_data)
-        return NULL;
+    world->map_name = map_name;
+    
+    FilePathList files = LoadDirectoryFiles(path);
+    world->len = files.count;
+    UnloadDirectoryFiles(files);
 
-    size_t out_size = in_size;
-    char *out_data = malloc(out_size);
-    if (!out_data)
+    if (base_position > world->len)
     {
-        sfree(in_data);
-        return NULL;
+        base_position = world->len / 2;
     }
 
-    while (uncompress(out_data, &out_size, in_data, (uLong)in_size) != Z_OK)
-    {
-        out_size += in_size;
-        void *tmp = realloc(out_data, out_size);
-        if (!tmp)
-        {
-            sfree(out_data);
-            sfree(in_data);
-        }
-        out_data = tmp;
-    }
+    world->prev = load_chunk(map_name, base_position - 1);
+    world->current = load_chunk(map_name, base_position);
+    world->next = load_chunk(map_name, base_position + 1);
 
-    World *w = (World *)malloc(sizeof(World));
-
-    size_t offset = 0;
-    memcpy(&w->len, out_data + offset, sizeof(unsigned int));
-    offset += sizeof(unsigned int);
-
-    w->chunks = (Chunk **)malloc(sizeof(Chunk *) * w->len);
-
-    memcpy(&w->seed, out_data + offset, sizeof(int));
-    offset += sizeof(int);
-
-    for (int i = 0; i < w->len; i++)
-    {
-        w->chunks[i] = (Chunk *)malloc(sizeof(Chunk));
-
-        unsigned int len;
-        memcpy(&len, out_data + offset, sizeof(unsigned int));
-        w->chunks[i]->len = len;
-
-        offset += sizeof(unsigned int);
-
-        w->chunks[i]->blocks = (Block *)malloc(sizeof(Block) * len);
-        for (unsigned int j = 0; j < w->chunks[i]->len; j++)
-        {
-            memcpy(&(w->chunks[i]->blocks[j]), out_data + offset, sizeof(Block));
-            offset += sizeof(Block);
-        }
-    }
-
-    sfree(in_data);
-    sfree(out_data);
-
-    return w;
+    return world;
 }
 
-void export_world(char *map_name, World *w)
+void update_world(World* world, unsigned int new_position)
 {
-    size_t in_size = sizeof(unsigned int) + sizeof(int);
-    for (int i = 0; i < w->len; i++)
+    if (world->current != NULL && world->current->position == new_position) return;
+
+    if (world->prev != NULL && world->prev->position == new_position)
     {
-        in_size += sizeof(unsigned int) + (w->chunks[i]->len * sizeof(Block));
-    }
+        sfree(world->next);
 
-    char *in_data = (char *)malloc(in_size);
-    if (!in_data)
-        return;
+        world->next = world->current;
+        world->current = world->prev;
 
-    size_t offset = 0;
-    memcpy(in_data + offset, &w->len, sizeof(unsigned int));
-    offset += sizeof(unsigned int);
-
-    memcpy(in_data + offset, &w->seed, sizeof(int));
-    offset += sizeof(int);
-
-    for (unsigned int i = 0; i < w->len; i++)
-    {
-        unsigned int len = w->chunks[i]->len;
-        memcpy(in_data + offset, &len, sizeof(unsigned int));
-        offset += sizeof(unsigned int);
-
-        for (unsigned int j = 0; j < w->chunks[i]->len; j++)
-        {
-            memcpy(in_data + offset, &(w->chunks[i]->blocks[j]), sizeof(Block));
-            offset += sizeof(Block);
-        }
-    }
-
-    size_t out_size = in_size;
-    char *out_data = malloc(out_size);
-
-    if (compress(out_data, &out_size, in_data, (uLong)in_size) != Z_OK)
-    {
-        sfree(in_data);
-        sfree(out_data);
+        if(world->current != NULL) 
+            world->prev = load_chunk(world->map_name, world->current->position - 1);
         return;
     }
 
-    char path[MAX_PATH];
-    path[0] = 0;
+    if (world->next != NULL && world->next->position == new_position)
+    {
+        sfree(world->prev);
 
-    strcat(path, GetApplicationDirectory());
-    strcat(path, "maps\\");
+        world->prev = world->current;
+        world->current = world->next;
+
+        if (world->current != NULL) 
+            world->next = load_chunk(world->map_name, world->current->position + 1);
+        return;
+    }
+
+    sfree(world->prev);
+    sfree(world->current);
+    sfree(world->next);
+
+    world->prev = load_chunk(world->map_name, new_position - 1);
+    world->current = load_chunk(world->map_name, new_position);
+    world->next = load_chunk(world->map_name, new_position + 1);
+}
 
 #ifdef _WIN32
-    if (!DirectoryExists(path))
-        CreateDirectoryA(path, NULL);
+DWORD WINAPI export_world_thread(LPVOID arg)
+#else
+int export_world_thread(void* arg)
 #endif // _WIN32
-
-    strcat(path, map_name);
-    SaveFileData(path, out_data, (unsigned int)out_size);
-
-    sfree(in_data);
-    sfree(out_data);
+{
+    WorldThreadData* wtd = arg;
+    for (unsigned int i = 0; i < wtd->len; i++)
+    {
+        export_chunk(wtd->map_name, wtd->chunks[i]);
+        sfree(wtd->chunks[i])
+    }
+    sfree(wtd->chunks);
+    sfree(wtd);
+    return 0;
 }

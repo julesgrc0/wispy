@@ -15,19 +15,15 @@ typedef struct BridgeThreadData
 {
 	unsigned int active : 1;
 
-	Chunk *chunk_current;
-	unsigned int position_current;
-	BoundingBox camera_view_current;
 
-	Chunk *chunk_next;
-	unsigned int position_next;
-	BoundingBox camera_view_next;
+	World* world;
+	BoundingBox view_current;
+	BoundingBox view_next;
 
 	Player *player;
 	Rectangle player_rect;
 
 	Camera2D *camera;
-	World *world;
 	State *state;
 
 #ifdef _WIN32
