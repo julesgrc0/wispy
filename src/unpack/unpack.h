@@ -1,13 +1,12 @@
 #pragma once
-#include "../stdafx.h"
 #include "../resource.h"
+#include "../stdafx.h"
 
-typedef struct AssetItem
-{
-	char *name;
+typedef struct AssetItem {
+  char *name;
 
-	char *buffer;
-	unsigned int size;
+  char *buffer;
+  unsigned int size;
 } AssetItem;
 
 char *load_resource(HINSTANCE hInstance, size_t *size);

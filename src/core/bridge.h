@@ -1,34 +1,31 @@
 #pragma once
 
+#include "../entities/player.h"
 #include "../stdafx.h"
-
-#include "state.h"
-
 #include "../terrain/chunk.h"
 #include "../terrain/world.h"
+#include "state.h"
 
-#include "../entity/player.h"
+#define smooth_camera(camera, player, speed)                     \
+  camera = (camera < player) ? fmin(camera + dt * speed, player) \
+                             : fmax(camera - dt * speed, player);
 
-#define smooth_camera(camera, player, speed) camera = (camera < player) ? fmin(camera + dt * speed, player) : fmax(camera - dt * speed, player);
+typedef struct BridgeThreadData {
+  unsigned int active : 1;
 
-typedef struct BridgeThreadData
-{
-	unsigned int active : 1;
+  World *world;
+  BoundingBox view_current;
+  BoundingBox view_next;
 
+  Player *player;
+  Rectangle player_rect;
 
-	World* world;
-	BoundingBox view_current;
-	BoundingBox view_next;
-
-	Player *player;
-	Rectangle player_rect;
-
-	Camera2D *camera;
-	State *state;
+  Camera2D *camera;
+  State *state;
 
 #ifdef _WIN32
-	HANDLE handle;
-#endif // _WIN32
+  HANDLE handle;
+#endif  // _WIN32
 
 } BridgeThreadData;
 
@@ -37,4 +34,4 @@ void stop_thread(BridgeThreadData *bridge);
 
 #ifdef _WIN32
 DWORD WINAPI bridge_thread(LPVOID arg);
-#endif // _WIN32
+#endif  // _WIN32
