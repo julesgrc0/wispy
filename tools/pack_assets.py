@@ -1,9 +1,9 @@
 import os
 import sys
+import time
 import zlib
 
 from io import TextIOWrapper
-import time
 
 
 def write_to_pack(out_file: TextIOWrapper, folder_path: str) -> int:

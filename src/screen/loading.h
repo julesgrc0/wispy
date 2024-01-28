@@ -1,6 +1,6 @@
 #pragma once
-#include "../stdafx.h"
 #include "../core/state.h"
+#include "../stdafx.h"
 #include "../unpack/unpack.h"
 
 void load_assets(State *state);

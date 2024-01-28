@@ -1,5 +1,5 @@
 #pragma once
-#include "../stdafx.h"
 #include "../core/state.h"
+#include "../stdafx.h"
 
 void menu_screen(State *state);

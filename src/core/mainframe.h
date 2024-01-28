@@ -1,10 +1,9 @@
 #pragma once
-#include "../stdafx.h"
-#include "state.h"
-
+#include "../screen/game.h"
 #include "../screen/loading.h"
 #include "../screen/menu.h"
-#include "../screen/game.h"
+#include "../stdafx.h"
+#include "state.h"
 
 State *init_mainframe();
 
