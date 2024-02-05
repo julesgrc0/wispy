@@ -328,11 +328,9 @@
     <ClCompile Include="src\screen\loading.c" />
     <ClCompile Include="src\screen\menu.c" />
     <ClCompile Include="src\core\state.c" />
-    <ClCompile Include="src\terrain\chunk.c" />
     <ClCompile Include="src\main.c" />
     <ClCompile Include="src\core\mainframe.c" />
-    <ClCompile Include="src\terrain\structure.c" />
-    <ClCompile Include="src\terrain\world.c" />
+    <ClCompile Include="src\terrain\chunk.c" />
     <ClCompile Include="src\unpack\unpack.c" />
   </ItemGroup>
   <ItemGroup>
@@ -344,11 +342,9 @@
     <ClInclude Include="src\screen\loading.h" />
     <ClInclude Include="src\screen\menu.h" />
     <ClInclude Include="src\core\state.h" />
+    <ClInclude Include="src\stdafx.h" />
     <ClInclude Include="src\terrain\block.h" />
     <ClInclude Include="src\terrain\chunk.h" />
-    <ClInclude Include="src\stdafx.h" />
-    <ClInclude Include="src\terrain\structure.h" />
-    <ClInclude Include="src\terrain\world.h" />
     <ClInclude Include="src\unpack\unpack.h" />
   </ItemGroup>
   <ItemGroup>

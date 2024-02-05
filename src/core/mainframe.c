@@ -1,43 +1,40 @@
 #include "mainframe.h"
 
-State *init_mainframe() {
+State *init_mainframe()
+{
   State *state = malloc(sizeof(State));
-  if (state == NULL) return NULL;
+  if (state == NULL)
+    return NULL;
 
   memset(state, 0, sizeof(State));
 
   state->loading = LS_DISPLAY;
-
-  state->len = 0;
-  state->textures = NULL;
-  state->textures_id = NULL;
-  state->font = (Font){0};
-  state->render = (RenderTexture){0};
-  state->src_rnd = (Rectangle){0};
-  state->dest_rnd = (Rectangle){0};
-
   state->config = load_config();
 
 #ifdef _DEBUG
   SetTraceLogLevel(LOG_ALL);
 #else
   SetTraceLogLevel(LOG_NONE);
-#endif  // _DEBUG
+#endif // _DEBUG
 
   unsigned int flags = 0;
-  if (state->config->vsync) {
+  if (state->config->vsync)
+  {
     flags |= FLAG_VSYNC_HINT;
   }
 
-  if (state->config->msaa4x) {
+  if (state->config->msaa4x)
+  {
     flags |= FLAG_MSAA_4X_HINT;
   }
 
-  if (state->config->vsync) {
+  if (state->config->vsync)
+  {
     flags |= FLAG_VSYNC_HINT;
   }
 
-  if (state->config->fullscreen) {
+  if (state->config->fullscreen)
+  {
     flags |= FLAG_FULLSCREEN_MODE;
   }
 
@@ -45,14 +42,16 @@ State *init_mainframe() {
   SetTargetFPS(state->config->max_fps);
 
   InitWindow(state->config->width, state->config->height, "Wispy");
-
   return state;
 }
 
-void destroy_mainframe(State *state) {
-  if (state == NULL) return;
+void destroy_mainframe(State *state)
+{
+  if (state == NULL)
+    return;
 
-  for (size_t i = 0; i < state->len; i++) {
+  for (size_t i = 0; i < state->len; i++)
+  {
     sfree(state->textures_id[i]);
     UnloadTexture(state->textures[i]);
   }
@@ -70,9 +69,11 @@ void destroy_mainframe(State *state) {
   sfree(state);
 }
 
-void loop_mainframe(State *state) {
+void loop_mainframe(State *state)
+{
   loading_screen(state);
-  if (state->loading != LS_OK) return;
+  if (state->loading != LS_OK)
+    return;
 
   menu_screen(state);
   game_screen(state);

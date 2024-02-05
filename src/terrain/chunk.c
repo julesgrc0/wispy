@@ -1,162 +1,303 @@
 #include "chunk.h"
 
-Chunk *generate_chunk(Image noise, unsigned int position)
+Rectangle get_center_box_from_camera(Camera2D camera, Rectangle box)
 {
-  Chunk *chunk = malloc(sizeof(Chunk));
-  if (!chunk)
-    return NULL;
-
-  chunk->position = position;
-
-  unsigned int index = 0;
-  for (unsigned int x = 0; x < CHUNK_WIDTH; x++)
-  {
-    unsigned int lineHeight =
-        GetImageColor(noise, position * CHUNK_WIDTH + x, 0).r / 5; // 5
-    unsigned int level = 0;
-
-    for (unsigned int y = 0; y < CHUNK_HEIGHT; y++)
-    {
-      BlockTypes type = B_NONE;
-      if (y >= lineHeight)
-      {
-        type = B_GRASS;
-        if (level > 0)
-        {
-          unsigned int value =
-              GetImageColor(noise, position * CHUNK_WIDTH + x, y).r;
-          if (level < 10 || value <= 80)
-          {
-            type = B_DIRT;
-          }
-          else
-          {
-            type = B_STONE;
-          }
-        }
-
-        level++;
-      }
-
-      chunk->blocks[index] = (Block){.x = x, .y = y, .type = type};
-      index++;
-    }
-  }
-
-  return chunk;
+	return (Rectangle){
+		.x = camera.target.x + ((RENDER_W * (1.f / camera.zoom) - box.width) / 2.f),
+		.y = camera.target.y + ((RENDER_H * (1.f / camera.zoom) - box.height) / 2.f),
+		.width = box.width,
+		.height = box.height};
 }
 
-Chunk *load_chunk(char *map_name, unsigned int position)
+Rectangle get_view_from_camera(Camera2D camera)
 {
-  char path[MAX_PATH * 2];
-  path[0] = 0;
-  strcat(path, GetApplicationDirectory());
-  strcat(path, "maps\\");
-  strcat(path, map_name);
-  strcat(path, "\\");
-
-  char filename[MAX_PATH];
-  filename[0] = 0;
-  sprintf(filename, "%u.dat", position);
-  strcat(path, filename);
-
-  if (!FileExists(path))
-    return NULL;
-
-  size_t in_size = 0;
-  char *in_data = LoadFileData(path, &in_size);
-  if (!in_data)
-    return NULL;
-
-  size_t out_size = in_size * 2;
-  char *out_data = malloc(out_size);
-  if (!out_data)
-  {
-    sfree(in_data);
-    return NULL;
-  }
-
-  while (uncompress(out_data, &out_size, in_data, (uLong)in_size) != Z_OK)
-  {
-    out_size += in_size;
-    void *tmp = realloc(out_data, out_size);
-    if (!tmp)
-    {
-      sfree(out_data);
-      sfree(in_data);
-    }
-    out_data = tmp;
-  }
-
-  Chunk *chunk = malloc(sizeof(Chunk));
-
-  size_t offset = 0;
-  memcpy(&chunk->position, out_data + offset, sizeof(unsigned int));
-  offset += sizeof(unsigned int);
-
-  for (unsigned int i = 0; i < CHUNK_LEN; i++)
-  {
-    memcpy(&chunk->blocks[i], out_data + offset, sizeof(Block));
-    offset += sizeof(Block);
-  }
-
-  sfree(in_data);
-  sfree(out_data);
-
-  return chunk;
+	return (Rectangle){
+		.x = camera.target.x, +((RENDER_W * (1.f / camera.zoom)) / 2.f), .y = camera.target.y, +((RENDER_H * (1.f / camera.zoom)) / 2.f), .width = RENDER_W * (1.f / camera.zoom), .height = RENDER_H * (1.f / camera.zoom)};
 }
 
-void export_chunk(char *map_name, Chunk *chunk)
+ChunkGroup *create_chunk_group(unsigned int position)
 {
-  size_t in_size = sizeof(unsigned int) + sizeof(Block) * CHUNK_LEN;
-  char *in_data = (char *)malloc(in_size);
-  if (!in_data)
-    return;
+	ChunkGroup *grp = malloc(sizeof(ChunkGroup));
+	grp->position = position - CHUNK_GROUP_MID_LEN;
+	for (unsigned int x = 0; x < CHUNK_GROUP_LEN; x++)
+	{
+		grp->chunks[x] = create_chunk(grp->position + x, false);
+	}
 
-  size_t offset = 0;
-  memcpy(in_data + offset, &(chunk->position), sizeof(unsigned int));
-  offset += sizeof(unsigned int);
+	return grp;
+}
+void next_chunk_group(ChunkGroup *grp)
+{
+	grp->position += CHUNK_GROUP_MID_LEN;
 
-  for (unsigned int i = 0; i < CHUNK_LEN; i++)
-  {
-    memcpy(in_data + offset, &(chunk->blocks[i]), sizeof(Block));
-    offset += sizeof(Block);
-  }
+	/*unsigned*/ int x = 0;
+#pragma omp parallel
+	{
+#pragma omp for
+		for (x = 0; x < CHUNK_GROUP_MID_LEN; x++)
+		{
+			free(grp->chunks[x]);
+			grp->chunks[x] = grp->chunks[x + CHUNK_GROUP_MID_LEN];
+			grp->chunks[x + CHUNK_GROUP_MID_LEN] = create_chunk(grp->position + CHUNK_GROUP_MID_LEN + x, true);
+		}
+	}
+}
 
-  size_t out_size = in_size;
-  char *out_data = malloc(out_size);
+void prev_chunk_group(ChunkGroup *grp)
+{
+	grp->position -= CHUNK_GROUP_MID_LEN;
 
-  if (compress(out_data, &out_size, in_data, (uLong)in_size) != Z_OK)
-  {
-    sfree(in_data);
-    sfree(out_data);
-    return;
-  }
+	/*unsigned*/ int x = 0;
+#pragma omp parallel
+	{
+#pragma omp for
+		for (x = 0; x < CHUNK_GROUP_MID_LEN; x++)
+		{
+			free(grp->chunks[x + CHUNK_GROUP_MID_LEN]);
+			grp->chunks[x + CHUNK_GROUP_MID_LEN] = grp->chunks[x];
+			grp->chunks[x] = create_chunk(grp->position + x, true);
+		}
+	}
+}
 
-  char path[MAX_PATH * 2];
-  path[0] = 0;
+Chunk *create_chunk(unsigned int position, bool thread)
+{
+	Chunk *chunk = malloc(sizeof(Chunk));
+	chunk->position = position;
+	chunk->handle = INVALID_HANDLE_VALUE;
 
-#ifdef _WIN32
+	if (thread)
+	{
+		chunk->handle = CreateThread(NULL, 0, create_chunk_thread, chunk, 0, 0);
+	}
+	else
+	{
+		create_chunk_thread(chunk);
+	}
 
-  strcat(path, GetApplicationDirectory());
-  strcat(path, "maps\\");
-  if (!DirectoryExists(path))
-    CreateDirectoryA(path, NULL);
+	return chunk;
+}
+DWORD WINAPI create_chunk_thread(PVOID arg)
+{
+	if (!arg)
+		return;
+	Chunk *chunk = arg;
 
-  strcat(path, map_name);
-  strcat(path, "\\");
-  if (!DirectoryExists(path))
-    CreateDirectoryA(path, NULL);
+	Image topLayer = GenImagePerlinNoise(CHUNK_W, BLOCK_TOP_LAYER_H, chunk->position * CHUNK_W, 0, 6.f);
+	Image mineral = GenImageCellular(CHUNK_W, CHUNK_MID_H - BLOCK_TOP_LAYER_H, 10);
 
-#endif // _WIN32
+	// Image caves = GenImageCellular(CHUNK_W, mineralHeight, 10);
 
-  char filename[MAX_PATH];
-  filename[0] = 0;
-  sprintf(filename, "%u.dat", chunk->position);
-  strcat(path, filename);
+	int x = 0;
+#pragma omp parallel
+	{
+#pragma omp for
+		for (x = 0; x < CHUNK_W; x++)
+		{
+			unsigned int level = 0;
+			bool firstLayer = false;
 
-  SaveFileData(path, out_data, (unsigned int)out_size);
+			for (unsigned int y = 0; y < CHUNK_H; y++)
+			{
+				BlockTypes type = BLOCK_AIR;
+				if (y >= CHUNK_MID_H)
+				{
+					if (y < CHUNK_MID_H + BLOCK_TOP_LAYER_H)
+					{
+						unsigned int value = GetImageColor(topLayer, x, (y - CHUNK_MID_H)).r;
 
-  sfree(in_data);
-  sfree(out_data);
+						if (level == 0)
+						{
+							if (y > CHUNK_MID_H + BLOCK_TOP_LAYER_H / 3 || (value < 105))
+							{
+								type = BLOCK_GRASS;
+								level++;
+							}
+						}
+						else if (level < 10)
+						{
+							type = BLOCK_DIRT;
+							if (value < 40)
+							{
+								type = BLOCK_STONE;
+							}
+							level++;
+						}
+						else
+						{
+							type = BLOCK_STONE;
+							if (value < 60)
+							{
+								type = BLOCK_MINERAL;
+							}
+						}
+					}
+					else
+					{
+						unsigned int value = GetImageColor(mineral, x, y - (CHUNK_MID_H + BLOCK_TOP_LAYER_H)).r;
+						type = BLOCK_MINERAL;
+						if (!firstLayer)
+						{
+							type = BLOCK_STONE;
+							if (value < 130 && value > 80)
+							{
+								firstLayer = true;
+							}
+						}
+						else
+						{
+							if (value >= 70 && value <= 75)
+							{
+								type = BLOCK_MINERAL_IRON;
+							}
+							else if (value <= 20)
+							{
+								type = BLOCK_MINERAL_OR;
+							}
+						}
+					}
+				}
+
+				chunk->blocks[y * CHUNK_W + x] = (Block){.type = type};
+			}
+		}
+	}
+
+	UnloadImage(topLayer);
+	UnloadImage(mineral);
+
+	chunk->handle = INVALID_HANDLE_VALUE;
+}
+
+ChunkView *create_chunk_view()
+{
+	ChunkView *chunkView = malloc(sizeof(ChunkView));
+	chunkView = memset(chunkView, 0, sizeof(ChunkView));
+	return chunkView;
+}
+void update_chunk_view(ChunkView *chunkView, ChunkGroup *grp, Rectangle view)
+{
+	Rectangle chunkBox =
+		{
+			.x = 0,
+			.y = 0,
+			.width = CHUNK_W * CUBE_W,
+			.height = CHUNK_H * CUBE_H};
+
+	int x = 0;
+
+#pragma omp parallel
+	{
+#pragma omp for
+		for (x = 0; x < CHUNK_GROUP_LEN; x++)
+		{
+			chunkBox.x = (grp->position * chunkBox.width) + (x * chunkBox.width);
+			if (!CheckCollisionRecs(view, chunkBox))
+				continue;
+
+			chunkView->active = grp->chunks[x];
+			if (x + 1 < CHUNK_GROUP_LEN)
+			{
+				chunkBox.x = (grp->position * chunkBox.width) + ((x + 1) * chunkBox.width);
+				if (CheckCollisionRecs(view, chunkBox))
+				{
+					chunkView->next = grp->chunks[x + 1];
+				}
+				else
+				{
+					chunkView->next = NULL;
+				}
+			}
+			else
+			{
+				chunkView->next = NULL;
+			}
+
+			break;
+		}
+	}
+
+	if (chunkView->active != NULL)
+	{
+		Rectangle cubeBox = {
+			.x = 0,
+			.y = 0,
+			.width = CUBE_W,
+			.height = CUBE_H};
+
+		chunkView->next_len = CHUNK_W * CHUNK_H * ((chunkView->next == NULL) ? 1 : 2);
+		chunkView->next_blocks = malloc(chunkView->next_len * sizeof(RenderBlock));
+
+		int index = 0, x = 0;
+#pragma omp parallel
+		{
+
+#pragma omp for /*collapse(2)*/
+			for (x = 0; x < CHUNK_W; x++)
+			{
+				for (unsigned int y = 0; y < CHUNK_H; y++)
+				{
+					cubeBox.x = chunkView->active->position * (chunkBox.width) + (x * CUBE_W);
+					cubeBox.y = (y * CUBE_H);
+
+					if (CheckCollisionRecs(cubeBox, view) && chunkView->active->blocks[y * CHUNK_W + x].type != BLOCK_AIR)
+					{
+						chunkView->next_blocks[index] = (RenderBlock){
+							.dst = cubeBox,
+							.src = CUBE_SRC_RECT,
+							.light = 0,
+							.block = chunkView->active->blocks[y * CHUNK_W + x]};
+						index++;
+					}
+
+					if (chunkView->next == NULL)
+						continue;
+
+					cubeBox.x = chunkView->next->position * (chunkBox.width) + (x * CUBE_W);
+					cubeBox.y = (y * CUBE_H);
+
+					if (CheckCollisionRecs(cubeBox, view) && chunkView->next->blocks[y * CHUNK_W + x].type != BLOCK_AIR)
+					{
+						chunkView->next_blocks[index] = (RenderBlock){
+							.dst = cubeBox,
+							.src = CUBE_SRC_RECT,
+							.light = 0,
+							.block = chunkView->next->blocks[y * CHUNK_W + x]};
+						index++;
+					}
+				}
+			}
+		}
+
+		chunkView->next_len = index;
+		chunkView->next_blocks = realloc(chunkView->next_blocks, sizeof(RenderBlock) * chunkView->next_len);
+	}
+
+	unsigned int camera_position = (int)round((view.x + view.width) / (CHUNK_W * CUBE_W));
+
+	if (grp->position > 0 && camera_position <= (grp->position + CHUNK_GROUP_LOAD))
+	{
+		prev_chunk_group(grp);
+	}
+	else if (grp->position < MAXUINT && camera_position >= (grp->position + CHUNK_GROUP_LEN - CHUNK_GROUP_LOAD))
+	{
+		next_chunk_group(grp);
+	}
+}
+
+void swap_chunk_view(ChunkView *chunkView)
+{
+	if (chunkView->next_blocks != NULL)
+	{
+		if (chunkView->blocks != NULL)
+		{
+			free(chunkView->blocks);
+		}
+
+		chunkView->blocks = chunkView->next_blocks;
+		chunkView->len = chunkView->next_len;
+
+		chunkView->next_blocks = NULL;
+		chunkView->next_len = 0;
+	}
 }

@@ -3,14 +3,16 @@
 
 #define CONFIG_NAME "config.dat"
 
-typedef enum LoadingState {
+typedef enum LoadingState
+{
   LS_DISPLAY,
   LS_LOAD,
   LS_OK,
   LS_FAILED,
 } LoadingState;
 
-typedef struct Config {
+typedef struct Config
+{
   unsigned int fullscreen : 1;
   unsigned int msaa4x : 1;
   unsigned int vsync : 1;
@@ -21,14 +23,18 @@ typedef struct Config {
   unsigned int max_fps : 10;
   unsigned int max_chunks : 10;
 
+  /*
   unsigned int render_size : 12;
   unsigned int render_distance : 6;
 
   unsigned int max_render_block : 8;
+
   unsigned int block_size : 8;
+  */
 } Config;
 
-typedef struct State {
+typedef struct State
+{
   LoadingState loading;
 
   char **textures_id;
@@ -45,7 +51,7 @@ typedef struct State {
 
 #ifdef _WIN32
   HINSTANCE hInstance;
-#endif  // _WIN32
+#endif // _WIN32
 
 } State;
 

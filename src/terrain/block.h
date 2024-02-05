@@ -1,17 +1,34 @@
 #pragma once
+#define CUBE_W 128 //(RENDER_W/10)
+#define CUBE_H 72  //(RENDER_H/10)
+
+#define BLOCK_BRUTE_VALUE_MAX 255
+#define BLOCK_TOP_LAYER_H 40
+
+#define CUBE_SRC_RECT \
+	(Rectangle) { 0, 0, 8, 8 }
 
 typedef enum BlockTypes
 {
-  B_NONE = 0,
-  B_GRASS,
-  B_DIRT,
-  B_STONE
+	BLOCK_AIR = 0,
+	BLOCK_GRASS,
+	BLOCK_DIRT,
+	BLOCK_STONE,
+	BLOCK_MINERAL,
+	BLOCK_MINERAL_OR,
+	BLOCK_MINERAL_IRON,
 } BlockTypes;
 
-typedef struct Block
+typedef union Block
 {
-  unsigned int x : 6; // 2^6 = 64
-  unsigned int y : 8; // 2^8 = 256
-
-  BlockTypes type;
+	BlockTypes type; // 16
 } Block;
+
+typedef struct RenderBlock
+{
+	Rectangle dst;
+	Rectangle src;
+	Block block;
+
+	unsigned int light;
+} RenderBlock;

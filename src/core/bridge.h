@@ -1,37 +1,37 @@
 #pragma once
 
-#include "../entities/player.h"
 #include "../stdafx.h"
+#include "../entities/player.h"
 #include "../terrain/chunk.h"
-#include "../terrain/world.h"
 #include "state.h"
 
-#define smooth_camera(camera, player, speed)                     \
-  camera = (camera < player) ? fmin(camera + dt * speed, player) \
-                             : fmax(camera - dt * speed, player);
+#define smooth_camera(camera, player, speed)                       \
+	camera = (camera < player) ? fmin(camera + dt * speed, player) \
+							   : fmax(camera - dt * speed, player);
 
-typedef struct BridgeThreadData {
-  unsigned int active : 1;
+#define PHYSICS_TICK (1.f / 24.f)
 
-  World *world;
-  BoundingBox view_current;
-  BoundingBox view_next;
+typedef struct ThreadData
+{
+	bool request_update;
+	bool request_swap;
 
-  Player *player;
-  Rectangle player_rect;
+	bool is_active;
+	bool is_locked;
 
-  Camera2D *camera;
-  State *state;
-
-#ifdef _WIN32
-  HANDLE handle;
-#endif  // _WIN32
-
-} BridgeThreadData;
-
-BridgeThreadData *start_thread(State *state);
-void stop_thread(BridgeThreadData *bridge);
+	ChunkGroup *chunkGroup;
+	ChunkView *chunkView;
+	Camera2D *camera;
+	Player *player;
 
 #ifdef _WIN32
-DWORD WINAPI bridge_thread(LPVOID arg);
-#endif  // _WIN32
+	LARGE_INTEGER time_start, time_end, time_frequency;
+	HANDLE handle;
+#endif
+} ThreadData;
+
+ThreadData *start_threadbridge(Player *player);
+void stop_threadbridge(ThreadData *td);
+
+void physics_update(ThreadData *td);
+int WINAPI update_thread(PVOID arg);

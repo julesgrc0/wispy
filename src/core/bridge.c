@@ -1,50 +1,150 @@
 #include "bridge.h"
 
-BridgeThreadData *start_thread(State *state) {
-  BridgeThreadData *bridge = malloc(sizeof(BridgeThreadData));
-  if (bridge == NULL) return NULL;
-  memset(bridge, 0, sizeof(BridgeThreadData));
+ThreadData *start_threadbridge(Player *player)
+{
+  ThreadData *td = malloc(sizeof(ThreadData));
+  memset(td, 0, sizeof(ThreadData));
 
-  bridge->active = 1;
+  td->request_update = false;
+  td->request_swap = false;
+  td->is_locked = false;
+  td->is_active = true;
 
-  bridge->state = state;
+  QueryPerformanceFrequency(&td->time_frequency);
+  QueryPerformanceCounter(&td->time_start);
+  QueryPerformanceCounter(&td->time_end);
 
-  bridge->player = malloc(sizeof(Player));
-  memset(bridge->player, 0, sizeof(Player));
+  td->chunkGroup = create_chunk_group(CHUNK_GROUP_MID_LEN);
+  td->chunkView = create_chunk_view();
 
-  bridge->camera = malloc(sizeof(Camera2D));
-  memset(bridge->camera, 0, sizeof(Camera2D));
+  td->camera = malloc(sizeof(Camera2D));
+  memset(td->camera, 0, sizeof(Camera2D));
 
-  bridge->world = malloc(sizeof(World));
-  memset(bridge->world, 0, sizeof(World));
+  td->camera->zoom = .5f;
+  td->camera->target.y = CHUNK_MID_H * CUBE_H;
+  td->camera->target.x = td->chunkGroup->position * CHUNK_W * CUBE_W;
 
-#ifdef _WIN32
-  bridge->handle = INVALID_HANDLE_VALUE;
-  bridge->handle = CreateThread(NULL, 0, &bridge_thread, bridge, 0, NULL);
-#endif  // _WIN32
+  td->player = player;
+  td->player->src = (Rectangle){0, 0, CUBE_W, CUBE_H * 2};
+  td->player->box = (Rectangle){0, 0, td->player->src.width * 0.9, td->player->src.height * 0.9};
 
-  return bridge;
+  td->handle = CreateThread(NULL, 0, &update_thread, td, 0, NULL);
+
+  return td;
 }
 
-void stop_thread(BridgeThreadData *bridge) {
-  bridge->active = 0;
+void stop_threadbridge(ThreadData *td)
+{
+  td->is_active = false;
+  if (td->handle != INVALID_HANDLE_VALUE && td->handle != NULL)
+  {
+    WaitForSingleObject(td->handle, INFINITE);
+  }
 
-#ifdef _WIN32
-  if (bridge->handle != INVALID_HANDLE_VALUE)
-    WaitForSingleObject(bridge->handle, INFINITE);
-#endif  // _WIN32
+  for (unsigned int i = 0; i < CHUNK_GROUP_LEN; i++)
+  {
+    if (td->chunkGroup->chunks[i]->handle != INVALID_HANDLE_VALUE)
+    {
+      WaitForSingleObject(td->chunkGroup->chunks[i]->handle, INFINITE);
+    }
 
-  sfree(bridge->world->prev);
-  sfree(bridge->world->current);
-  sfree(bridge->world->next);
-  sfree(bridge->world);
+    free(td->chunkGroup->chunks[i]);
+  }
+  free(td->chunkGroup);
 
-  sfree(bridge->player);
-  sfree(bridge->camera);
+  free(td->chunkView->blocks);
+  free(td->chunkView);
 
-  sfree(bridge);
+  free(td->camera);
+  free(td->player);
+
+  free(td);
 }
 
+void physics_update(ThreadData *td)
+{
+  QueryPerformanceCounter(&td->time_end);
+  if (td->time_end.QuadPart - td->time_start.QuadPart < td->time_frequency.QuadPart * PHYSICS_TICK)
+    return;
+  QueryPerformanceCounter(&td->time_start);
+
+  Vector2 velocity = {0};
+  if (IsKeyDown(KEY_LEFT))
+  {
+    velocity.x -= 1;
+  }
+  else if (IsKeyDown(KEY_RIGHT))
+  {
+    velocity.x += 1;
+  }
+
+  if (IsKeyDown(KEY_UP))
+  {
+    velocity.y -= 1;
+  }
+  else if (IsKeyDown(KEY_DOWN))
+  {
+    velocity.y += 1;
+  }
+
+  float wheel = GetMouseWheelMove();
+  if (wheel != 0.f)
+  {
+    printf("wheel: %f\n", wheel);
+    td->camera->zoom += (wheel * ((PHYSICS_TICK * 100.f) / 10));
+
+    if (td->camera->zoom > 3.0f)
+    {
+      td->camera->zoom = 3.0f;
+    }
+    else if (td->camera->zoom < 0.01f)
+    {
+      td->camera->zoom = 0.01f;
+    }
+
+    td->request_update = true;
+  }
+
+  if (velocity.x != 0 || velocity.y != 0)
+  {
+    Vector2Normalize(velocity);
+    velocity = Vector2Scale(velocity, 1.f / PHYSICS_TICK);
+
+    td->camera->target.x += velocity.x;
+    td->camera->target.y += velocity.y;
+
+    td->player->box = get_center_box_from_camera(*(td->camera), td->player->box);
+    td->request_update = true;
+  }
+}
+
+int WINAPI update_thread(PVOID arg)
+{
+  ThreadData *td = arg;
+
+  update_chunk_view(td->chunkView, td->chunkGroup, get_view_from_camera(*(td->camera)));
+  swap_chunk_view(td->chunkView);
+
+  while (td->is_active)
+  {
+    physics_update(td);
+
+    if (!td->request_update || td->request_swap)
+      continue;
+
+    td->is_locked = true;
+    update_chunk_view(td->chunkView, td->chunkGroup, get_view_from_camera(*(td->camera)));
+
+    td->request_update = false;
+    td->request_swap = true;
+
+    td->is_locked = false;
+  }
+
+  return EXIT_SUCCESS;
+}
+
+/*
 #ifdef _WIN32
 DWORD WINAPI bridge_thread(LPVOID arg) {
 #else
@@ -53,31 +153,39 @@ DWORD WINAPI bridge_thread(LPVOID arg) {
 
   BridgeThreadData *bridge = arg;
 
-  Seed seed = {.seed = 0};
+#ifndef _DEBUG
+  Seed seed = { .seed = 0 };
+#else
+  SetRandomSeed((__int64)time(NULL));
+  Seed seed = { .seed = GetRandomValue(0, 1000) };
+#endif // _DEBUG
+
 
   char map_name[MAX_PATH];
   sprintf(map_name, "map_%lld", seed.seed);
 
   void *tmp = load_world(map_name, bridge->state->config->max_chunks / 2);
-  if (!tmp) {
+  if (!tmp)
+  {
     tmp = new_world(bridge->state->config->max_chunks / 2,
                     bridge->state->config->max_chunks, seed, map_name);
   }
 
   if (!tmp) {
     return EXIT_FAILURE;
-  } else {
-    void *tmp_wnc = bridge->world;
-    bridge->world = tmp;
-    sfree(tmp_wnc);
   }
+
+   //void *tmp_wnc = bridge->world;
+   //bridge->world = tmp;
+   //sfree(tmp_wnc);
+
 
   Config *cfg = bridge->state->config;
   Camera2D *camera = bridge->camera;
   Player *player = bridge->player;
   World *world = bridge->world;
 
-  /*
+  ///
   unsigned int middle_index = world->len / 2;
   for (size_t i = 0; i < world->chunks[middle_index]->len; i++)
   {
@@ -88,7 +196,8 @@ DWORD WINAPI bridge_thread(LPVOID arg) {
                   player->position.y = (world->chunks[middle_index]->blocks[i].y
   * cfg->block_size) - (cfg->block_size * 2); break;
           }
-  }*/
+  }
+  ///
 
   player->position.x =
       (world->current->blocks[0].x * cfg->block_size) +
@@ -258,3 +367,4 @@ DWORD WINAPI bridge_thread(LPVOID arg) {
 
   return EXIT_SUCCESS;
 }
+*/

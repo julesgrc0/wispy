@@ -21,7 +21,7 @@ cfg->block_size), \
                                 cfg->block_size, cfg->block_size}, \
                         (Vector2){0}, 0, WHITE); \
         }
-*/
+
 static void render_chunk(Chunk *chunk, BoundingBox view, Rectangle block_rect,
                          Texture *textures, Config *cfg)
 {
@@ -53,6 +53,7 @@ static void render_chunk(Chunk *chunk, BoundingBox view, Rectangle block_rect,
                 }
         }
 }
+*/
 
 #define round_to(x, to) (round(x / to) * to)
 
@@ -64,30 +65,71 @@ void game_screen(State *state)
 
         Config *cfg = state->config;
 
-        Texture blocks[3] = {get_texture_by_id(state, "blocks\\grass.png"),
-                             get_texture_by_id(state, "blocks\\dirt.png"),
-                             get_texture_by_id(state, "blocks\\stone.png")};
+        Texture block_textures[6] = {
+            get_texture_by_id(state, "blocks\\grass.png"),
+            get_texture_by_id(state, "blocks\\dirt.png"),
+            get_texture_by_id(state, "blocks\\stone.png"),
+            get_texture_by_id(state, "blocks\\mineral.png"),
+            get_texture_by_id(state, "blocks\\mineral_or.png"),
+            get_texture_by_id(state, "blocks\\mineral_iron.png")};
 
-        Texture players[4] = {
+        Texture player_textures[4] = {
             get_texture_by_id(state, "player\\player_idle1.png"),
             get_texture_by_id(state, "player\\player_idle2.png"),
             get_texture_by_id(state, "player\\player_walk1.png"),
             get_texture_by_id(state, "player\\player_walk2.png"),
         };
 
-        Rectangle block_rect = {0, 0, blocks[0].width, blocks[0].height};
-        Rectangle player_src = {0, 0, players[0].width, players[0].height};
-        Rectangle player_src_rev = {0, 0, -players[0].width, players[0].height};
+        Rectangle block_rect = {0, 0, block_textures[0].width, block_textures[0].height};
+        Rectangle player_src = {0, 0, player_textures[0].width, player_textures[0].height};
+        Rectangle player_src_rev = {0, 0, -player_textures[0].width, player_textures[0].height};
 
-        BridgeThreadData *bridge = start_thread(state);
+        Player *player = malloc(sizeof(Player));
+        memset(player, 0, sizeof(Player));
+        player->src = (Rectangle){0, 0, CUBE_W, CUBE_H * 2};
+        player->box = (Rectangle){0, 0, player->src.width * 0.9, player->src.height * 0.9};
 
-        Chunk *chunk = NULL;
+        ThreadData *td = start_threadbridge(player);
+
         while (!WindowShouldClose())
         {
                 BeginTextureMode(state->render);
 
                 ClearBackground(BLACK);
-                BeginMode2D(*(bridge->camera));
+                BeginMode2D(*(td->camera));
+
+                // update_inputs(td);
+
+                for (unsigned int i = 0; i < td->chunkView->len; i++)
+                {
+                        DrawTexturePro(
+                            block_textures[td->chunkView->blocks[i].block.type - 1],
+                            td->chunkView->blocks[i].src,
+                            td->chunkView->blocks[i].dst,
+                            (Vector2){
+                                0},
+                            0, WHITE /* light */);
+                }
+
+                if (td->request_swap && !td->is_locked)
+                {
+                        swap_chunk_view(td->chunkView);
+                        td->request_swap = false;
+                }
+
+#ifdef _DEBUG
+                if (td->chunkView->active != NULL)
+                {
+                        DrawRectangleLinesEx((Rectangle){td->chunkView->active->position * CHUNK_W * CUBE_W, 0, CHUNK_W * CUBE_W, CHUNK_H * CUBE_H}, 5, RED);
+                }
+
+                if (td->chunkView->next != NULL)
+                {
+                        DrawRectangleLinesEx((Rectangle){td->chunkView->next->position * CHUNK_W * CUBE_W, 0, CHUNK_W * CUBE_W, CHUNK_H * CUBE_H}, 5, RED);
+                }
+#endif // _DEBUG
+
+                DrawRectangleLinesEx(td->player->box, 2.f, RED);
 
                 /*
                 chunk = bridge->world->current;
@@ -142,8 +184,7 @@ void game_screen(State *state)
 
                 EndDrawing();
         }
-        stop_thread(bridge);
-
+        stop_threadbridge(td);
 #ifndef _DEBUG
         ShowCursor();
 #endif // !_DEBUG

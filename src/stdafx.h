@@ -22,16 +22,19 @@
 #include <rlgl.h>
 ///
 
-#if defined(_WIN32)
+/// OpenMP
+#include <omp.h>
+///
+
+#ifdef _WIN32
+
 #define NOGDI
 #define NOUSER
-#endif
 
 #include <crtdbg.h>
 #include <crtdefs.h>
 #include <windows.h>
 
-#if defined(_WIN32)
 #undef near
 #undef far
 
@@ -43,6 +46,9 @@
 #define sfree(x) \
   if (x)         \
     free(x);
+
+#define RENDER_W 1280
+#define RENDER_H 720
 
 #if defined(_DEBUG) && defined(_WIN32)
 

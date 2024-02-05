@@ -3,7 +3,8 @@
 void load_assets(State *state)
 {
   state->render =
-      LoadRenderTexture(state->config->render_size, state->config->render_size);
+      LoadRenderTexture(RENDER_W, RENDER_H);
+  // LoadRenderTexture(state->config->render_size, state->config->render_size);
   state->src_rnd = (Rectangle){0.0f, 0.0f, (float)state->render.texture.width,
                                -(float)state->render.texture.height};
   state->dest_rnd = (Rectangle){0.0f, 0.0f, (float)GetScreenWidth(),
