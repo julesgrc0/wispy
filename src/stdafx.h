@@ -41,7 +41,8 @@
 #endif
 
 #define sfree(x) \
-  if (x) free(x);
+  if (x)         \
+    free(x);
 
 #if defined(_DEBUG) && defined(_WIN32)
 
@@ -58,4 +59,4 @@
 
 #else
 #define measure(name, x)
-#endif  // _DEBUG && _WIN32
+#endif // _DEBUG && _WIN32

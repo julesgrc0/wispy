@@ -2,7 +2,8 @@
 #include "../stdafx.h"
 #include "block.h"
 
-typedef struct StructureBlock {
+typedef struct StructureBlock
+{
   Block *shape;
   unsigned int len : 14;
 

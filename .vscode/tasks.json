@@ -4,9 +4,8 @@
         {
             "type": "cppbuild",
             "label": "Build",
-            "command": "cmd.exe",
+            "command": "",
             "args": [
-                "/C",
                 "${input:msbuild}",
                 "${workspaceFolder}${pathSeparator}wispy-c.sln",
                 "/p:configuration=${input:configuration};platform=${input:platform}"
@@ -14,10 +13,7 @@
             "problemMatcher": [
                 "$msCompile"
             ],
-            "group": {
-                "isDefault": true,
-                "kind": "build"
-            }
+            "group": "build"
         }
     ],
     "inputs": [

@@ -4,6 +4,8 @@ State *init_mainframe() {
   State *state = malloc(sizeof(State));
   if (state == NULL) return NULL;
 
+  memset(state, 0, sizeof(State));
+
   state->loading = LS_DISPLAY;
 
   state->len = 0;

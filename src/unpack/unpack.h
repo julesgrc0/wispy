@@ -2,7 +2,8 @@
 #include "../resource.h"
 #include "../stdafx.h"
 
-typedef struct AssetItem {
+typedef struct AssetItem
+{
   char *name;
 
   char *buffer;
