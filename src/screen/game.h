@@ -5,4 +5,4 @@
 #include "../terrain/chunk.h"
 #include "../entities/player.h"
 
-void game_screen(State *state);
+void game_screen(w_state *state);

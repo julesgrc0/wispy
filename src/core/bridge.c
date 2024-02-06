@@ -1,39 +1,40 @@
 #include "bridge.h"
 
-ThreadData *start_threadbridge(Player *player)
+w_bridgedata *start_threadbridge(w_player *player)
 {
-  ThreadData *td = malloc(sizeof(ThreadData));
-  memset(td, 0, sizeof(ThreadData));
+  w_bridgedata *td = malloc(sizeof(w_bridgedata));
+  memset(td, 0, sizeof(w_bridgedata));
 
-  td->request_update = false;
   td->request_swap = false;
-  td->is_locked = false;
   td->is_active = true;
 
   QueryPerformanceFrequency(&td->time_frequency);
   QueryPerformanceCounter(&td->time_start);
   QueryPerformanceCounter(&td->time_end);
 
-  td->chunkGroup = create_chunk_group(CHUNK_GROUP_MID_LEN);
-  td->chunkView = create_chunk_view();
+  td->chunk_group = create_chunk_group(CHUNK_GROUP_MID_LEN);
+  td->chunk_view = create_chunk_view();
 
   td->camera = malloc(sizeof(Camera2D));
   memset(td->camera, 0, sizeof(Camera2D));
 
   td->camera->zoom = .5f;
   td->camera->target.y = CHUNK_MID_H * CUBE_H;
-  td->camera->target.x = td->chunkGroup->position * CHUNK_W * CUBE_W;
+  td->camera->target.x = td->chunk_group->position * CHUNK_W * CUBE_W;
 
   td->player = player;
   td->player->src = (Rectangle){0, 0, CUBE_W, CUBE_H * 2};
   td->player->box = (Rectangle){0, 0, td->player->src.width * 0.9, td->player->src.height * 0.9};
 
-  td->handle = CreateThread(NULL, 0, &update_thread, td, 0, NULL);
+  td->keyboard = malloc(sizeof(w_keyboard));
+  memset(td->keyboard, 0, sizeof(w_keyboard));
+
+  td->handle = CreateThread(NULL, 0, &update_bridgethread, td, 0, NULL);
 
   return td;
 }
 
-void stop_threadbridge(ThreadData *td)
+void stop_threadbridge(w_bridgedata *td)
 {
   td->is_active = false;
   if (td->handle != INVALID_HANDLE_VALUE && td->handle != NULL)
@@ -43,17 +44,17 @@ void stop_threadbridge(ThreadData *td)
 
   for (unsigned int i = 0; i < CHUNK_GROUP_LEN; i++)
   {
-    if (td->chunkGroup->chunks[i]->handle != INVALID_HANDLE_VALUE)
+    if (td->chunk_group->chunks[i]->handle != INVALID_HANDLE_VALUE)
     {
-      WaitForSingleObject(td->chunkGroup->chunks[i]->handle, INFINITE);
+      WaitForSingleObject(td->chunk_group->chunks[i]->handle, INFINITE);
     }
 
-    free(td->chunkGroup->chunks[i]);
+    free(td->chunk_group->chunks[i]);
   }
-  free(td->chunkGroup);
+  free(td->chunk_group);
 
-  free(td->chunkView->blocks);
-  free(td->chunkView);
+  free(td->chunk_view->blocks);
+  free(td->chunk_view);
 
   free(td->camera);
   free(td->player);
@@ -61,84 +62,78 @@ void stop_threadbridge(ThreadData *td)
   free(td);
 }
 
-void physics_update(ThreadData *td)
+void update_keyboard(w_keyboard *kb)
 {
-  QueryPerformanceCounter(&td->time_end);
-  if (td->time_end.QuadPart - td->time_start.QuadPart < td->time_frequency.QuadPart * PHYSICS_TICK)
-    return;
-  QueryPerformanceCounter(&td->time_start);
+  kb->left = IsKeyDown(KEY_LEFT);
+  kb->right = IsKeyDown(KEY_RIGHT);
+  kb->up = IsKeyDown(KEY_UP);
+  kb->down = IsKeyDown(KEY_DOWN);
+  kb->space = IsKeyDown(KEY_SPACE);
+  kb->shift = IsKeyDown(KEY_LEFT_SHIFT);
 
-  Vector2 velocity = {0};
-  if (IsKeyDown(KEY_LEFT))
-  {
-    velocity.x -= 1;
-  }
-  else if (IsKeyDown(KEY_RIGHT))
-  {
-    velocity.x += 1;
-  }
+  LOGIF(kb->key != 0, "Keyboard State: %d\n", kb->key);
+}
 
-  if (IsKeyDown(KEY_UP))
+void clear_keyboard(w_keyboard *kb)
+{
+  kb->key = 0;
+}
+
+void physics_update(w_bridgedata *td)
+{
+
+  Vector2 velocity = {0, 0};
+  if (td->keyboard->up)
   {
     velocity.y -= 1;
   }
-  else if (IsKeyDown(KEY_DOWN))
+  else if (td->keyboard->down)
   {
     velocity.y += 1;
   }
 
-  float wheel = GetMouseWheelMove();
-  if (wheel != 0.f)
+  if (td->keyboard->left)
   {
-    printf("wheel: %f\n", wheel);
-    td->camera->zoom += (wheel * ((PHYSICS_TICK * 100.f) / 10));
-
-    if (td->camera->zoom > 3.0f)
-    {
-      td->camera->zoom = 3.0f;
-    }
-    else if (td->camera->zoom < 0.01f)
-    {
-      td->camera->zoom = 0.01f;
-    }
-
-    td->request_update = true;
+    velocity.x -= 1;
+  }
+  else if (td->keyboard->right)
+  {
+    velocity.x += 1;
   }
 
   if (velocity.x != 0 || velocity.y != 0)
   {
-    Vector2Normalize(velocity);
-    velocity = Vector2Scale(velocity, 1.f / PHYSICS_TICK);
-
-    td->camera->target.x += velocity.x;
-    td->camera->target.y += velocity.y;
-
-    td->player->box = get_center_box_from_camera(*(td->camera), td->player->box);
-    td->request_update = true;
+    td->camera->target.x += velocity.x * 10;
+    td->camera->target.y += velocity.y * 10;
   }
+
+  clear_keyboard(td->keyboard);
 }
 
-int WINAPI update_thread(PVOID arg)
+#ifdef _WIN32
+int WINAPI update_bridgethread(PVOID arg)
+#else
+void *update_bridgethread(void *arg)
+#endif
 {
-  ThreadData *td = arg;
+  w_bridgedata *td = arg;
 
-  update_chunk_view(td->chunkView, td->chunkGroup, get_view_from_camera(*(td->camera)));
-  swap_chunk_view(td->chunkView);
+  update_chunk_view(td->chunk_view, td->chunk_group, get_view_from_camera(*(td->camera)));
+  swap_chunk_view(td->chunk_view);
 
   while (td->is_active)
   {
-    physics_update(td);
+    if (td->keyboard->key != 0)
+    {
+      update_chunk_view(td->chunk_view, td->chunk_group, get_view_from_camera(*(td->camera)));
+      td->request_swap = true;
+    }
 
-    if (!td->request_update || td->request_swap)
+    QueryPerformanceCounter(&td->time_end);
+    if (td->time_end.QuadPart - td->time_start.QuadPart < td->time_frequency.QuadPart * PHYSICS_TICK)
       continue;
-
-    td->is_locked = true;
-    update_chunk_view(td->chunkView, td->chunkGroup, get_view_from_camera(*(td->camera)));
-
-    td->request_update = false;
-    td->request_swap = true;
-
-    td->is_locked = false;
+    QueryPerformanceCounter(&td->time_start);
+    physics_update(td);
   }
 
   return EXIT_SUCCESS;

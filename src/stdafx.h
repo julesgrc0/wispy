@@ -22,9 +22,6 @@
 #include <rlgl.h>
 ///
 
-/// OpenMP
-#include <omp.h>
-///
 
 #ifdef _WIN32
 
@@ -35,12 +32,20 @@
 #include <crtdefs.h>
 #include <windows.h>
 
+/// OpenMP
+#include <omp.h>
+///
+
 #undef near
 #undef far
 
 #define MAKEINTRESOURCE(i) ((LPSTR)((ULONG_PTR)((WORD)(i))))
 #else
 #define MAX_PATH 260
+
+#include <pthread.h>
+#include <unistd.h>
+
 #endif
 
 #define sfree(x) \
@@ -50,8 +55,19 @@
 #define RENDER_W 1280
 #define RENDER_H 720
 
-#if defined(_DEBUG) && defined(_WIN32)
 
+#ifdef _DEBUG
+#define LOG(...) printf(__VA_ARGS__)
+#define LOGIF(cond, ...) \
+  if (cond)              \
+  printf(__VA_ARGS__)
+#else
+#define LOG(...)
+#define LOGIF(cond, ...)
+#endif // _DEBUG
+
+
+#if defined(_DEBUG) && defined(_WIN32)
 #define measure(name, x)                                                \
   LARGE_INTEGER start, end, frequency;                                  \
   long long elapsed_time;                                               \

@@ -3,15 +3,15 @@
 #include "../stdafx.h"
 #include "../terrain/chunk.h"
 
-typedef enum PlayerState
+typedef enum w_playerstate
 {
 	P_IDLE_1,
 	P_IDLE_2,
 	P_WALK_1,
 	P_WALK_2
-} PlayerState;
+} w_playerstate;
 
-typedef struct Player
+typedef struct w_player
 {
 	Rectangle src;
 	Rectangle box;
@@ -23,7 +23,7 @@ typedef struct Player
 
 	unsigned int onground : 1;
 	unsigned int direction : 1;
-	PlayerState state;
-} Player;
+	w_playerstate state;
+} w_player;
 
-void update_player(Player *player, float velocity, float dt);
+void update_player(w_player *player, float velocity, float dt);

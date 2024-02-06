@@ -1,19 +1,24 @@
 #include "state.h"
 
-Config *load_config()
+w_config *load_config()
 {
-  Config *cfg = malloc(sizeof(Config));
+  w_config *cfg = malloc(sizeof(w_config));
   if (cfg == NULL)
     return NULL;
 
-  char *config_path = GetApplicationDirectory();
+  char *config_path = malloc(MAX_PATH * 2);
+  if (config_path == NULL)
+    return NULL;
+
+  config_path[0] = 0;
+  strcat(config_path, GetApplicationDirectory());
   strcat(config_path, CONFIG_NAME);
 
   if (FileExists(config_path))
   {
     unsigned int size = 0;
     char *data = LoadFileData(config_path, &size);
-    cfg = (Config *)memmove(cfg, data, sizeof(Config));
+    cfg = (w_config *)memmove(cfg, data, sizeof(w_config));
 
     sfree(data);
 
@@ -55,23 +60,29 @@ Config *load_config()
 
   if (cfg->max_render_block == 0) cfg->max_render_block = 255;
   */
+
+  free(config_path);
   return cfg;
 }
 
-void save_config(Config *config)
+void save_config(w_config *config)
 {
 #ifndef _DEBUG
-  const char *base = GetApplicationDirectory();
-  char *config_path = malloc(MAX_PATH);
-  config_path = strcpy(config_path, base);
-  config_path = strcat(config_path + strlen(base) + 1, CONFIG_NAME);
+  char *config_path = malloc(MAX_PATH * 2);
+  if (config_path == NULL)
+    return;
 
-  SaveFileData(config_path, config, sizeof(Config));
+  config_path[0] = 0;
+
+  strcat(config_path, GetApplicationDirectory());
+  strcat(config_path, CONFIG_NAME);
+
+  SaveFileData(config_path, config, sizeof(w_config));
   free(config_path);
 #endif // !_DEBUG
 }
 
-Texture get_texture_by_id(State *state, char *id)
+Texture get_texture_by_id(w_state *state, char *id)
 {
   for (size_t i = 0; i < state->len; i++)
   {

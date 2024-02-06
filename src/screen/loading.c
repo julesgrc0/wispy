@@ -1,6 +1,6 @@
 #include "loading.h"
 
-void load_assets(State *state)
+void load_assets(w_state *state)
 {
   state->render =
       LoadRenderTexture(RENDER_W, RENDER_H);
@@ -11,7 +11,7 @@ void load_assets(State *state)
                                 (float)GetScreenHeight()};
 
   size_t len;
-  AssetItem *items = unpack_assets(state->hInstance, &len);
+  w_asset *items = unpack_assets(state->hInstance, &len);
   if (!items)
   {
     state->loading = LS_FAILED;
@@ -67,7 +67,7 @@ void load_assets(State *state)
   state->loading = LS_OK;
 }
 
-void loading_screen(State *state)
+void loading_screen(w_state *state)
 {
   bool loaded = false;
 

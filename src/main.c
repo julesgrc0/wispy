@@ -26,7 +26,7 @@ int main(int argc, const char **argv)
   fflush(stdin);
 #endif // _DEBUG && _WIN32
 
-  State *state = init_mainframe();
+  w_state *state = init_mainframe();
 
 #ifdef _WIN32
   state->hInstance = hInstance;

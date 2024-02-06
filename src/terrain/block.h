@@ -8,7 +8,7 @@
 #define CUBE_SRC_RECT \
 	(Rectangle) { 0, 0, 8, 8 }
 
-typedef enum BlockTypes
+typedef enum w_blocktype
 {
 	BLOCK_AIR = 0,
 	BLOCK_GRASS,
@@ -17,18 +17,18 @@ typedef enum BlockTypes
 	BLOCK_MINERAL,
 	BLOCK_MINERAL_OR,
 	BLOCK_MINERAL_IRON,
-} BlockTypes;
+} w_blocktype;
 
-typedef union Block
+typedef union w_block
 {
-	BlockTypes type; // 16
-} Block;
+	w_blocktype type; // 16
+} w_block;
 
-typedef struct RenderBlock
+typedef struct w_renderblock
 {
 	Rectangle dst;
 	Rectangle src;
-	Block block;
+	w_block block;
 
 	unsigned int light;
-} RenderBlock;
+} w_renderblock;

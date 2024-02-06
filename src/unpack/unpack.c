@@ -28,7 +28,7 @@ char *load_resource(HINSTANCE hInstance, size_t *size)
 #endif
 }
 
-AssetItem *unpack_assets(HINSTANCE hInstance, size_t *size)
+w_asset *unpack_assets(HINSTANCE hInstance, size_t *size)
 {
   *size = 0;
   size_t in_size = 0;
@@ -53,7 +53,7 @@ AssetItem *unpack_assets(HINSTANCE hInstance, size_t *size)
   }
   out_buffer = realloc(out_buffer, out_size);
 
-  AssetItem *items = malloc(sizeof(AssetItem));
+  w_asset *items = malloc(sizeof(w_asset));
   size_t len = 0;
   if (items == NULL)
   {
@@ -64,7 +64,7 @@ AssetItem *unpack_assets(HINSTANCE hInstance, size_t *size)
   size_t index = 0;
   while (index < out_size)
   {
-    AssetItem item = {0};
+    w_asset item = {0};
     size_t current_size = 0;
 
     item.name = malloc(0);
@@ -91,8 +91,8 @@ AssetItem *unpack_assets(HINSTANCE hInstance, size_t *size)
     memcpy(item.buffer, out_buffer + index, item.size);
     index += item.size;
 
-    items = realloc(items, (len + 1) * sizeof(AssetItem));
-    memcpy(&items[len], &item, sizeof(AssetItem));
+    items = realloc(items, (len + 1) * sizeof(w_asset));
+    memcpy(&items[len], &item, sizeof(w_asset));
     len++;
   }
 

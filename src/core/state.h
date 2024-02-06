@@ -3,15 +3,15 @@
 
 #define CONFIG_NAME "config.dat"
 
-typedef enum LoadingState
+typedef enum w_loadstatus
 {
   LS_DISPLAY,
   LS_LOAD,
   LS_OK,
   LS_FAILED,
-} LoadingState;
+} w_loadstatus;
 
-typedef struct Config
+typedef struct w_config
 {
   unsigned int fullscreen : 1;
   unsigned int msaa4x : 1;
@@ -31,11 +31,11 @@ typedef struct Config
 
   unsigned int block_size : 8;
   */
-} Config;
+} w_config;
 
-typedef struct State
+typedef struct w_state
 {
-  LoadingState loading;
+  w_loadstatus loading;
 
   char **textures_id;
   Texture *textures;
@@ -47,15 +47,15 @@ typedef struct State
   Rectangle src_rnd;
   Rectangle dest_rnd;
 
-  Config *config;
+  w_config *config;
 
 #ifdef _WIN32
   HINSTANCE hInstance;
 #endif // _WIN32
 
-} State;
+} w_state;
 
-Config *load_config();
-void save_config(Config *config);
+w_config *load_config();
+void save_config(w_config *config);
 
-Texture get_texture_by_id(State *state, char *id);
+Texture get_texture_by_id(w_state *state, char *id);

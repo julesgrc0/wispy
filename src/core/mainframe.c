@@ -1,12 +1,12 @@
 #include "mainframe.h"
 
-State *init_mainframe()
+w_state *init_mainframe()
 {
-  State *state = malloc(sizeof(State));
+  w_state *state = malloc(sizeof(w_state));
   if (state == NULL)
     return NULL;
 
-  memset(state, 0, sizeof(State));
+  memset(state, 0, sizeof(w_state));
 
   state->loading = LS_DISPLAY;
   state->config = load_config();
@@ -40,12 +40,17 @@ State *init_mainframe()
 
   SetConfigFlags(flags);
   SetTargetFPS(state->config->max_fps);
+#ifdef _DEBUG
+  SetRandomSeed(0);
+#else
+  SetRandomSeed(time(NULL));
+#endif // _DEBUG
 
   InitWindow(state->config->width, state->config->height, "Wispy");
   return state;
 }
 
-void destroy_mainframe(State *state)
+void destroy_mainframe(w_state *state)
 {
   if (state == NULL)
     return;
@@ -69,7 +74,7 @@ void destroy_mainframe(State *state)
   sfree(state);
 }
 
-void loop_mainframe(State *state)
+void loop_mainframe(w_state *state)
 {
   loading_screen(state);
   if (state->loading != LS_OK)

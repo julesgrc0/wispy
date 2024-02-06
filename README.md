@@ -17,21 +17,18 @@
 
 ### 📚 Libraries
 
-> To simplify the use of third-party libraries we use **vcpkg** in this project.
+- zlib   
+- raylib 
+- pthread (linux)
 
-- zlib
-- raylib
+### 🛠 Building 
 
-### 🌐 Portability
+**⚙ Requirements**
 
-> Wispy was developed for Windows but in the future it will be compatible with Linux too!
-
-**🛠 Requirements**
-
-- [upx](https://github.com/upx/upx)
-- [vcpkg](https://github.com/microsoft/vcpkg.git)
 - [python](https://www.python.org/downloads/)
-- [MSBuild](https://visualstudio.microsoft.com/fr/downloads/)
+- [vcpkg](https://github.com/microsoft/vcpkg.git)
+- [msbuild](https://visualstudio.microsoft.com/fr/downloads/) (Windows)
+- [upx](https://github.com/upx/upx) (Optional)
 
 **📦 Packing Assets**
 
@@ -41,7 +38,7 @@ python ./tools/pack_assets.py
 
 **💻 Building for Windows**
 
-> I use VSCode
+> With VSCode
 
 On your keyboard type this shortcut to run the build command:
 
@@ -49,14 +46,12 @@ On your keyboard type this shortcut to run the build command:
 
 Then enter the path to msbuild and select the desired configuration and platform from this one:
 
-- Debug x64
-- Debug x86
-- Release x64
-- Release x86
+- Debug/Release/Release Light Size
+- x64/x86
 
-> I use Visual Studio (2017/2019/2022)
+> With Visual Studio
 
-Open the solution with Visual Studio
+Open the solution and select your target build configuration.
 
 ```
 wispy-c.sln

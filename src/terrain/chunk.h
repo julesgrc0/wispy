@@ -10,43 +10,27 @@
 #define CHUNK_GROUP_MID_LEN 5
 #define CHUNK_GROUP_LOAD 2
 
-typedef struct Chunk
+typedef struct w_chunk
 {
-	Block blocks[CHUNK_H * CHUNK_W]; // 2^14
+	w_block blocks[CHUNK_H * CHUNK_W]; // 2^14
 	unsigned int position;
 	HANDLE handle;
-} Chunk;
+} w_chunk;
 
-typedef struct ChunkView
+typedef struct w_chunkgroup
 {
-	Chunk *active;
-	Chunk *next;
-
-	RenderBlock *blocks;
-	unsigned int len; // : 15; // 2^15 = 2^14 * 2
-
-	RenderBlock *next_blocks;
-	unsigned int next_len;
-
-	bool lock;
-} ChunkView;
-
-typedef struct ChunkGroup
-{
-	Chunk *chunks[CHUNK_GROUP_LEN];
+	w_chunk *chunks[CHUNK_GROUP_LEN];
 	unsigned int position;
-} ChunkGroup;
+} w_chunkgroup;
 
-Rectangle get_center_box_from_camera(Camera2D camera, Rectangle box);
-Rectangle get_view_from_camera(Camera2D camera);
+w_chunkgroup *create_chunk_group(unsigned int position);
+void next_chunk_group(w_chunkgroup *);
+void prev_chunk_group(w_chunkgroup *);
 
-ChunkGroup *create_chunk_group(unsigned int position);
-void next_chunk_group(ChunkGroup *);
-void prev_chunk_group(ChunkGroup *);
+w_chunk *create_chunk(unsigned int position, bool thread);
 
-Chunk *create_chunk(unsigned int position, bool thread);
+#ifdef _WIN32
 DWORD WINAPI create_chunk_thread(PVOID arg);
-
-ChunkView *create_chunk_view();
-void update_chunk_view(ChunkView *chunkView, ChunkGroup *grp, Rectangle view);
-void swap_chunk_view(ChunkView *chunkView);
+#else
+int create_chunk_thread(void *arg);
+#endif // _WIN32
