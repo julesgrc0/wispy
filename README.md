@@ -68,4 +68,4 @@ Want to be part of this fun journey? Join Aywen's [Discord server](https://disco
 
 ## 📃 License
 
-This project is under the [GPL-3.0 license](https://choosealicense.com/licenses/gpl-3.0/).
+This project is licensed under the terms of the [MIT license](LICENSE).

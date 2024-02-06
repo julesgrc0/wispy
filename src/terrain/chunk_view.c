@@ -9,25 +9,25 @@ w_chunkview *create_chunk_view()
 
 void update_chunk_view(w_chunkview *chunk_view, w_chunkgroup *grp, Rectangle view)
 {
-	LOG("Updating chunk view\n");
-	Rectangle chunkBox =
-		{
-			.x = 0,
-			.y = 0,
-			.width = CHUNK_W * CUBE_W,
-			.height = CHUNK_H * CUBE_H};
+	Rectangle chunk_box =
+	{
+		.x = 0,
+		.y = 0,
+		.width = CHUNK_W * CUBE_W,
+		.height = CHUNK_H * CUBE_H
+	};
 
 	for (unsigned int x = 0; x < CHUNK_GROUP_LEN; x++)
 	{
-		chunkBox.x = (grp->position * chunkBox.width) + (x * chunkBox.width);
-		if (!CheckCollisionRecs(view, chunkBox))
+		chunk_box.x = (grp->position * chunk_box.width) + (x * chunk_box.width);
+		if (!CheckCollisionRecs(view, chunk_box))
 			continue;
 
 		chunk_view->active = grp->chunks[x];
 		if (x + 1 < CHUNK_GROUP_LEN)
 		{
-			chunkBox.x = (grp->position * chunkBox.width) + ((x + 1) * chunkBox.width);
-			if (CheckCollisionRecs(view, chunkBox))
+			chunk_box.x = (grp->position * chunk_box.width) + ((x + 1) * chunk_box.width);
+			if (CheckCollisionRecs(view, chunk_box))
 			{
 				chunk_view->next = grp->chunks[x + 1];
 			}
@@ -46,7 +46,7 @@ void update_chunk_view(w_chunkview *chunk_view, w_chunkgroup *grp, Rectangle vie
 
 	if (chunk_view->active != NULL)
 	{
-		Rectangle cubeBox = {
+		Rectangle cube_box = {
 			.x = 0,
 			.y = 0,
 			.width = CUBE_W,
@@ -61,13 +61,13 @@ void update_chunk_view(w_chunkview *chunk_view, w_chunkgroup *grp, Rectangle vie
 		{
 			for (unsigned int y = 0; y < CHUNK_H; y++)
 			{
-				cubeBox.x = chunk_view->active->position * (chunkBox.width) + (x * CUBE_W);
-				cubeBox.y = (y * CUBE_H);
+				cube_box.x = chunk_view->active->position * (chunk_box.width) + (x * CUBE_W);
+				cube_box.y = (y * CUBE_H);
 
-				if (CheckCollisionRecs(cubeBox, view) && chunk_view->active->blocks[y * CHUNK_W + x].type != BLOCK_AIR)
+				if (CheckCollisionRecs(cube_box, view) && chunk_view->active->blocks[y * CHUNK_W + x].type != BLOCK_AIR)
 				{
 					chunk_view->next_blocks[index] = (w_renderblock){
-						.dst = cubeBox,
+						.dst = cube_box,
 						.src = CUBE_SRC_RECT,
 						.light = 0,
 						.block = chunk_view->active->blocks[y * CHUNK_W + x]};
@@ -77,13 +77,13 @@ void update_chunk_view(w_chunkview *chunk_view, w_chunkgroup *grp, Rectangle vie
 				if (chunk_view->next == NULL)
 					continue;
 
-				cubeBox.x = chunk_view->next->position * (chunkBox.width) + (x * CUBE_W);
-				cubeBox.y = (y * CUBE_H);
+				cube_box.x = chunk_view->next->position * (chunk_box.width) + (x * CUBE_W);
+				cube_box.y = (y * CUBE_H);
 
-				if (CheckCollisionRecs(cubeBox, view) && chunk_view->next->blocks[y * CHUNK_W + x].type != BLOCK_AIR)
+				if (CheckCollisionRecs(cube_box, view) && chunk_view->next->blocks[y * CHUNK_W + x].type != BLOCK_AIR)
 				{
 					chunk_view->next_blocks[index] = (w_renderblock){
-						.dst = cubeBox,
+						.dst = cube_box,
 						.src = CUBE_SRC_RECT,
 						.light = 0,
 						.block = chunk_view->next->blocks[y * CHUNK_W + x]};
@@ -110,7 +110,6 @@ void update_chunk_view(w_chunkview *chunk_view, w_chunkgroup *grp, Rectangle vie
 
 void swap_chunk_view(w_chunkview *chunk_view)
 {
-	LOG("Swapping chunk view\n");
 	if (chunk_view->next_blocks == NULL)
 	{
 		return;

@@ -58,6 +58,7 @@ void stop_threadbridge(w_bridgedata *td)
 
   free(td->camera);
   free(td->player);
+  free(td->keyboard);
 
   free(td);
 }
@@ -70,8 +71,6 @@ void update_keyboard(w_keyboard *kb)
   kb->down = IsKeyDown(KEY_DOWN);
   kb->space = IsKeyDown(KEY_SPACE);
   kb->shift = IsKeyDown(KEY_LEFT_SHIFT);
-
-  LOGIF(kb->key != 0, "Keyboard State: %d\n", kb->key);
 }
 
 void clear_keyboard(w_keyboard *kb)
@@ -103,8 +102,8 @@ void physics_update(w_bridgedata *td)
 
   if (velocity.x != 0 || velocity.y != 0)
   {
-    td->camera->target.x += velocity.x * 10;
-    td->camera->target.y += velocity.y * 10;
+    td->player->box.x += velocity.x * 100;
+    td->player->box.y += velocity.y * 100;
   }
 
   clear_keyboard(td->keyboard);
@@ -123,7 +122,7 @@ void *update_bridgethread(void *arg)
 
   while (td->is_active)
   {
-    if (td->keyboard->key != 0)
+    if (td->keyboard->key != 0 && !td->request_swap)
     {
       update_chunk_view(td->chunk_view, td->chunk_group, get_view_from_camera(*(td->camera)));
       td->request_swap = true;

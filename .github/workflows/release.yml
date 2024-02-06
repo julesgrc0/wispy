@@ -1,4 +1,4 @@
-name: Build Release x64
+name: Release Build
 on:
   push:
     branches: ["main"]
@@ -15,12 +15,17 @@ permissions:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+        include:
+          - os: windows-latest
+            vcpkgPackages: "zlib:x64-windows-static raylib:x64-windows-static lua:x64-windows-static"
+          - os: ubuntu-latest
+            vcpkgPackages: "zlib:x64-linux-static raylib:x64-linux-static lua:x64-linux-static"
     steps:
       - uses: actions/checkout@v3
-
-      - name: MSBuild
-        uses: microsoft/setup-msbuild@v1.0.2
 
       - name: Vcpkg
         uses: lukka/run-vcpkg@v11.1
@@ -31,7 +36,7 @@ jobs:
         run: vcpkg integrate install
 
       - name: Install Packages
-        run: vcpkg install zlib:x64-windows-static raylib:x64-windows-static lua:x64-windows-static
+        run: vcpkg install ${{ matrix.vcpkgPackages }}
 
       - name: Build
         working-directory: ${{env.GITHUB_WORKSPACE}}

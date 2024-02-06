@@ -86,105 +86,109 @@ void game_screen(w_state *state)
 
         w_player *player = malloc(sizeof(w_player));
         memset(player, 0, sizeof(w_player));
-        player->src = (Rectangle){0, 0, CUBE_W, CUBE_H * 2};
-        player->box = (Rectangle){0, 0, player->src.width * 0.9, player->src.height * 0.9};
-
+        
         w_bridgedata *td = start_threadbridge(player);
 
         while (!WindowShouldClose())
         {
+            float speed = GetFrameTime() * 1000;
+            smooth_camera(td->camera->target.x, td->player->box.x, speed);
+            smooth_camera(td->camera->target.y, td->player->box.y, speed);
 
-                BeginTextureMode(state->render);
+            BeginTextureMode(state->render);
 
-                ClearBackground(BLACK);
-                BeginMode2D(*(td->camera));
+            ClearBackground(BLACK);
+            BeginMode2D(*(td->camera));
 
-                update_keyboard(td->keyboard);
-                if (td->request_swap)
-                {
-                        swap_chunk_view(td->chunk_view);
-                }
+            update_keyboard(td->keyboard);
+            if (td->request_swap)
+            {
+                swap_chunk_view(td->chunk_view);
+                td->request_swap = false;
+            }
+            
+            for (unsigned int i = 0; i < td->chunk_view->len; i++)
+            {
+                DrawTexturePro(
+                    block_textures[td->chunk_view->blocks[i].block.type - 1],
+                    td->chunk_view->blocks[i].src,
+                    td->chunk_view->blocks[i].dst,
+                    (Vector2) {
+                    0
+                },
+                    0, WHITE);
+            }
 
-                for (unsigned int i = 0; i < td->chunk_view->len; i++)
-                {
-                        DrawTexturePro(
-                            block_textures[td->chunk_view->blocks[i].block.type - 1],
-                            td->chunk_view->blocks[i].src,
-                            td->chunk_view->blocks[i].dst,
-                            (Vector2){
-                                0},
-                            0, WHITE);
-                }
+            /*
+            #ifdef _DEBUG
+                            if (td->chunk_view->active != NULL)
+                            {
+                                    DrawRectangleLinesEx((Rectangle){td->chunk_view->active->position * CHUNK_W * CUBE_W, 0, CHUNK_W * CUBE_W, CHUNK_H * CUBE_H}, 5, RED);
+                            }
 
-                /*
-                #ifdef _DEBUG
-                                if (td->chunk_view->active != NULL)
-                                {
-                                        DrawRectangleLinesEx((Rectangle){td->chunk_view->active->position * CHUNK_W * CUBE_W, 0, CHUNK_W * CUBE_W, CHUNK_H * CUBE_H}, 5, RED);
-                                }
+                            if (td->chunk_view->next != NULL)
+                            {
+                                    DrawRectangleLinesEx((Rectangle){td->chunk_view->next->position * CHUNK_W * CUBE_W, 0, CHUNK_W * CUBE_W, CHUNK_H * CUBE_H}, 5, RED);
+                            }
+            #endif // _DEBUG
 
-                                if (td->chunk_view->next != NULL)
-                                {
-                                        DrawRectangleLinesEx((Rectangle){td->chunk_view->next->position * CHUNK_W * CUBE_W, 0, CHUNK_W * CUBE_W, CHUNK_H * CUBE_H}, 5, RED);
-                                }
-                #endif // _DEBUG
+                            DrawRectangleLinesEx(td->player->box, 2.f, RED);
+            */
+            /*
+            chunk = bridge->world->current;
+            if (chunk != NULL)
+            {
+                    render_chunk(chunk, bridge->view_current, block_rect, blocks, cfg);
 
-                                DrawRectangleLinesEx(td->player->box, 2.f, RED);
-                */
-                /*
-                chunk = bridge->world->current;
-                if (chunk != NULL)
-                {
-                        render_chunk(chunk, bridge->view_current, block_rect, blocks, cfg);
+                    chunk = bridge->world->next;
+                    if (chunk != NULL)
+                    {
+                            render_chunk(chunk, bridge->view_next, block_rect, blocks,
+            cfg);
+                    }
+            }
 
-                        chunk = bridge->world->next;
-                        if (chunk != NULL)
-                        {
-                                render_chunk(chunk, bridge->view_next, block_rect, blocks,
-                cfg);
-                        }
-                }
+            DrawTexturePro(players[bridge->player->state],
+                                       bridge->player->direction ? player_src_rev :
+            player_src, bridge->player_rect, (Vector2){0}, 0, WHITE);
 
-                DrawTexturePro(players[bridge->player->state],
-                                           bridge->player->direction ? player_src_rev :
-                player_src, bridge->player_rect, (Vector2){0}, 0, WHITE);
+            */
+            /*
+            Vector2 mouse = {
+                    .x = round_to((GetMouseX() * cfg->render_size) / GetRenderWidth(),
+            cfg->block_size) + round_to(bridge->camera->target.x, cfg->block_size), .y =
+            round_to((GetMouseY() * cfg->render_size) / GetRenderHeight(),
+            cfg->block_size) + round_to(bridge->camera->target.y, cfg->block_size),
+            };
+            Vector2 pcenter = {
+                    .x = bridge->player->position.x + bridge->player_rect.width/2,
+                    .y = bridge->player->position.y + bridge->player_rect.height/2
+            };
 
-                */
-                /*
-                Vector2 mouse = {
-                        .x = round_to((GetMouseX() * cfg->render_size) / GetRenderWidth(),
-                cfg->block_size) + round_to(bridge->camera->target.x, cfg->block_size), .y =
-                round_to((GetMouseY() * cfg->render_size) / GetRenderHeight(),
-                cfg->block_size) + round_to(bridge->camera->target.y, cfg->block_size),
-                };
-                Vector2 pcenter = {
-                        .x = bridge->player->position.x + bridge->player_rect.width/2,
-                        .y = bridge->player->position.y + bridge->player_rect.height/2
-                };
+            if (Vector2Distance(mouse, pcenter) < cfg->block_size * 5)
+            {
+                    DrawRectangleLines(
+                            mouse.x,
+                            mouse.y,
+                            cfg->block_size,
+                            cfg->block_size,
+                            WHITE
+                    );
+            }
+            */
 
-                if (Vector2Distance(mouse, pcenter) < cfg->block_size * 5)
-                {
-                        DrawRectangleLines(
-                                mouse.x,
-                                mouse.y,
-                                cfg->block_size,
-                                cfg->block_size,
-                                WHITE
-                        );
-                }
-                */
+            EndMode2D();
+            EndTextureMode();
 
-                EndMode2D();
-                EndTextureMode();
-
-                BeginDrawing();
-                DrawTexturePro(state->render.texture, state->src_rnd, state->dest_rnd,
-                               (Vector2){
-                                   0.0f, 0.0f},
-                               0.0f, WHITE);
-                DrawFPS(0, 0);
-                DrawText(TextFormat("Block %d", td->chunk_view->len), 0, 20, 20, WHITE);
-                EndDrawing();
+            BeginDrawing();
+            DrawTexturePro(state->render.texture, state->src_rnd, state->dest_rnd,
+                (Vector2) {
+                0.0f, 0.0f
+            },
+                0.0f, WHITE);
+            DrawFPS(0, 0);
+            DrawText(TextFormat("Block %d", td->chunk_view->len), 0, 20, 20, WHITE);
+            EndDrawing();
         }
         stop_threadbridge(td);
 #ifndef _DEBUG

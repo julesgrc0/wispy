@@ -355,6 +355,7 @@
     <None Include=".gitignore" />
     <None Include="README.md" />
     <None Include="tools\assets.pack" />
+    <None Include="tools\resource.pack" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="src\ressource.rc" />

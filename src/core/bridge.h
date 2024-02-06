@@ -10,8 +10,8 @@
 #include "state.h"
 
 #define smooth_camera(camera, player, speed)                       \
-	camera = (camera < player) ? fmin(camera + dt * speed, player) \
-							   : fmax(camera - dt * speed, player);
+	camera = (camera < player) ? fmin(camera + speed, player) \
+							   : fmax(camera - speed, player);
 
 #define PHYSICS_TICK (1.f / 24.f)
 

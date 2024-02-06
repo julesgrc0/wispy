@@ -55,7 +55,7 @@ w_chunk *create_chunk(unsigned int position, bool thread)
 #ifdef _WIN32
 DWORD WINAPI create_chunk_thread(PVOID arg)
 #else
-int create_chunk_thread(void *arg)
+void* create_chunk_thread(void *arg)
 #endif // _WIN32
 {
 	if (!arg)
@@ -141,4 +141,6 @@ int create_chunk_thread(void *arg)
 	UnloadImage(mineral);
 
 	chunk->handle = INVALID_HANDLE_VALUE;
+
+	return EXIT_SUCCESS;
 }
