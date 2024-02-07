@@ -1,7 +1,6 @@
 #include "player.h"
 
-void update_player(w_player *player, float velocity, float dt)
-{
+void update_player(w_player *player, float velocity, float dt) {
   // if (IsKeyDown(KEY_RIGHT) && player->velocity.x < (velocity / 2))
   // {
   //   player->velocity.x = velocity;

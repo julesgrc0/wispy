@@ -1,9 +1,7 @@
 #include "loading.h"
 
-void load_assets(w_state *state)
-{
-  state->render =
-      LoadRenderTexture(RENDER_W, RENDER_H);
+void load_assets(w_state *state) {
+  state->render = LoadRenderTexture(RENDER_W, RENDER_H);
   // LoadRenderTexture(state->config->render_size, state->config->render_size);
   state->src_rnd = (Rectangle){0.0f, 0.0f, (float)state->render.texture.width,
                                -(float)state->render.texture.height};
@@ -12,8 +10,7 @@ void load_assets(w_state *state)
 
   size_t len;
   w_asset *items = unpack_assets(state->hInstance, &len);
-  if (!items)
-  {
+  if (!items) {
     state->loading = LS_FAILED;
     return;
   }
@@ -24,21 +21,17 @@ void load_assets(w_state *state)
   state->font = GetFontDefault();
 
   size_t textures_index = 0;
-  for (size_t i = 0; i < len; i++)
-  {
+  for (size_t i = 0; i < len; i++) {
     const char *ext = strrchr(items[i].name, '.');
 
-    if (strcmp(ext, ".png") == 0)
-    {
+    if (strcmp(ext, ".png") == 0) {
       Image image = LoadImageFromMemory(".png", items[i].buffer, items[i].size);
       state->textures[textures_index] = LoadTextureFromImage(image);
       UnloadImage(image);
 
       state->textures_id[textures_index] = items[i].name;
       textures_index++;
-    }
-    else if (strcmp(ext, ".ttf") == 0)
-    {
+    } else if (strcmp(ext, ".ttf") == 0) {
       int fontSize = 72;
       char fontChars[73] =
           "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789()?:+-"
@@ -47,9 +40,7 @@ void load_assets(w_state *state)
                                        fontSize, fontChars, 73);
 
       sfree(items[i].name);
-    }
-    else
-    {
+    } else {
       sfree(items[i].name);
       sfree(items[i].buffer);
       continue;
@@ -67,8 +58,7 @@ void load_assets(w_state *state)
   state->loading = LS_OK;
 }
 
-void loading_screen(w_state *state)
-{
+void loading_screen(w_state *state) {
   bool loaded = false;
 
   int text_size = 50;
@@ -84,30 +74,24 @@ void loading_screen(w_state *state)
       .x = (GetScreenWidth() - MeasureText(error_text, text_size)) / 2.f,
       .y = (GetScreenHeight() - text_size) / 2.f};
 
-  while (!loaded && !WindowShouldClose())
-  {
-    switch (state->loading)
-    {
-    case LS_DISPLAY:
-    {
+  while (!loaded && !WindowShouldClose()) {
+    switch (state->loading) {
+    case LS_DISPLAY: {
       BeginDrawing();
       ClearBackground(BLACK);
       DrawText(loading_text, loading_pos.x, loading_pos.y, text_size, WHITE);
       EndDrawing();
       state->loading = LS_LOAD;
-    }
-    break;
+    } break;
     case LS_LOAD:
       load_assets(state);
       break;
-    case LS_FAILED:
-    {
+    case LS_FAILED: {
       BeginDrawing();
       ClearBackground(BLACK);
       DrawText(error_text, error_pos.x, error_pos.y, text_size, RED);
       EndDrawing();
-    }
-    break;
+    } break;
     case LS_OK:
       loaded = true;
       break;

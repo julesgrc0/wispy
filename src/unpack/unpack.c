@@ -1,19 +1,16 @@
 #include "unpack.h"
 
-char *load_resource(HINSTANCE hInstance, size_t *size)
-{
+char *load_resource(HINSTANCE hInstance, size_t *size) {
 #ifdef _WIN32
 
   HRSRC hResInfo = FindResourceA(hInstance, MAKEINTRESOURCE(IDR_ASSETS_PACK1),
                                  "ASSETS_PACK");
-  if (!hResInfo)
-  {
+  if (!hResInfo) {
     return NULL;
   }
 
   HGLOBAL hResData = LoadResource(hInstance, hResInfo);
-  if (!hResData)
-  {
+  if (!hResData) {
     return NULL;
   }
 
@@ -28,8 +25,7 @@ char *load_resource(HINSTANCE hInstance, size_t *size)
 #endif
 }
 
-w_asset *unpack_assets(HINSTANCE hInstance, size_t *size)
-{
+w_asset *unpack_assets(HINSTANCE hInstance, size_t *size) {
   *size = 0;
   size_t in_size = 0;
 
@@ -46,8 +42,7 @@ w_asset *unpack_assets(HINSTANCE hInstance, size_t *size)
     return NULL;
 
   if (uncompress(out_buffer, (uLongf *)&out_size, in_buffer, (uLong)in_size) !=
-      Z_OK)
-  {
+      Z_OK) {
     sfree(out_buffer);
     return NULL;
   }
@@ -55,21 +50,18 @@ w_asset *unpack_assets(HINSTANCE hInstance, size_t *size)
 
   w_asset *items = malloc(sizeof(w_asset));
   size_t len = 0;
-  if (items == NULL)
-  {
+  if (items == NULL) {
     sfree(out_buffer);
     return NULL;
   }
 
   size_t index = 0;
-  while (index < out_size)
-  {
+  while (index < out_size) {
     w_asset item = {0};
     size_t current_size = 0;
 
     item.name = malloc(0);
-    do
-    {
+    do {
       item.name = realloc(item.name, current_size + 1);
       item.name[current_size] = out_buffer[index];
 

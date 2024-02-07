@@ -2,7 +2,8 @@
 #include "stdafx.h"
 
 #ifdef _WIN32
-int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ char *pCmdLine, _In_ int nCmdShow)
+int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
+                   _In_ char *pCmdLine, _In_ int nCmdShow)
 #else
 int main(int argc, const char **argv)
 #endif
@@ -11,8 +12,7 @@ int main(int argc, const char **argv)
   _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
   _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_DEBUG);
 
-  if (!AllocConsole())
-  {
+  if (!AllocConsole()) {
     return EXIT_FAILURE;
   }
 

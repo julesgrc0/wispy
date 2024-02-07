@@ -2,8 +2,7 @@
 #include "../resource.h"
 #include "../stdafx.h"
 
-typedef struct w_asset
-{
+typedef struct w_asset {
   char *name;
 
   char *buffer;

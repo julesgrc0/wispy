@@ -1,16 +1,18 @@
 #include "view.h"
 
-Rectangle get_center_box_from_camera(Camera2D camera, Rectangle box)
-{
-	return (Rectangle){
-		.x = camera.target.x + ((RENDER_W * (1.f / camera.zoom) - box.width) / 2.f),
-		.y = camera.target.y + ((RENDER_H * (1.f / camera.zoom) - box.height) / 2.f),
-		.width = box.width,
-		.height = box.height};
+Vector2 center_camera_on_object(Camera2D *camera, Rectangle box) {
+
+  return (Vector2){.x = box.x - (RENDER_W - box.width) / 2.f,
+                   .y = box.y - (RENDER_W - box.width) / 2.f};
+}
+Vector2 center_object_on_camera(Rectangle box, Camera2D *camera) {
+  return (Vector2){.x = camera->target.x + (RENDER_W - box.width) / 2,
+                   .y = camera->target.y + (RENDER_H - box.height) / 2};
 }
 
-Rectangle get_view_from_camera(Camera2D camera)
-{
-	return (Rectangle){
-		.x = camera.target.x, +((RENDER_W * (1.f / camera.zoom)) / 2.f), .y = camera.target.y, +((RENDER_H * (1.f / camera.zoom)) / 2.f), .width = RENDER_W * (1.f / camera.zoom), .height = RENDER_H * (1.f / camera.zoom)};
+Rectangle get_camera_view(Camera2D *camera) {
+  return (Rectangle){.x = camera->target.x,
+                     .y = camera->target.y,
+                     .width = RENDER_W,
+                     .height = RENDER_H};
 }

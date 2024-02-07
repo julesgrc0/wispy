@@ -1,7 +1,6 @@
 #include "state.h"
 
-w_config *load_config()
-{
+w_config *load_config() {
   w_config *cfg = malloc(sizeof(w_config));
   if (cfg == NULL)
     return NULL;
@@ -14,8 +13,7 @@ w_config *load_config()
   strcat(config_path, GetApplicationDirectory());
   strcat(config_path, CONFIG_NAME);
 
-  if (FileExists(config_path))
-  {
+  if (FileExists(config_path)) {
     unsigned int size = 0;
     char *data = LoadFileData(config_path, &size);
     cfg = (w_config *)memmove(cfg, data, sizeof(w_config));
@@ -25,9 +23,7 @@ w_config *load_config()
     /*if (cfg->render_distance == 0) {
       cfg->render_distance = 20;
     }*/
-  }
-  else
-  {
+  } else {
     cfg->fullscreen = 1;
     cfg->msaa4x = 1;
     cfg->vsync = 0;
@@ -65,8 +61,7 @@ w_config *load_config()
   return cfg;
 }
 
-void save_config(w_config *config)
-{
+void save_config(w_config *config) {
 #ifndef _DEBUG
   char *config_path = malloc(MAX_PATH * 2);
   if (config_path == NULL)
@@ -82,12 +77,9 @@ void save_config(w_config *config)
 #endif // !_DEBUG
 }
 
-Texture get_texture_by_id(w_state *state, char *id)
-{
-  for (size_t i = 0; i < state->len; i++)
-  {
-    if (strcmp(state->textures_id[i], id) == 0)
-    {
+Texture get_texture_by_id(w_state *state, char *id) {
+  for (size_t i = 0; i < state->len; i++) {
+    if (strcmp(state->textures_id[i], id) == 0) {
       return state->textures[i];
     }
   }

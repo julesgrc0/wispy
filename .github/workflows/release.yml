@@ -46,5 +46,5 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: wipsy-exe
-          path: ${{env.GITHUB_WORKSPACE}}/${{env.BUILD_PLATFORM}}/${{env.BUILD_CONFIGURATION}}/wispy-c.exe
+          name: release-wipsy
+          path: ${{env.GITHUB_WORKSPACE}}\${{env.BUILD_PLATFORM}}\${{env.BUILD_CONFIGURATION}}\wispy-c.exe

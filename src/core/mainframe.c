@@ -1,7 +1,6 @@
 #include "mainframe.h"
 
-w_state *init_mainframe()
-{
+w_state *init_mainframe() {
   w_state *state = malloc(sizeof(w_state));
   if (state == NULL)
     return NULL;
@@ -18,23 +17,19 @@ w_state *init_mainframe()
 #endif // _DEBUG
 
   unsigned int flags = 0;
-  if (state->config->vsync)
-  {
+  if (state->config->vsync) {
     flags |= FLAG_VSYNC_HINT;
   }
 
-  if (state->config->msaa4x)
-  {
+  if (state->config->msaa4x) {
     flags |= FLAG_MSAA_4X_HINT;
   }
 
-  if (state->config->vsync)
-  {
+  if (state->config->vsync) {
     flags |= FLAG_VSYNC_HINT;
   }
 
-  if (state->config->fullscreen)
-  {
+  if (state->config->fullscreen) {
     flags |= FLAG_FULLSCREEN_MODE;
   }
 
@@ -50,13 +45,11 @@ w_state *init_mainframe()
   return state;
 }
 
-void destroy_mainframe(w_state *state)
-{
+void destroy_mainframe(w_state *state) {
   if (state == NULL)
     return;
 
-  for (size_t i = 0; i < state->len; i++)
-  {
+  for (size_t i = 0; i < state->len; i++) {
     sfree(state->textures_id[i]);
     UnloadTexture(state->textures[i]);
   }
@@ -74,8 +67,7 @@ void destroy_mainframe(w_state *state)
   sfree(state);
 }
 
-void loop_mainframe(w_state *state)
-{
+void loop_mainframe(w_state *state) {
   loading_screen(state);
   if (state->loading != LS_OK)
     return;

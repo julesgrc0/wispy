@@ -323,6 +323,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\core\bridge.c" />
+    <ClCompile Include="src\core\keyboard.c" />
     <ClCompile Include="src\core\view.c" />
     <ClCompile Include="src\entities\player.c" />
     <ClCompile Include="src\screen\game.c" />
@@ -332,11 +333,13 @@
     <ClCompile Include="src\main.c" />
     <ClCompile Include="src\core\mainframe.c" />
     <ClCompile Include="src\terrain\chunk.c" />
+    <ClCompile Include="src\terrain\chunk_group.c" />
     <ClCompile Include="src\terrain\chunk_view.c" />
     <ClCompile Include="src\unpack\unpack.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\core\bridge.h" />
+    <ClInclude Include="src\core\keyboard.h" />
     <ClInclude Include="src\core\mainframe.h" />
     <ClInclude Include="src\core\view.h" />
     <ClInclude Include="src\entities\player.h" />
@@ -348,6 +351,7 @@
     <ClInclude Include="src\stdafx.h" />
     <ClInclude Include="src\terrain\block.h" />
     <ClInclude Include="src\terrain\chunk.h" />
+    <ClInclude Include="src\terrain\chunk_group.h" />
     <ClInclude Include="src\terrain\chunk_view.h" />
     <ClInclude Include="src\unpack\unpack.h" />
   </ItemGroup>
