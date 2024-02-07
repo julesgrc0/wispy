@@ -132,8 +132,12 @@ void *update_bridge(void *arg)
   update_chunkview(td->chunk_view, td->chunk_group,
                    get_camera_view(td->camera));
 
+  Vector2 camera_target = center_camera_on_object(td->camera, td->player->box);
   while (td->is_active) {
-    if (td->keyboard->key != 0) {
+
+    if (td->keyboard->key != 0 || td->camera->target.x != camera_target.x ||
+        td->camera->target.y != camera_target.y) {
+
       if (!update_chunkview(td->chunk_view, td->chunk_group,
                             get_camera_view(td->camera))) {
         LOG("failed to update chunk view");
@@ -148,6 +152,7 @@ void *update_bridge(void *arg)
       continue;
     QueryPerformanceCounter(&time_start);
     physics_update(td);
+    camera_target = center_camera_on_object(td->camera, td->player->box);
   }
 
   LOG("exiting bridge thread");

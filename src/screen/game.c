@@ -28,7 +28,9 @@ void game_screen(w_state *state) {
     if (td->keyboard->key != 0) {
       camera_target = center_camera_on_object(td->camera, td->player->box);
     }
-    float speed = GetFrameTime() * 1000;
+
+    float speed = GetFrameTime() * 1000.f;
+
     smooth_camera(td->camera->target.x, camera_target.x, speed);
     smooth_camera(td->camera->target.y, camera_target.y, speed);
 
@@ -47,24 +49,31 @@ void game_screen(w_state *state) {
                      td->chunk_view->blocks[i].dst, VEC_ZERO, 0, WHITE);
     }
 
+    EndMode2D();
+    DrawText(TextFormat("Block %d\n\nCamera %f %f\n\Player %f %f\n\nChunk:\n   "
+                        "Current: %d\n   Next: %d\n   Group: %d",
+                        td->chunk_view->len, td->camera->target.x,
+                        td->camera->target.y, td->player->box.x,
+                        td->player->box.y, td->chunk_view->target->position,
+                        td->chunk_view->next == NULL
+                            ? -1
+                            : td->chunk_view->next->position,
+                        td->chunk_group->position),
+             0, 20, 20, WHITE);
+    EndTextureMode();
+
 #ifdef _WIN32
     ReleaseMutex(td->chunk_view->mutex);
 #else
     pthread_mutex_unlock(&td->chunk_view->mutex);
 #endif // _WIN32
-    EndMode2D();
-    EndTextureMode();
 
     BeginDrawing();
     ClearBackground(BLACK);
     DrawTexturePro(state->render.texture, state->src_rnd, state->dest_rnd,
                    VEC_ZERO, 0.0f, WHITE);
     DrawFPS(0, 0);
-    DrawText(TextFormat("Block %d\n\nCamera %f %f\n\Player %f %f",
-                        td->chunk_view->len, td->camera->target.x,
-                        td->camera->target.y, td->player->box.x,
-                        td->player->box.y),
-             0, 20, 20, WHITE);
+
     EndDrawing();
   }
   destroy_bridge(td);

@@ -49,11 +49,12 @@ void prev_chunkgroup(w_chunkgroup *grp) {
 }
 
 int need_chunkgroup_update(w_chunkgroup *grp, unsigned int position) {
-  if (grp->position != 0 && position < grp->position - 1) {
+  if (grp->position != 0 &&
+      position <= grp->position + CHUNK_GROUP_UPDATE_DIST) {
     return -1;
-  }
-  if (position != UINT_MAX &&
-      position > (grp->position + CHUNK_GROUP_LEN - 1)) {
+  } else if (position != UINT_MAX && position > grp->position +
+                                                    CHUNK_GROUP_LEN -
+                                                    CHUNK_GROUP_UPDATE_DIST) {
     return 1;
   }
   return 0;

@@ -45,8 +45,8 @@ void destroy_chunkview(w_chunkview *chunk_view) {
   free(chunk_view);
 }
 
-void setlock_chunkview(w_chunkview *chunk_view, w_renderblock *blocks,
-                       size_t len) {
+void update_renderblock_async(w_chunkview *chunk_view, w_renderblock *blocks,
+                              size_t len) {
 #ifdef _WIN32
   WaitForSingleObject(chunk_view->mutex, INFINITE);
 #else
@@ -68,7 +68,7 @@ bool update_chunkview(w_chunkview *chunk_view, w_chunkgroup *grp,
                       Rectangle view) {
   if (view.x < 0 || view.y < 0) {
 
-    setlock_chunkview(chunk_view, NULL, 0);
+    update_renderblock_async(chunk_view, NULL, 0);
     return true;
   }
   unsigned int viewx = floor(view.x / FULL_CHUNK_W);
@@ -86,29 +86,51 @@ bool update_chunkview(w_chunkview *chunk_view, w_chunkgroup *grp,
     }
   }
 
-  unsigned int viewnextx =
-      round((view.x + view.width) / FULL_CHUNK_W) * FULL_CHUNK_W;
+  unsigned int viewnextx = round((view.x + view.width) / FULL_CHUNK_W);
   if (viewnextx != viewx) {
     chunk_view->next = get_chunkgroup_chunk(grp, viewnextx);
   } else {
     chunk_view->next = NULL;
   }
 
-  size_t render_blocks = 0;
+  size_t rendercount = 0;
   size_t len = CHUNK_W * CHUNK_H * ((chunk_view->next == NULL) ? 1 : 2);
   w_renderblock *blocks = malloc(len * sizeof(w_renderblock));
   if (blocks == NULL) {
     return false;
   }
   memset(blocks, 0, len * sizeof(w_renderblock));
+  filter_chunkview_blocks(chunk_view->target, view, blocks, &rendercount);
+  if (chunk_view->next != NULL) {
+    filter_chunkview_blocks(chunk_view->next, view, blocks, &rendercount);
+  }
 
-  Rectangle cube_box = {.x = 0, .y = 0, .width = CUBE_W, .height = CUBE_H};
+  if (rendercount == 0) {
+    free(blocks);
+    update_renderblock_async(chunk_view, NULL, 0);
+    return true;
+  } else if (rendercount != len) {
+    w_renderblock *tmp = realloc(blocks, sizeof(w_renderblock) * rendercount);
+    if (tmp == NULL) {
+      free(blocks);
+      return false;
+    }
+    blocks = tmp;
+  }
 
+  update_renderblock_async(chunk_view, blocks, rendercount);
+  return true;
+}
+
+void filter_chunkview_blocks(w_chunk *chunk, Rectangle view,
+                             w_renderblock *blocks, size_t *rendercount) {
   unsigned int start_x = 0; // abs(viewx - floor(view.x / CUBE_W));
   unsigned int end_x =
       CHUNK_W; // abs(viewx - round((view.x + view.width) / CUBE_W));
-  unsigned int start_y = 0;     // floor(view.y / CUBE_H);
-  unsigned int end_y = CHUNK_H; // round((view.y + view.height) / CUBE_H);
+  unsigned int start_y = 0;
+  unsigned int end_y = CHUNK_H;
+
+  Rectangle cube_box = {.x = 0, .y = 0, .width = CUBE_W, .height = CUBE_H};
 
   for (unsigned int x = start_x; x < end_x; x++) {
     for (unsigned int y = start_y; y < end_y; y++) {
@@ -117,36 +139,20 @@ bool update_chunkview(w_chunkview *chunk_view, w_chunkgroup *grp,
       if (index >= CHUNK_W * CHUNK_H) {
         break;
       }
-      if (chunk_view->target->blocks[index].type == BLOCK_AIR) {
+      if (chunk->blocks[index].type == BLOCK_AIR) {
         continue;
       }
 
-      cube_box.x = (chunk_view->target->position * FULL_CHUNK_W) + (x * CUBE_W);
+      cube_box.x = (chunk->position * FULL_CHUNK_W) + (x * CUBE_W);
       cube_box.y = y * CUBE_H;
       if (CheckCollisionRecs(cube_box, view)) {
 
-        blocks[render_blocks] =
-            (w_renderblock){.dst = cube_box,
-                            .src = CUBE_SRC_RECT,
-                            // .light = 0,
-                            .block = chunk_view->target->blocks[index]};
-        render_blocks++;
+        blocks[*rendercount] = (w_renderblock){.dst = cube_box,
+                                               .src = CUBE_SRC_RECT,
+                                               // .light = 0,
+                                               .block = chunk->blocks[index]};
+        (*rendercount)++;
       }
     }
   }
-  if (render_blocks == 0) {
-    free(blocks);
-    setlock_chunkview(chunk_view, NULL, 0);
-    return true;
-  } else if (render_blocks != len) {
-    w_renderblock *tmp = realloc(blocks, sizeof(w_renderblock) * render_blocks);
-    if (tmp == NULL) {
-      free(blocks);
-      return false;
-    }
-    blocks = tmp;
-  }
-
-  setlock_chunkview(chunk_view, blocks, render_blocks);
-  return true;
 }

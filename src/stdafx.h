@@ -59,6 +59,7 @@
 #define CHUNK_W 64  // 2^6
 
 #define CHUNK_GROUP_LEN 10
+#define CHUNK_GROUP_UPDATE_DIST 2
 #define CHUNK_GROUP_MID_LEN 5
 #define CHUNK_GROUP_LOAD 2
 
