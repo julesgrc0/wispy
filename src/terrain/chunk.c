@@ -29,7 +29,7 @@ void *create_chunk_thread(void *arg)
 #endif // _WIN32
 {
   if (!arg)
-    return;
+    return EXIT_FAILURE;
   LOG("creating chunk");
   w_chunk *chunk = arg;
 

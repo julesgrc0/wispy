@@ -4,8 +4,7 @@
 #pragma pack(push, 1)
 typedef union w_keyboard {
   struct {
-    unsigned int space : 1;
-    unsigned int shift : 1;
+    unsigned int jump : 1;
     unsigned int left : 1;
     unsigned int right : 1;
   };

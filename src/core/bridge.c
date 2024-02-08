@@ -35,6 +35,7 @@ w_bridge *create_bridge() {
   td->player->position = (Vector2){
       .x = (td->chunk_group->position + CHUNK_GROUP_MID_LEN) * CHUNK_W * CUBE_W,
       .y = CHUNK_MID_H * CUBE_H};
+  td->player->collision = (w_collision){0};
 
   td->camera = malloc(sizeof(Camera2D));
   if (td->camera == NULL) {
@@ -95,79 +96,62 @@ void destroy_bridge(w_bridge *td) {
 }
 
 void physics_update(w_bridge *td) {
-  if (td->keyboard->left) {
-    if (td->player->src.width > 0) {
-      td->player->src.width = -td->player->src.width;
-    }
-    td->player->velocity.x -= 1;
-  } else if (td->keyboard->right) {
-    if (td->player->src.width < 0) {
-      td->player->src.width = -td->player->src.width;
-    }
-    td->player->velocity.x += 1;
-  }
+  update_player_input(td->player, td->keyboard);
 
-  if (td->keyboard->left || td->keyboard->right || !td->player->is_onground) {
+  if (td->player->velocity.x != 0 || td->player->velocity.y != 0) {
 
-    if (!td->player->is_onground) {
-      td->player->velocity.y += 1;
-    } else {
-      td->player->velocity.y = 1;
-      td->player->is_onground = false;
-    }
-
+    /*
     td->player->velocity = Vector2Normalize(td->player->velocity);
-    td->player->position = Vector2Add(
+    */
+    td->player->velocity.x = Clamp(
+        td->player->velocity.x, -MAX_PLAYER_VELOCITY_X, MAX_PLAYER_VELOCITY_X);
+    td->player->velocity.y = Clamp(
+        td->player->velocity.y, -MAX_PLAYER_VELOCITY_Y, MAX_PLAYER_VELOCITY_Y);
+
+    Vector2 next_position = Vector2Add(
         td->player->position,
         Vector2Scale(td->player->velocity, PLAYER_SPEED * PHYSICS_TICK));
+    td->player->velocity = Vector2Scale(td->player->velocity, PLAYER_FRICTION);
 
-    if (!td->player->is_onground) {
-      Rectangle player_rect = {td->player->position.x, td->player->position.y,
-                               td->player->dst.width, td->player->dst.height};
-      for (size_t i = 0; i < td->chunk_view->len; i++) {
+    Rectangle player_rect = (Rectangle){.x = next_position.x,
+                                        .y = next_position.y,
+                                        .width = td->player->dst.width,
+                                        .height = td->player->dst.height};
 
-        Rectangle block_rect = td->chunk_view->blocks[i].dst;
-        if (CheckCollisionRecs(player_rect, block_rect)) {
-          /*
-          td->player->position = Vector2Subtract(
-              td->player->position,
-              Vector2Scale(td->player->velocity, PLAYER_SPEED * PHYSICS_TICK));
-          */
+    td->player->collision = (w_collision){0};
+    unsigned int count = 0;
+    for (size_t i = 0; i < td->chunk_view->len; i++) {
+      Rectangle block_rect = td->chunk_view->blocks[i].dst;
 
-          if (td->player->position.y + td->player->dst.height >= block_rect.y) {
-            td->player->is_onground = true;
-            td->player->position.y = block_rect.y - td->player->dst.height;
-            td->player->velocity.y = 0;
-          }
-          if (td->player->position.x + td->player->dst.width >= block_rect.x &&
-              td->player->position.x <= block_rect.x + block_rect.width) {
-            td->player->velocity.x = 0;
-          }
+      if (CheckCollisionRecs(player_rect, block_rect)) {
+
+        // TODO: implement collision detection
+        //
+        //
+        //  check if the collision is on left:
+        //  if left -> set stop on left
+        //  => stop velocity x
+        //  => set collision at left(true) and set right(false)
+        //  => set player position to be the right side of the block
+
+        // etc...
+
+        count++;
+        if (count >= 3) {
           break;
         }
       }
     }
 
-    td->camera_target = center_camera_on_object(
-        td->camera, (Rectangle){.x = td->player->position.x,
-                                .y = td->player->position.y,
-                                .width = td->player->dst.width,
-                                .height = td->player->dst.height});
+    if (td->player->collision.all == 0) {
+      td->player->position = next_position;
+    }
+    td->camera_target = get_camera_target_player(td->player, td->camera);
+
+    LOG("velocity: %f, %f", td->player->velocity.x, td->player->velocity.y);
   }
 
-  td->player->animation += PHYSICS_TICK;
-  td->player->velocity = Vector2Scale(td->player->velocity, 0.9f);
-  if (abs(td->player->velocity.x) > 0.1f || td->keyboard->key != 0) {
-    if (td->player->animation > PHYSICS_TICK * 2) {
-      td->player->animation = 0;
-      td->player->state = (td->player->state == P_WALK_1) ? P_WALK_2 : P_WALK_1;
-    }
-  } else {
-    if (td->player->animation > PHYSICS_TICK * 12) {
-      td->player->animation = 0;
-      td->player->state = (td->player->state == P_IDLE_1) ? P_IDLE_2 : P_IDLE_1;
-    }
-  }
+  animate_player(td->player, PHYSICS_TICK, td->keyboard->key != 0);
   clear_keyboard(td->keyboard);
 }
 

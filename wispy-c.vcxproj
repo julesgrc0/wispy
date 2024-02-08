@@ -331,6 +331,7 @@
     <ClCompile Include="src\core\bridge.c" />
     <ClCompile Include="src\core\keyboard.c" />
     <ClCompile Include="src\core\view.c" />
+    <ClCompile Include="src\entities\player.c" />
     <ClCompile Include="src\screen\game.c" />
     <ClCompile Include="src\screen\loading.c" />
     <ClCompile Include="src\screen\menu.c" />
