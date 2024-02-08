@@ -12,8 +12,11 @@ w_state *init_mainframe() {
 
 #ifdef _DEBUG
   SetTraceLogLevel(LOG_ALL);
+  SetRandomSeed(0);
+
 #else
   SetTraceLogLevel(LOG_NONE);
+  SetRandomSeed(time(NULL));
 #endif // _DEBUG
 
   unsigned int flags = 0;
@@ -35,11 +38,6 @@ w_state *init_mainframe() {
 
   SetConfigFlags(flags);
   SetTargetFPS(state->config->max_fps);
-#ifdef _DEBUG
-  SetRandomSeed(0);
-#else
-  SetRandomSeed(time(NULL));
-#endif // _DEBUG
 
   InitWindow(state->config->width, state->config->height, "Wispy");
   return state;

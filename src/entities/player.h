@@ -3,6 +3,10 @@
 #include "../stdafx.h"
 #include "../terrain/chunk.h"
 
+#define PLAYER_SPEED 1000.f
+#define PLAYER_SRC_RECT                                                        \
+  (Rectangle) { 0, 0, 8, 16 }
+
 typedef enum w_playerstate {
   P_IDLE_1,
   P_IDLE_2,
@@ -11,8 +15,10 @@ typedef enum w_playerstate {
 } w_playerstate;
 
 typedef struct w_player {
-  Rectangle box;
+  Rectangle src;
+  Rectangle dst;
 
+  Vector2 position;
   Vector2 velocity;
 
   float delay;

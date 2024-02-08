@@ -27,11 +27,14 @@ w_bridge *create_bridge() {
     return NULL;
   }
   memset(td->player, 0, sizeof(w_player));
-  td->player->box =
-      (Rectangle){.x = CHUNK_MID_H * CUBE_H,
-                  .y = td->chunk_group->position * CHUNK_W * CUBE_W,
-                  .width = CUBE_W,
-                  .height = CUBE_H * 2};
+  td->player->src = PLAYER_SRC_RECT;
+  td->player->dst = (Rectangle){.x = (RENDER_W - CUBE_W) / 2.f,
+                                .y = (RENDER_H - CUBE_H * 2) / 2.f,
+                                .width = CUBE_W,
+                                .height = CUBE_H * 2};
+  td->player->position = (Vector2){
+      .x = (td->chunk_group->position + CHUNK_GROUP_MID_LEN) * CHUNK_W * CUBE_W,
+      .y = CHUNK_MID_H * CUBE_H};
 
   td->camera = malloc(sizeof(Camera2D));
   if (td->camera == NULL) {
@@ -41,7 +44,12 @@ w_bridge *create_bridge() {
   }
   memset(td->camera, 0, sizeof(Camera2D));
   td->camera->zoom = 1.0f;
-  td->camera->target = center_camera_on_object(td->camera, td->player->box);
+  td->camera->target = center_camera_on_object(
+      td->camera, (Rectangle){.x = td->player->position.x,
+                              .y = td->player->position.y,
+                              .width = td->player->dst.width,
+                              .height = td->player->dst.height});
+  td->camera_target = td->camera->target;
 
   td->keyboard = malloc(sizeof(w_keyboard));
   if (td->keyboard == NULL) {
@@ -107,9 +115,14 @@ void physics_update(w_bridge *td) {
 
   if (td->keyboard->key != 0) {
     td->player->velocity = Vector2Normalize(td->player->velocity);
-    Vector2 position = Vector2Scale(td->player->velocity, 1000 * PHYSICS_TICK);
-    td->player->box.x += position.x;
-    td->player->box.y += position.y;
+    td->player->position = Vector2Add(
+        td->player->position,
+        Vector2Scale(td->player->velocity, PLAYER_SPEED * PHYSICS_TICK));
+    td->camera_target = center_camera_on_object(
+        td->camera, (Rectangle){.x = td->player->position.x,
+                                .y = td->player->position.y,
+                                .width = td->player->dst.width,
+                                .height = td->player->dst.height});
   }
 
   td->player->velocity = Vector2Scale(td->player->velocity, 0.9f);
@@ -132,11 +145,10 @@ void *update_bridge(void *arg)
   update_chunkview(td->chunk_view, td->chunk_group,
                    get_camera_view(td->camera));
 
-  Vector2 camera_target = center_camera_on_object(td->camera, td->player->box);
   while (td->is_active) {
 
-    if (td->keyboard->key != 0 || td->camera->target.x != camera_target.x ||
-        td->camera->target.y != camera_target.y) {
+    if (td->keyboard->key != 0 || td->camera->target.x != td->camera_target.x ||
+        td->camera->target.y != td->camera_target.y) {
 
       if (!update_chunkview(td->chunk_view, td->chunk_group,
                             get_camera_view(td->camera))) {
@@ -152,7 +164,6 @@ void *update_bridge(void *arg)
       continue;
     QueryPerformanceCounter(&time_start);
     physics_update(td);
-    camera_target = center_camera_on_object(td->camera, td->player->box);
   }
 
   LOG("exiting bridge thread");

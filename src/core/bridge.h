@@ -23,6 +23,7 @@ typedef struct w_bridge {
   w_player *player;
 
   Camera2D *camera;
+  Vector2 camera_target;
 
 #ifdef _WIN32
   HANDLE handle;
