@@ -124,6 +124,8 @@ bool update_chunkview(w_chunkview *chunk_view, w_chunkgroup *grp,
 
 void filter_chunkview_blocks(w_chunk *chunk, Rectangle view,
                              w_renderblock *blocks, size_t *rendercount) {
+  // TODO: optimize this
+
   unsigned int start_x = 0; // abs(viewx - floor(view.x / CUBE_W));
   unsigned int end_x =
       CHUNK_W; // abs(viewx - round((view.x + view.width) / CUBE_W));

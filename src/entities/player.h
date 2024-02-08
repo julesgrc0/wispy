@@ -1,7 +1,7 @@
 #pragma once
 #include "../core/state.h"
 #include "../stdafx.h"
-#include "../terrain/chunk.h"
+#include "../terrain/chunk_view.h"
 
 #define PLAYER_SPEED 1000.f
 #define PLAYER_SRC_RECT                                                        \
@@ -24,9 +24,7 @@ typedef struct w_player {
   float delay;
   float animation;
 
-  unsigned int onground : 1;
-  unsigned int direction : 1;
+  unsigned int nearest_y;
+  bool is_onground;
   w_playerstate state;
 } w_player;
-
-void update_player(w_player *player, float velocity, float dt);

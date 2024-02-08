@@ -177,6 +177,9 @@
       <DisableLanguageExtensions>false</DisableLanguageExtensions>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <Optimization>Full</Optimization>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>false</ExceptionHandling>
+      <ErrorReporting>None</ErrorReporting>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -267,6 +270,9 @@
       <DisableLanguageExtensions>false</DisableLanguageExtensions>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <Optimization>Full</Optimization>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>false</ExceptionHandling>
+      <ErrorReporting>None</ErrorReporting>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -325,7 +331,6 @@
     <ClCompile Include="src\core\bridge.c" />
     <ClCompile Include="src\core\keyboard.c" />
     <ClCompile Include="src\core\view.c" />
-    <ClCompile Include="src\entities\player.c" />
     <ClCompile Include="src\screen\game.c" />
     <ClCompile Include="src\screen\loading.c" />
     <ClCompile Include="src\screen\menu.c" />

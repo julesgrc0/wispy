@@ -5,6 +5,7 @@
 
 #include <math.h>
 #include <memory.h>
+#include <signal.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
