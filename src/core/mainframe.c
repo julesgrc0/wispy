@@ -13,10 +13,11 @@ w_state *init_mainframe() {
 #ifdef _DEBUG
   SetTraceLogLevel(LOG_ALL);
   SetRandomSeed(0);
-
+  srand(0);
 #else
   SetTraceLogLevel(LOG_NONE);
   SetRandomSeed(time(NULL));
+  srand(time(NULL));
 #endif // _DEBUG
 
   unsigned int flags = 0;

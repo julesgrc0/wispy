@@ -4,11 +4,12 @@
 #pragma pack(push, 1)
 typedef union w_keyboard {
   struct {
+    unsigned int inventory : 1;
     unsigned int jump : 1;
     unsigned int left : 1;
     unsigned int right : 1;
   };
-  unsigned int key : 4;
+  uint8_t key;
 } w_keyboard;
 #pragma pack(pop)
 

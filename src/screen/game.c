@@ -39,10 +39,21 @@ void game_screen(w_state *state) {
 
     BeginMode2D(*(td->camera));
     smooth_vec(&td->camera->target, td->camera_target, speed);
+
+    Vector2 player_center = {
+        td->player->position.x + td->player->dst.width / 2.f,
+        td->player->position.y + td->player->dst.height / 2.f};
+    Vector2 block_center = {0};
     for (unsigned int i = 0; i < td->chunk_view->len; i++) {
+      block_center.x = td->chunk_view->blocks[i].dst.x + CUBE_W / 2;
+      block_center.y = td->chunk_view->blocks[i].dst.y + CUBE_H / 2;
       DrawTexturePro(block_textures[td->chunk_view->blocks[i].block.type - 1],
                      td->chunk_view->blocks[i].src,
-                     td->chunk_view->blocks[i].dst, VEC_ZERO, 0, WHITE);
+                     td->chunk_view->blocks[i].dst, VEC_ZERO, 0,
+                     abs(Vector2Distance(player_center, block_center)) <
+                             CUBE_W * 2
+                         ? BLUE
+                         : WHITE);
     }
     EndMode2D();
     DrawTexturePro(player_textures[td->player->state], td->player->src,

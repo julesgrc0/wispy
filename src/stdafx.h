@@ -52,6 +52,8 @@
   if (x)                                                                       \
     free(x);
 
+#define PHYSICS_TICK (1.0f / 24.0f)
+
 #define RENDER_W 1280
 #define RENDER_H 720
 

@@ -5,11 +5,12 @@
 #include "../stdafx.h"
 #include "../terrain/chunk_view.h"
 
-#define PLAYER_SPEED 1000.f
+#define PLAYER_SPEED 100.f
 #define PLAYER_JUMP 10.f
 #define PLAYER_FRICTION 0.8f
 #define MAX_PLAYER_VELOCITY_X 1.f
 #define MAX_PLAYER_VELOCITY_Y 10.f
+#define MIN_PLAYER_VELOCITY 0.1f
 
 #define PLAYER_SRC_RECT                                                        \
   (Rectangle) { 0, 0, 8, 16 }
@@ -25,16 +26,20 @@ typedef struct w_player {
   Rectangle src;
   Rectangle dst;
 
-  Vector2 position;
-  Vector2 velocity;
-
   float delay;
   float animation;
 
-  w_collision collision;
+  Vector2 position;
+  Vector2 velocity;
+
   w_playerstate state;
 } w_player;
 
+w_player *create_player(unsigned int x);
+void destroy_player(w_player *player);
+
 void animate_player(w_player *player, float dt, bool should_walk);
 void update_player_input(w_player *player, w_keyboard *keyboard);
+// void update_player_velocity(w_player *player, float dt);
+
 Vector2 get_camera_target_player(w_player *player, Camera2D *camera);

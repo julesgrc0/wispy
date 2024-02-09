@@ -11,8 +11,6 @@
 #include "keyboard.h"
 #include "state.h"
 
-#define PHYSICS_TICK (1.f / 24.f)
-
 typedef struct w_bridge {
   bool is_active;
 
