@@ -91,38 +91,58 @@ void physics_update(w_bridge *td) {
   update_player_input(td->player, td->keyboard);
   update_player_velocity(td->player);
 
-  Vector2 next_position = Vector2Add(
-      td->player->position,
-      Vector2Scale(td->player->velocity, PLAYER_SPEED * PHYSICS_TICK));
-
-  Rectangle player_rect = {.x = next_position.x,
-                           .y = next_position.y,
+  Vector2 next_position =
+      Vector2Scale(td->player->velocity, PLAYER_SPEED * PHYSICS_TICK);
+  Rectangle player_rect = {.x = td->player->position.x,
+                           .y = td->player->position.y,
                            .width = td->player->dst.width,
                            .height = td->player->dst.height};
 
-  update_chunkview(td->next_view, td->chunk_group,
-                   (Rectangle){.x = next_position.x,
-                               .y = next_position.y,
-                               .width = RENDER_W,
-                               .height = RENDER_H});
+  // TODO: find a better physics solution
+  if (next_position.y != 0) {
 
-  size_t len = 0;
-  Rectangle *overlaps =
-      get_player_collision_overlap(player_rect, td->next_view, &len);
+    player_rect.y += next_position.y;
+    update_chunkview(td->next_view, td->chunk_group,
+                     (Rectangle){.x = player_rect.x,
+                                 .y = player_rect.y,
+                                 .width = RENDER_W,
+                                 .height = RENDER_H});
 
-  bool done_y = td->player->velocity.y == 0;
-  for (size_t i = 0; i < len; i++) {
-
-    if (!done_y && overlaps[i].y - player_rect.y < CUBE_H) {
-      player_rect.y =
-          (int)floor((overlaps[i].y - player_rect.height) / CUBE_H) * CUBE_H;
+    Rectangle overlap =
+        get_player_collision_overlap(player_rect, td->next_view);
+    if (overlap.y != 0) {
       td->player->velocity.y = 0;
-      td->player->is_onground = true;
 
-      done_y = true;
+      player_rect.y = round((overlap.y - player_rect.height) / CUBE_H) * CUBE_H;
+      td->player->is_onground = true;
+    } else {
+      td->player->is_onground = false;
     }
   }
-  free(overlaps);
+  if (next_position.x != 0) {
+    player_rect.x += next_position.x;
+    update_chunkview(td->next_view, td->chunk_group,
+                     (Rectangle){.x = player_rect.x,
+                                 .y = player_rect.y,
+                                 .width = RENDER_W,
+                                 .height = RENDER_H});
+
+    Rectangle overlap =
+        get_player_collision_overlap(player_rect, td->next_view);
+    if (overlap.x != 0 && overlap.y == 0) {
+
+      player_rect.x = overlap.x;
+      td->player->velocity.x = 0;
+
+    } else if (overlap.x != 0 && overlap.y != 0) {
+
+      td->player->is_onground = false;
+      player_rect.x =
+          ((int)((td->player->position.x) / CUBE_W)) * CUBE_W +
+          (td->player->velocity.x > 0 ? (CUBE_W - player_rect.width) : 0);
+      td->player->velocity.x = 0;
+    }
+  }
 
   td->player->position.x = player_rect.x;
   td->player->position.y = player_rect.y;
@@ -160,7 +180,6 @@ void *update_bridge(void *arg)
 
   update_chunkview(td->chunk_view, td->chunk_group,
                    get_camera_view(td->camera));
-
   while (td->is_active) {
 
     if (td->keyboard->key != 0 || td->camera->target.x != td->camera_target.x ||

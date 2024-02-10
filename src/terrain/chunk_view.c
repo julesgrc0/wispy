@@ -132,7 +132,7 @@ void filter_chunkview_blocks(w_chunk *chunk, Rectangle view,
   unsigned int start_y = 0;
   unsigned int end_y = CHUNK_H;
 
-  Rectangle cube_box = {.x = 0, .y = 0, .width = CUBE_W, .height = CUBE_H};
+  Rectangle block = {.x = 0, .y = 0, .width = CUBE_W, .height = CUBE_H};
 
   for (unsigned int x = start_x; x < end_x; x++) {
     for (unsigned int y = start_y; y < end_y; y++) {
@@ -145,11 +145,11 @@ void filter_chunkview_blocks(w_chunk *chunk, Rectangle view,
         continue;
       }
 
-      cube_box.x = (chunk->position * FULL_CHUNK_W) + (x * CUBE_W);
-      cube_box.y = y * CUBE_H;
-      if (CheckCollisionRecs(cube_box, view)) {
+      block.x = (chunk->position * FULL_CHUNK_W) + (x * CUBE_W);
+      block.y = y * CUBE_H;
+      if (CheckCollisionRecs(block, view)) {
 
-        blocks[*rendercount] = (w_renderblock){.dst = cube_box,
+        blocks[*rendercount] = (w_renderblock){.dst = block,
                                                .src = CUBE_SRC_RECT,
                                                // .light = 0,
                                                .block = chunk->blocks[index]};

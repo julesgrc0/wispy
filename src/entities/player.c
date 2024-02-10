@@ -43,31 +43,37 @@ void animate_player(w_player *player, float dt, bool should_walk) {
 
 void update_player_input(w_player *player, w_keyboard *keyboard) {
 
-  if (!player->is_onground) {
-    player->velocity.y += 1;
-  } else if (keyboard->jump && player->is_onground) {
+  if (player->delay > 0) {
+    player->delay--;
+  }
+  if (keyboard->jump && player->is_onground && player->delay <= 0) {
+    player->velocity.y -= 5;
+    player->delay = (1 / PHYSICS_TICK);
     player->is_onground = false;
-    player->velocity.y -= 10;
   }
 
   if (keyboard->left) {
-    player->is_onground = false;
 
     if (player->src.width > 0) {
       player->src.width = -player->src.width;
     }
     player->velocity.x -= 1;
-  } else if (keyboard->right) {
     player->is_onground = false;
+  } else if (keyboard->right) {
 
     if (player->src.width < 0) {
       player->src.width = -player->src.width;
     }
     player->velocity.x += 1;
+    player->is_onground = false;
   }
 }
 
 void update_player_velocity(w_player *player) {
+  if (!player->is_onground) {
+    player->velocity.y += 1;
+  }
+
   player->velocity.x =
       Clamp(player->velocity.x, -MAX_PLAYER_VELOCITY_X, MAX_PLAYER_VELOCITY_X);
 
@@ -94,18 +100,42 @@ Vector2 get_camera_target_player(w_player *player, Camera2D *camera) {
                                              .height = player->dst.height});
 }
 
-Rectangle *get_player_collision_overlap(Rectangle player, w_chunkview *view,
-                                        size_t *len) {
-  Rectangle *overlaps = malloc(sizeof(Rectangle) * MAX_OVERLAP_LEN);
+Rectangle get_player_collision_overlap(Rectangle player, w_chunkview *view) {
+
+  Rectangle overlap = {0};
+  float min_dst = MAXUINT16;
+  size_t col_count = 0;
   for (size_t i = 0; i < view->len; i++) {
     Rectangle block = view->blocks[i].dst;
     if (CheckCollisionRecs(block, player)) {
-      overlaps[*len] = GetCollisionRec(block, player);
-      (*len)++;
-      if ((*len) >= MAX_OVERLAP_LEN) {
+      Rectangle block_overlap = GetCollisionRec(block, player);
+
+      float dist = Vector2Distance((Vector2){.x = block.x, .y = block.y},
+                                   (Vector2){.x = player.x, .y = player.y});
+
+      if (dist < min_dst) {
+        min_dst = dist;
+        overlap = block_overlap;
+      }
+
+      col_count++;
+      if (col_count >= MAX_OVERLAP_LEN) {
         break;
       }
+      /*
+        Vector2 block_center = (Vector2){.x = block.x + block.width / 2,
+                                       .y = block.y + block.height / 2};
+      Vector2 player_center = (Vector2){.x = player.x + player.width / 2,
+                                        .y = player.y + player.height / 2};
+
+      float dist = Vector2Distance(block_center, player_center);
+      if (dist < min_dst) {
+        min_dst = dist;
+        overlap = ;
+      }
+      */
     }
   }
-  return realloc(overlaps, sizeof(Rectangle) * (*len));
+
+  return overlap;
 }

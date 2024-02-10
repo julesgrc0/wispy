@@ -33,8 +33,6 @@ typedef struct w_player {
   Vector2 velocity;
 
   bool is_onground;
-  bool left_stop;
-  bool right_stop;
 
   w_playerstate state;
 } w_player;
@@ -47,5 +45,4 @@ void update_player_input(w_player *player, w_keyboard *keyboard);
 void update_player_velocity(w_player *player);
 
 Vector2 get_camera_target_player(w_player *player, Camera2D *camera);
-Rectangle *get_player_collision_overlap(Rectangle player, w_chunkview *view,
-                                        size_t *len);
+Rectangle get_player_collision_overlap(Rectangle player, w_chunkview *view);
