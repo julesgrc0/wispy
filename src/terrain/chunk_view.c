@@ -169,7 +169,10 @@ void update_chunkview_lighting(w_chunkview *chunk_view, Vector2 light) {
     Vector2 block_center = {chunk_view->blocks[i].dst.x + (CUBE_W / 2),
                             chunk_view->blocks[i].dst.y + (CUBE_H / 2)};
 
-    chunk_view->blocks[i].light =
-        Vector2Distance(light, block_center) / light_radius;
+    float percent = 1.f - Vector2Distance(light, block_center) / light_radius;
+    chunk_view->blocks[i].light = (Color){.r = (unsigned char)(255 * percent),
+                                          .g = (unsigned char)(255 * percent),
+                                          .b = (unsigned char)(255 * percent),
+                                          .a = 255};
   }
 }

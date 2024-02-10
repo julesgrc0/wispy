@@ -1,5 +1,11 @@
 #pragma once
 #include "../core/state.h"
+#include "../gui/button.h"
+#include "../gui/gui.h"
 #include "../stdafx.h"
+#include "../terrain/chunk_group.h"
+#include "../terrain/chunk_view.h"
 
 void menu_screen(w_state *state);
+
+void setup_menu_background(w_state *state);
