@@ -16,6 +16,7 @@ typedef struct w_bridge {
 
   w_chunkgroup *chunk_group;
   w_chunkview *chunk_view;
+  w_chunkview *next_view;
   w_keyboard *keyboard;
 
   w_player *player;
