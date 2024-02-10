@@ -21,5 +21,5 @@ typedef struct w_renderblock {
   Rectangle dst;
   Rectangle src;
   w_block block;
-  // unsigned int light;
+  float light;
 } w_renderblock;

@@ -51,7 +51,8 @@ void game_screen(w_state *state) {
       // block_center.y = td->chunk_view->blocks[i].dst.y + CUBE_H / 2;
       DrawTexturePro(block_textures[td->chunk_view->blocks[i].block.type - 1],
                      td->chunk_view->blocks[i].src,
-                     td->chunk_view->blocks[i].dst, VEC_ZERO, 0, WHITE);
+                     td->chunk_view->blocks[i].dst, VEC_ZERO, 0,
+                     Fade(WHITE, td->chunk_view->blocks[i].light));
       /*
 abs(Vector2Distance(player_center, block_center)) <
           CUBE_W * 2

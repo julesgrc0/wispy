@@ -29,3 +29,5 @@ bool update_chunkview(w_chunkview *chunk_view, w_chunkgroup *grp,
                       Rectangle view);
 void filter_chunkview_blocks(w_chunk *chunk, Rectangle view,
                              w_renderblock *blocks, size_t *rendercount);
+
+void update_chunkview_lighting(w_chunkview *chunk_view, Vector2 light);

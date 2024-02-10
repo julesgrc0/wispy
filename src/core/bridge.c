@@ -191,6 +191,10 @@ void *update_bridge(void *arg)
         td->is_active = false;
         return EXIT_FAILURE;
       }
+      update_chunkview_lighting(
+          td->chunk_view,
+          (Vector2){td->player->position.x + td->player->dst.width / 2,
+                    td->player->position.y + td->player->dst.height / 2});
     }
 
     QueryPerformanceCounter(&time_end);

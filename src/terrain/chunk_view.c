@@ -158,3 +158,18 @@ void filter_chunkview_blocks(w_chunk *chunk, Rectangle view,
     }
   }
 }
+
+void update_chunkview_lighting(w_chunkview *chunk_view, Vector2 light) {
+  if (chunk_view->blocks == NULL) {
+    return;
+  }
+
+  float light_radius = 1000;
+  for (size_t i = 0; i < chunk_view->len; i++) {
+    Vector2 block_center = {chunk_view->blocks[i].dst.x + (CUBE_W / 2),
+                            chunk_view->blocks[i].dst.y + (CUBE_H / 2)};
+
+    chunk_view->blocks[i].light =
+        Vector2Distance(light, block_center) / light_radius;
+  }
+}
