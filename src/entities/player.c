@@ -43,26 +43,46 @@ void animate_player(w_player *player, float dt, bool should_walk) {
 
 void update_player_input(w_player *player, w_keyboard *keyboard) {
 
+  if (!player->is_onground) {
+    player->velocity.y += 1;
+  } else if (keyboard->jump && player->is_onground) {
+    player->is_onground = false;
+    player->velocity.y -= 10;
+  }
+
   if (keyboard->left) {
+    player->is_onground = false;
+
     if (player->src.width > 0) {
       player->src.width = -player->src.width;
     }
     player->velocity.x -= 1;
   } else if (keyboard->right) {
+    player->is_onground = false;
+
     if (player->src.width < 0) {
       player->src.width = -player->src.width;
     }
     player->velocity.x += 1;
   }
-  /*
+}
 
+void update_player_velocity(w_player *player) {
+  player->velocity.x =
+      Clamp(player->velocity.x, -MAX_PLAYER_VELOCITY_X, MAX_PLAYER_VELOCITY_X);
 
-    if (keyboard->jump && player->collision.bottom) {
-      player->velocity.y -= 10;
-    } else if (!player->collision.bottom) {
-      player->velocity.y += 1;
-    }
-    */
+  player->velocity.y =
+      Clamp(player->velocity.y, -MAX_PLAYER_VELOCITY_Y, MAX_PLAYER_VELOCITY_Y);
+
+  player->velocity = Vector2Scale(player->velocity, PLAYER_FRICTION);
+
+  if (fabs(player->velocity.x) < 0.1f) {
+    player->velocity.x = 0;
+  }
+
+  if (fabs(player->velocity.y) < 0.1f) {
+    player->velocity.y = 0;
+  }
 }
 
 Vector2 get_camera_target_player(w_player *player, Camera2D *camera) {
@@ -72,4 +92,20 @@ Vector2 get_camera_target_player(w_player *player, Camera2D *camera) {
                                              .y = player->position.y,
                                              .width = player->dst.width,
                                              .height = player->dst.height});
+}
+
+Rectangle *get_player_collision_overlap(Rectangle player, w_chunkview *view,
+                                        size_t *len) {
+  Rectangle *overlaps = malloc(sizeof(Rectangle) * MAX_OVERLAP_LEN);
+  for (size_t i = 0; i < view->len; i++) {
+    Rectangle block = view->blocks[i].dst;
+    if (CheckCollisionRecs(block, player)) {
+      overlaps[*len] = GetCollisionRec(block, player);
+      (*len)++;
+      if ((*len) >= MAX_OVERLAP_LEN) {
+        break;
+      }
+    }
+  }
+  return realloc(overlaps, sizeof(Rectangle) * (*len));
 }

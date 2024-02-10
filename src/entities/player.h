@@ -5,13 +5,13 @@
 #include "../stdafx.h"
 #include "../terrain/chunk_view.h"
 
-#define PLAYER_SPEED 100.f
+#define PLAYER_SPEED 1000.f
 #define PLAYER_JUMP 10.f
 #define PLAYER_FRICTION 0.8f
 #define MAX_PLAYER_VELOCITY_X 1.f
 #define MAX_PLAYER_VELOCITY_Y 10.f
 #define MIN_PLAYER_VELOCITY 0.1f
-
+#define MAX_OVERLAP_LEN 12
 #define PLAYER_SRC_RECT                                                        \
   (Rectangle) { 0, 0, 8, 16 }
 
@@ -32,6 +32,10 @@ typedef struct w_player {
   Vector2 position;
   Vector2 velocity;
 
+  bool is_onground;
+  bool left_stop;
+  bool right_stop;
+
   w_playerstate state;
 } w_player;
 
@@ -40,6 +44,8 @@ void destroy_player(w_player *player);
 
 void animate_player(w_player *player, float dt, bool should_walk);
 void update_player_input(w_player *player, w_keyboard *keyboard);
-// void update_player_velocity(w_player *player, float dt);
+void update_player_velocity(w_player *player);
 
 Vector2 get_camera_target_player(w_player *player, Camera2D *camera);
+Rectangle *get_player_collision_overlap(Rectangle player, w_chunkview *view,
+                                        size_t *len);
