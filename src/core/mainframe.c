@@ -48,13 +48,19 @@ void destroy_mainframe(w_state *state) {
   if (state == NULL)
     return;
 
-  for (size_t i = 0; i < state->len; i++) {
+  for (size_t i = 0; i < state->textures_len; i++) {
     sfree(state->textures_id[i]);
     UnloadTexture(state->textures[i]);
   }
-
   sfree(state->textures);
   sfree(state->textures_id);
+
+  for (size_t i = 0; i < state->shaders_len; i++) {
+    sfree(state->shaders_id[i]);
+    UnloadShader(state->shaders[i]);
+  }
+  sfree(state->shaders);
+  sfree(state->shaders_id);
 
   UnloadFont(state->font);
   UnloadRenderTexture(state->render);

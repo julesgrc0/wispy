@@ -1,33 +1,10 @@
 #include "menu.h"
 
-const char *blurShaderFS =
-    "#version 330\n\n"
-    "in vec2 fragTexCoord;\n"
-    "in vec4 fragColor;\n\n"
-    "uniform sampler2D texture0;\n"
-    "uniform vec4 colDiffuse;\n\n"
-    "out vec4 finalColor;\n\n"
-    "const float renderWidth = 640;\n"
-    "const float renderHeight = 360;\n\n"
-    "float offset[3] = float[](0.0, 1.3846153846, 3.2307692308);\n"
-    "float weight[3] = float[](0.2270270270, 0.3162162162, 0.0702702703);\n\n"
-    "void main()\n"
-    "{\n"
-    "    vec3 texelColor = texture(texture0, fragTexCoord).rgb*weight[0];\n\n"
-    "    for (int i = 1; i < 3; i++)\n"
-    "    {\n"
-    "        texelColor += texture(texture0, fragTexCoord + "
-    "vec2(offset[i])/renderWidth, 0.0).rgb*weight[i];\n"
-    "        texelColor += texture(texture0, fragTexCoord - "
-    "vec2(offset[i])/renderWidth, 0.0).rgb*weight[i];\n"
-    "    }\n\n"
-    "    finalColor = vec4(texelColor, 1.0);\n"
-    "}\n";
 void menu_screen(w_state *state) {
   ShowCursor();
 
   bool is_active = true;
-  Shader blurShader = LoadShaderFromMemory(NULL, blurShaderFS);
+  Shader blurShader = get_shader_by_id(state, "shaders\\menu_blur.fs");
 
   Texture block_textures[6] = {
       get_texture_by_id(state, "blocks\\grass.png"),
@@ -53,13 +30,23 @@ void menu_screen(w_state *state) {
 
   w_guibutton *play_button = create_button(
       ctx, percent_to_pixel(ctx, (Vector2){0.5, 0.45}), WHITE, "Play");
-  w_guibutton *setting_button = create_button(
-      ctx, percent_to_pixel(ctx, (Vector2){0.5, 0.52}), WHITE, "Settings");
+  w_guibutton *setting_button =
+      create_button(ctx,
+                    (Vector2){
+                        .x = play_button->position.x + play_button->size.x / 2,
+                        .y = play_button->rect.y + play_button->rect.height * 2,
+                    },
+                    WHITE, "Settings");
   setting_button->default_color = Fade(WHITE, 0.5);
   setting_button->hover_color = Fade(WHITE, 0.5);
 
   w_guibutton *exit_button = create_button(
-      ctx, percent_to_pixel(ctx, (Vector2){0.5, 0.59}), WHITE, "Exit");
+      ctx,
+      (Vector2){
+          .x = play_button->position.x + play_button->size.x / 2,
+          .y = setting_button->rect.y + setting_button->rect.height * 2,
+      },
+      WHITE, "Exit");
 
   w_guitext *title_text = create_text(
       ctx, percent_to_pixel(ctx, (Vector2){0.5, 0.2}), "Wispy", 120, WHITE);
@@ -86,7 +73,7 @@ void menu_screen(w_state *state) {
     DrawRectangleGradientV(0, 0, RENDER_W, RENDER_H, (Color){66, 135, 245, 255},
                            (Color){142, 184, 250, 255});
     BeginMode2D(camera);
-    for (unsigned int i = 0; i < view->len; i++) {
+    for (unsigned int i = 0; i < view->textures_len; i++) {
       DrawTexturePro(block_textures[view->blocks[i].block.type - 1],
                      view->blocks[i].src, view->blocks[i].dst, VEC_ZERO, 0,
                      view->blocks[i].light);
@@ -131,8 +118,4 @@ void menu_screen(w_state *state) {
   destroy_button(setting_button);
   destroy_button(exit_button);
   destroy_gui(ctx);
-
-  UnloadShader(blurShader);
 }
-
-void setup_menu_background(w_state *state) {}

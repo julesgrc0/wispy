@@ -1,6 +1,8 @@
 #include "loading.h"
 
 void load_assets(w_state *state) {
+  printf("Loading assets...\n");
+
   state->render = LoadRenderTexture(RENDER_W, RENDER_H);
   // LoadRenderTexture(state->config->render_size, state->config->render_size);
   state->src_rnd = (Rectangle){0.0f, 0.0f, (float)state->render.texture.width,
@@ -8,29 +10,31 @@ void load_assets(w_state *state) {
   state->dest_rnd = (Rectangle){0.0f, 0.0f, (float)GetScreenWidth(),
                                 (float)GetScreenHeight()};
 
-  size_t len;
-  w_asset *items = unpack_assets(state->hInstance, &len);
+  size_t items_len;
+  w_asset *items = unpack_assets(state->hInstance, &items_len);
   if (!items) {
     state->state = F_FAILED;
     return;
   }
 
-  state->textures = malloc(sizeof(Texture) * len);
-  state->textures_id = malloc(sizeof(char *) * len);
+  state->textures = malloc(sizeof(Texture) * items_len);
+  state->textures_id = malloc(sizeof(char *) * items_len);
+
+  state->shaders = malloc(sizeof(Texture) * items_len);
+  state->shaders_id = malloc(sizeof(char *) * items_len);
 
   state->font = GetFontDefault();
 
-  size_t textures_index = 0;
-  for (size_t i = 0; i < len; i++) {
+  for (size_t i = 0; i < items_len; i++) {
     const char *ext = strrchr(items[i].name, '.');
 
     if (strcmp(ext, ".png") == 0) {
       Image image = LoadImageFromMemory(".png", items[i].buffer, items[i].size);
-      state->textures[textures_index] = LoadTextureFromImage(image);
+      state->textures[state->textures_len] = LoadTextureFromImage(image);
       UnloadImage(image);
 
-      state->textures_id[textures_index] = items[i].name;
-      textures_index++;
+      state->textures_id[state->textures_len] = items[i].name;
+      state->textures_len++;
     } else if (strcmp(ext, ".ttf") == 0) {
       int fontSize = 72;
       char fontChars[73] =
@@ -40,6 +44,18 @@ void load_assets(w_state *state) {
                                        fontSize, fontChars, 73);
 
       sfree(items[i].name);
+    } else if (strcmp(ext, ".vs") == 0 || strcmp(ext, ".fs") == 0) {
+      bool is_vertex = strcmp(ext, ".vs") == 0;
+
+      items[i].buffer = realloc(items[i].buffer, items[i].size + 1);
+      items[i].buffer[items[i].size] = '\0';
+
+      state->shaders[state->shaders_len] =
+          LoadShaderFromMemory(is_vertex ? items[i].buffer : NULL,
+                               is_vertex ? NULL : items[i].buffer);
+      state->shaders_id[state->shaders_len] = items[i].name;
+      state->shaders_len++;
+
     } else {
       sfree(items[i].name);
       sfree(items[i].buffer);
@@ -49,9 +65,14 @@ void load_assets(w_state *state) {
     sfree(items[i].buffer);
   }
 
-  state->len = textures_index;
-  state->textures = realloc(state->textures, sizeof(Texture) * state->len);
-  state->textures_id = realloc(state->textures_id, sizeof(char *) * state->len);
+  state->textures =
+      realloc(state->textures, sizeof(Texture) * state->textures_len);
+  state->textures_id =
+      realloc(state->textures_id, sizeof(char *) * state->textures_len);
+
+  state->shaders = realloc(state->shaders, sizeof(Shader) * state->shaders_len);
+  state->shaders_id =
+      realloc(state->shaders_id, sizeof(char *) * state->shaders_len);
 
   sfree(items);
 

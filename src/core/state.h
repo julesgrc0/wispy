@@ -37,7 +37,11 @@ typedef struct w_state {
 
   char **textures_id;
   Texture *textures;
-  size_t len;
+  size_t textures_len;
+
+  char **shaders_id;
+  Shader *shaders;
+  size_t shaders_len;
 
   Font font;
 
@@ -57,3 +61,4 @@ w_config *load_config();
 void save_config(w_config *config);
 
 Texture get_texture_by_id(w_state *state, char *id);
+Shader get_shader_by_id(w_state *state, char *id);

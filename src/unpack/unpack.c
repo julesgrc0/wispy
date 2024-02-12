@@ -46,10 +46,20 @@ w_asset *unpack_assets(HINSTANCE hInstance, size_t *size) {
     sfree(out_buffer);
     return NULL;
   }
-  out_buffer = realloc(out_buffer, out_size);
+  void *new_outbuff = realloc(out_buffer, out_size);
+  if (new_outbuff == NULL) {
+    sfree(out_buffer);
+    return NULL;
+  }
+  out_buffer = new_outbuff;
 
   w_asset *items = malloc(sizeof(w_asset));
-  size_t len = 0;
+  if (items == NULL) {
+    sfree(out_buffer);
+    return NULL;
+  }
+
+  size_t items_len = 0;
   if (items == NULL) {
     sfree(out_buffer);
     return NULL;
@@ -62,7 +72,20 @@ w_asset *unpack_assets(HINSTANCE hInstance, size_t *size) {
 
     item.name = malloc(0);
     do {
-      item.name = realloc(item.name, current_size + 1);
+      void *new_name = realloc(item.name, current_size + 1);
+      if (new_name == NULL) {
+        sfree(item.name);
+        sfree(out_buffer);
+
+        for (size_t i = 0; i < items_len; i++) {
+          sfree(items[i].name);
+          sfree(items[i].buffer);
+        }
+        sfree(items);
+
+        return NULL;
+      }
+      item.name = new_name;
       item.name[current_size] = out_buffer[index];
 
       current_size++;
@@ -78,18 +101,32 @@ w_asset *unpack_assets(HINSTANCE hInstance, size_t *size) {
     index += sizeof(unsigned int);
 
     item.size = *(unsigned int *)file_size_bytes;
-
     item.buffer = malloc(item.size);
     memcpy(item.buffer, out_buffer + index, item.size);
     index += item.size;
 
-    items = realloc(items, (len + 1) * sizeof(w_asset));
-    memcpy(&items[len], &item, sizeof(w_asset));
-    len++;
+    void *new_items = realloc(items, (items_len + 1) * sizeof(w_asset));
+    if (new_items == NULL) {
+      sfree(item.name);
+      sfree(item.buffer);
+      sfree(out_buffer);
+
+      for (size_t i = 0; i < items_len; i++) {
+        sfree(items[i].name);
+        sfree(items[i].buffer);
+      }
+      sfree(items);
+
+      return NULL;
+    }
+
+    items = new_items;
+    memcpy(items + items_len, &item, sizeof(w_asset));
+    items_len++;
   }
 
   sfree(out_buffer);
-  *size = len;
+  *size = items_len;
 
   return items;
 }

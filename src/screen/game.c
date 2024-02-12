@@ -39,7 +39,7 @@ void game_screen(w_state *state) {
     BeginMode2D(*(td->camera));
     smooth_vec(&td->camera->target, td->camera_target, speed);
 
-    for (unsigned int i = 0; i < td->chunk_view->len; i++) {
+    for (unsigned int i = 0; i < td->chunk_view->textures_len; i++) {
       DrawTexturePro(block_textures[td->chunk_view->blocks[i].block.type - 1],
                      td->chunk_view->blocks[i].src,
                      td->chunk_view->blocks[i].dst, VEC_ZERO, 0,

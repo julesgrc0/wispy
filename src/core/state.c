@@ -78,11 +78,22 @@ void save_config(w_config *config) {
 }
 
 Texture get_texture_by_id(w_state *state, char *id) {
-  for (size_t i = 0; i < state->len; i++) {
+  for (size_t i = 0; i < state->textures_len; i++) {
     if (strcmp(state->textures_id[i], id) == 0) {
       return state->textures[i];
     }
   }
 
   return (Texture){0};
+}
+
+Shader get_shader_by_id(w_state *state, char *id) {
+
+  for (size_t i = 0; i < state->shaders_len; i++) {
+    if (strcmp(state->shaders_id[i], id) == 0) {
+      return state->shaders[i];
+    }
+  }
+
+  return (Shader){0};
 }

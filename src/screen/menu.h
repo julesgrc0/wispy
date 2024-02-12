@@ -8,5 +8,3 @@
 #include "../terrain/chunk_view.h"
 
 void menu_screen(w_state *state);
-
-void setup_menu_background(w_state *state);

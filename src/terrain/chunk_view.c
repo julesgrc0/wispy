@@ -8,7 +8,7 @@ w_chunkview *create_chunkview(w_chunk *current) {
   }
   chunk_view = memset(chunk_view, 0, sizeof(w_chunkview));
 
-  chunk_view->blocks = malloc(chunk_view->len);
+  chunk_view->blocks = malloc(chunk_view->textures_len);
   if (chunk_view->blocks == NULL) {
     LOG("failed to allocate memory for chunk view blocks");
     free(chunk_view);
@@ -46,7 +46,7 @@ void destroy_chunkview(w_chunkview *chunk_view) {
 }
 
 void update_renderblock_async(w_chunkview *chunk_view, w_renderblock *blocks,
-                              size_t len) {
+                              size_t textures_len) {
 #ifdef _WIN32
   WaitForSingleObject(chunk_view->mutex, INFINITE);
 #else
@@ -54,7 +54,7 @@ void update_renderblock_async(w_chunkview *chunk_view, w_renderblock *blocks,
 #endif // _WIN32
 
   free(chunk_view->blocks);
-  chunk_view->len = len;
+  chunk_view->textures_len = textures_len;
   chunk_view->blocks = blocks;
 
 #ifdef _WIN32
@@ -94,12 +94,12 @@ bool update_chunkview(w_chunkview *chunk_view, w_chunkgroup *grp,
   }
 
   size_t rendercount = 0;
-  size_t len = CHUNK_W * CHUNK_H * ((chunk_view->next == NULL) ? 1 : 2);
-  w_renderblock *blocks = malloc(len * sizeof(w_renderblock));
+  size_t textures_len = CHUNK_W * CHUNK_H * ((chunk_view->next == NULL) ? 1 : 2);
+  w_renderblock *blocks = malloc(textures_len * sizeof(w_renderblock));
   if (blocks == NULL) {
     return false;
   }
-  memset(blocks, 0, len * sizeof(w_renderblock));
+  memset(blocks, 0, textures_len * sizeof(w_renderblock));
   filter_chunkview_blocks(chunk_view->target, view, blocks, &rendercount);
   if (chunk_view->next != NULL) {
     filter_chunkview_blocks(chunk_view->next, view, blocks, &rendercount);
@@ -109,7 +109,7 @@ bool update_chunkview(w_chunkview *chunk_view, w_chunkgroup *grp,
     free(blocks);
     update_renderblock_async(chunk_view, NULL, 0);
     return true;
-  } else if (rendercount != len) {
+  } else if (rendercount != textures_len) {
     w_renderblock *tmp = realloc(blocks, sizeof(w_renderblock) * rendercount);
     if (tmp == NULL) {
       free(blocks);
@@ -164,7 +164,7 @@ void update_chunkview_lighting(w_chunkview *chunk_view, Vector2 light) {
   }
 
   float light_radius = 1000;
-  for (size_t i = 0; i < chunk_view->len; i++) {
+  for (size_t i = 0; i < chunk_view->textures_len; i++) {
     Vector2 block_center = {chunk_view->blocks[i].dst.x + (CUBE_W / 2),
                             chunk_view->blocks[i].dst.y + (CUBE_H / 2)};
 

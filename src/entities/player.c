@@ -119,7 +119,7 @@ Rectangle check_player_collision_vel(w_player *player, w_chunkview *view) {
 
   bool col_x = false;
   bool col_y = false;
-  for (size_t i = 0; i < view->len; i++) {
+  for (size_t i = 0; i < view->textures_len; i++) {
     Rectangle block = view->blocks[i].dst;
     if (!col_x && CheckCollisionRecs(block, next_velx)) {
       col_x = true;
