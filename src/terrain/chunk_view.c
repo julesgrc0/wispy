@@ -53,7 +53,7 @@ void update_renderblock_async(w_chunkview *chunk_view, w_renderblock *blocks,
   pthread_mutex_lock(&td->mutex);
 #endif // _WIN32
 
-  free(chunk_view->blocks);
+  sfree(chunk_view->blocks);
   chunk_view->textures_len = textures_len;
   chunk_view->blocks = blocks;
 
@@ -67,50 +67,51 @@ void update_renderblock_async(w_chunkview *chunk_view, w_renderblock *blocks,
 bool update_chunkview(w_chunkview *chunk_view, w_chunkgroup *grp,
                       Rectangle view) {
   if (view.x < 0 || view.y < 0) {
-
     update_renderblock_async(chunk_view, NULL, 0);
     return true;
   }
-  unsigned int viewx = floor(view.x / FULL_CHUNK_W);
-  if (viewx != chunk_view->target->position) {
-    int grpmove = need_chunkgroup_update(grp, viewx);
-    if (grpmove > 0) {
+
+  unsigned int position = floor(view.x / FULL_CHUNK_W);
+  if (position != chunk_view->target->position) {
+    int group_move = need_chunkgroup_update(grp, position);
+    if (group_move > 0) {
       next_chunkgroup(grp);
-    } else if (grpmove < 0) {
+    } else if (group_move < 0) {
       prev_chunkgroup(grp);
     }
 
-    chunk_view->target = get_chunkgroup_chunk(grp, viewx);
+    chunk_view->target = get_chunkgroup_chunk(grp, position);
     if (chunk_view->target == NULL) {
       return false;
     }
   }
 
-  unsigned int viewnextx = round((view.x + view.width) / FULL_CHUNK_W);
-  if (viewnextx != viewx) {
-    chunk_view->next = get_chunkgroup_chunk(grp, viewnextx);
+  unsigned int position_next = round((view.x + view.width) / FULL_CHUNK_W);
+  if (position_next != position) {
+    chunk_view->next = get_chunkgroup_chunk(grp, position_next);
   } else {
     chunk_view->next = NULL;
   }
 
-  size_t rendercount = 0;
-  size_t textures_len = CHUNK_W * CHUNK_H * ((chunk_view->next == NULL) ? 1 : 2);
+  size_t render_count = 0;
+  size_t textures_len =
+      CHUNK_W * CHUNK_H * ((chunk_view->next == NULL) ? 1 : 2);
   w_renderblock *blocks = malloc(textures_len * sizeof(w_renderblock));
   if (blocks == NULL) {
     return false;
   }
   memset(blocks, 0, textures_len * sizeof(w_renderblock));
-  filter_chunkview_blocks(chunk_view->target, view, blocks, &rendercount);
+  filter_chunkview_blocks(chunk_view->target, view, blocks, &render_count);
   if (chunk_view->next != NULL) {
-    filter_chunkview_blocks(chunk_view->next, view, blocks, &rendercount);
+    filter_chunkview_blocks(chunk_view->next, view, blocks, &render_count);
   }
 
-  if (rendercount == 0) {
+  if (render_count == 0) {
     free(blocks);
     update_renderblock_async(chunk_view, NULL, 0);
     return true;
-  } else if (rendercount != textures_len) {
-    w_renderblock *tmp = realloc(blocks, sizeof(w_renderblock) * rendercount);
+  } else if (render_count != textures_len) {
+    w_renderblock *tmp = realloc(blocks, sizeof(w_renderblock) * render_count);
     if (tmp == NULL) {
       free(blocks);
       return false;
@@ -118,21 +119,28 @@ bool update_chunkview(w_chunkview *chunk_view, w_chunkgroup *grp,
     blocks = tmp;
   }
 
-  update_renderblock_async(chunk_view, blocks, rendercount);
+  update_renderblock_async(chunk_view, blocks, render_count);
   return true;
 }
 
 void filter_chunkview_blocks(w_chunk *chunk, Rectangle view,
                              w_renderblock *blocks, size_t *rendercount) {
 
-  unsigned int start_x = (int)((view.x < 0 ? 0 : view.x) / CUBE_W) % CHUNK_W;
-  unsigned int end_x = start_x + RENDER_CUBE_COUNT + 1;
+  // remove screen lag
+  view.x -= RENDER_CUBE_GAP * CUBE_W;
+  view.y -= RENDER_CUBE_GAP * CUBE_H;
+  view.width += RENDER_CUBE_GAP * CUBE_W * 2;
+  view.height += RENDER_CUBE_GAP * CUBE_H * 2;
 
-  unsigned int start_y = (int)((view.y < 0 ? 0 : view.y) / CUBE_H) % CHUNK_H;
-  unsigned int end_y = start_y + RENDER_CUBE_COUNT + 1;
+  // TODO: fix view optimization
+
+  unsigned int start_x = 0;
+  unsigned int end_x = CHUNK_W;
+
+  unsigned int start_y = view.y / CUBE_H;
+  unsigned int end_y = CHUNK_H; // start_y + RENDER_CUBE_COUNT;
 
   Rectangle block = {.x = 0, .y = 0, .width = CUBE_W, .height = CUBE_H};
-
   for (unsigned int x = start_x; x < end_x; x++) {
     for (unsigned int y = start_y; y < end_y; y++) {
 
@@ -146,6 +154,7 @@ void filter_chunkview_blocks(w_chunk *chunk, Rectangle view,
 
       block.x = (chunk->position * FULL_CHUNK_W) + (x * CUBE_W);
       block.y = y * CUBE_H;
+
       if (CheckCollisionRecs(block, view)) {
 
         blocks[*rendercount] = (w_renderblock){.dst = block,
@@ -163,15 +172,38 @@ void update_chunkview_lighting(w_chunkview *chunk_view, Vector2 light) {
     return;
   }
 
-  float light_radius = 1000;
   for (size_t i = 0; i < chunk_view->textures_len; i++) {
     Vector2 block_center = {chunk_view->blocks[i].dst.x + (CUBE_W / 2),
                             chunk_view->blocks[i].dst.y + (CUBE_H / 2)};
 
-    float percent = 1.f - Vector2Distance(light, block_center) / light_radius;
+    float percent = 1.f - Vector2Distance(light, block_center) / LIGHT_RADIUS;
     chunk_view->blocks[i].light = (Color){.r = (unsigned char)(255 * percent),
                                           .g = (unsigned char)(255 * percent),
                                           .b = (unsigned char)(255 * percent),
                                           .a = 255};
   }
+}
+
+w_block *get_chunkview_block(w_chunkview *chunk_view, Vector2 position) {
+  unsigned int chunk_x = position.x / FULL_CHUNK_W;
+
+  if (!(chunk_view->target->position == chunk_x ||
+        (chunk_view->next != NULL && chunk_view->next->position == chunk_x))) {
+    return NULL;
+  }
+
+  w_chunk *chunk = (chunk_view->target->position == chunk_x)
+                       ? chunk_view->target
+                       : chunk_view->next;
+  LOG("chunk: %d", chunk->position);
+  unsigned int block_x = (int)(position.x / CUBE_W) - chunk->position * CHUNK_W;
+  unsigned int block_y = (int)(position.y / CUBE_H);
+
+  if (block_x + block_y * CHUNK_W > CHUNK_W * CHUNK_H) {
+    return NULL;
+  }
+  LOG("(%d;%d) = %d", block_x, block_y,
+      chunk->blocks[block_x + block_y * CHUNK_W].type);
+  // chunk->blocks[block_x + block_y * CHUNK_W].type = BLOCK_AIR;
+  return &chunk->blocks[block_x + block_y * CHUNK_W];
 }

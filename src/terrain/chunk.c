@@ -2,6 +2,10 @@
 
 w_chunk *create_chunk(unsigned int position, bool thread) {
   w_chunk *chunk = malloc(sizeof(w_chunk));
+  if (chunk == NULL) {
+    LOG("failed to allocate chunk");
+    return NULL;
+  }
   chunk->position = position;
   chunk->handle = INVALID_HANDLE_VALUE;
 
@@ -30,6 +34,7 @@ void *create_chunk_thread(void *arg)
 {
   if (!arg)
     return EXIT_FAILURE;
+
   LOG("creating chunk");
   w_chunk *chunk = arg;
 

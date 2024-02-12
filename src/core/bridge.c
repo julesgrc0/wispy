@@ -20,12 +20,6 @@ w_bridge *create_bridge() {
     return NULL;
   }
 
-  td->next_view = create_chunkview(td->chunk_group->chunks[0]);
-  if (td->next_view == NULL) {
-    destroy_bridge(td);
-    return NULL;
-  }
-
   td->player = create_player(td->chunk_group->position);
   if (td->player == NULL) {
     destroy_bridge(td);
@@ -39,7 +33,15 @@ w_bridge *create_bridge() {
     return NULL;
   }
   memset(td->camera, 0, sizeof(Camera2D));
-  td->camera->zoom = 1.0f;
+  td->camera->zoom = 1.f;
+  /*
+  DEBUG:
+
+  td->camera->zoom = 0.5f;
+  td->camera->offset.x += RENDER_W / 4;
+  td->camera->offset.y += RENDER_H / 4;
+  */
+
   td->camera->target = get_camera_target_player(td->player, td->camera);
   td->camera_target = td->camera->target;
 
@@ -79,7 +81,6 @@ void destroy_bridge(w_bridge *td) {
 
   destroy_chunkgroup(td->chunk_group);
   destroy_chunkview(td->chunk_view);
-  destroy_chunkview(td->next_view);
   destroy_player(td->player);
 
   sfree(td->camera);
@@ -88,14 +89,22 @@ void destroy_bridge(w_bridge *td) {
 }
 
 void physics_update(w_bridge *td) {
+#if 0
   check_player_collision_vel(td->player, td->chunk_view);
   Vector2 next_position =
       Vector2Scale(td->player->velocity, PHYSICS_TICK * PLAYER_SPEED);
+#endif
   update_player_input(td->player, td->keyboard);
   update_player_velocity(td->player);
 
+#if 0
   td->player->position.x += next_position.x;
   td->player->position.y += next_position.y;
+#endif
+  td->player->position.x +=
+      td->player->velocity.x * PHYSICS_TICK * PLAYER_SPEED;
+  td->player->position.y +=
+      td->player->velocity.y * PHYSICS_TICK * PLAYER_SPEED;
 
   td->camera_target = get_camera_target_player(td->player, td->camera);
   animate_player(td->player, PHYSICS_TICK, td->keyboard->key != 0);
@@ -132,7 +141,7 @@ void *update_bridge(void *arg)
                    get_camera_view(td->camera));
   update_chunkview_lighting(td->chunk_view, get_player_center(td->player));
 
-  while (td->is_active) {
+  do {
 
     if (td->keyboard->key != 0 || td->camera->target.x != td->camera_target.x ||
         td->camera->target.y != td->camera_target.y) {
@@ -147,12 +156,12 @@ void *update_bridge(void *arg)
     }
 
     QueryPerformanceCounter(&time_end);
-    if (time_end.QuadPart - time_start.QuadPart <
-        time_frequency.QuadPart * PHYSICS_TICK)
-      continue;
-    QueryPerformanceCounter(&time_start);
-    physics_update(td);
-  }
+    if (time_end.QuadPart - time_start.QuadPart >=
+        time_frequency.QuadPart * PHYSICS_TICK) {
+      QueryPerformanceCounter(&time_start);
+      physics_update(td);
+    }
+  } while (td->is_active);
 
   LOG("exiting bridge thread");
   return EXIT_SUCCESS;

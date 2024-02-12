@@ -6,6 +6,8 @@
 #include "chunk.h"
 #include "chunk_group.h"
 
+#define LIGHT_RADIUS 1000.f
+
 typedef struct w_chunkview {
   w_chunk *target;
   w_chunk *next;
@@ -31,3 +33,5 @@ void filter_chunkview_blocks(w_chunk *chunk, Rectangle view,
                              w_renderblock *blocks, size_t *rendercount);
 
 void update_chunkview_lighting(w_chunkview *chunk_view, Vector2 light);
+
+w_block *get_chunkview_block(w_chunkview *chunk_view, Vector2 position);

@@ -43,13 +43,13 @@ void animate_player(w_player *player, float dt, bool should_walk) {
 
 void update_player_input(w_player *player, w_keyboard *keyboard) {
 
+#if 0
   if (player->delay > 0) {
     player->delay--;
   }
-  if (keyboard->jump /* && player->is_onground*/ && player->delay <= 0) {
+  if (keyboard->jump && player->delay <= 0) {
     player->velocity.y -= 5;
     player->delay = (1 / PHYSICS_TICK);
-    player->is_onground = false;
   }
 
   if (keyboard->left) {
@@ -58,21 +58,33 @@ void update_player_input(w_player *player, w_keyboard *keyboard) {
       player->src.width = -player->src.width;
     }
     player->velocity.x -= 1;
-    player->is_onground = false;
   } else if (keyboard->right) {
 
     if (player->src.width < 0) {
       player->src.width = -player->src.width;
     }
     player->velocity.x += 1;
-    player->is_onground = false;
   }
+#else
+  if (keyboard->up) {
+    player->velocity.y -= 1;
+
+  } else if (keyboard->down) {
+    player->velocity.y += 1;
+  }
+
+  if (keyboard->left) {
+    player->velocity.x -= 1;
+  } else if (keyboard->right) {
+    player->velocity.x += 1;
+  }
+#endif
 }
 
 void update_player_velocity(w_player *player) {
-  if (!player->is_onground) {
-    player->velocity.y += 1;
-  }
+#if 0
+  player->velocity.y += 1 / 2.f;
+#endif
 
   player->velocity.x =
       Clamp(player->velocity.x, -MAX_PLAYER_VELOCITY_X, MAX_PLAYER_VELOCITY_X);
@@ -105,7 +117,7 @@ Vector2 get_camera_target_player(w_player *player, Camera2D *camera) {
                                              .height = player->dst.height});
 }
 
-Rectangle check_player_collision_vel(w_player *player, w_chunkview *view) {
+void check_player_collision_vel(w_player *player, w_chunkview *view) {
   Rectangle next_velx = {.x = player->position.x +
                               player->velocity.x * PLAYER_SPEED * PHYSICS_TICK,
                          .y = player->position.y,

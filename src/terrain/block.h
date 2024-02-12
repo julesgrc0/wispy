@@ -13,7 +13,7 @@ typedef enum w_blocktype {
   BLOCK_MINERAL_IRON,
 } w_blocktype;
 
-typedef union w_block {
+typedef struct w_block {
   w_blocktype type; // 16
 } w_block;
 

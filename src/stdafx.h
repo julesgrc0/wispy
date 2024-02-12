@@ -55,6 +55,7 @@
 #define PHYSICS_TICK (1.0f / 24.0f)
 
 #define RENDER_CUBE_COUNT 20
+#define RENDER_CUBE_GAP 2
 #define RENDER_W 1280
 #define RENDER_H 720
 

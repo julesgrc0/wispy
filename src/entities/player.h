@@ -9,7 +9,7 @@
 #define PLAYER_JUMP 10.f
 #define PLAYER_FRICTION 0.8f
 #define MAX_PLAYER_VELOCITY_X 1.f
-#define MAX_PLAYER_VELOCITY_Y 10.f
+#define MAX_PLAYER_VELOCITY_Y 1.f
 #define MIN_PLAYER_VELOCITY 0.1f
 #define MAX_OVERLAP_LEN 12
 #define PLAYER_SRC_RECT                                                        \
@@ -32,8 +32,6 @@ typedef struct w_player {
   Vector2 position;
   Vector2 velocity;
 
-  bool is_onground;
-
   w_playerstate state;
 } w_player;
 
@@ -46,4 +44,4 @@ void update_player_velocity(w_player *player);
 
 Vector2 get_player_center(w_player *player);
 Vector2 get_camera_target_player(w_player *player, Camera2D *camera);
-Rectangle check_player_collision_vel(w_player *player, w_chunkview *view);
+void check_player_collision_vel(w_player *player, w_chunkview *view);

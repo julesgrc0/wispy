@@ -6,6 +6,7 @@ w_chunkgroup *create_chunkgroup(unsigned int position) {
     LOG("failed to allocate memory for chunk group");
     return NULL;
   }
+
   grp->position = position - CHUNK_GROUP_MID_LEN;
   for (unsigned int x = 0; x < CHUNK_GROUP_LEN; x++) {
     grp->chunks[x] = create_chunk(grp->position + x, false);
@@ -49,6 +50,7 @@ void prev_chunkgroup(w_chunkgroup *grp) {
 }
 
 int need_chunkgroup_update(w_chunkgroup *grp, unsigned int position) {
+
   if (grp->position != 0 &&
       position <= grp->position + CHUNK_GROUP_UPDATE_DIST) {
     return -1;

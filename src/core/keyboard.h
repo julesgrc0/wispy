@@ -8,6 +8,8 @@ typedef union w_keyboard {
     unsigned int jump : 1;
     unsigned int left : 1;
     unsigned int right : 1;
+    unsigned int up : 1;
+    unsigned int down : 1;
   };
   uint8_t key;
 } w_keyboard;
