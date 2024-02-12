@@ -2,6 +2,8 @@
 #include "../resource.h"
 #include "../stdafx.h"
 
+#define MAX_UNCOMPRESSE_TRY 4
+
 typedef struct w_asset {
   char *name;
 

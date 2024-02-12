@@ -41,11 +41,26 @@ w_asset *unpack_assets(HINSTANCE hInstance, size_t *size) {
   if (!out_buffer)
     return NULL;
 
-  if (uncompress(out_buffer, (uLongf *)&out_size, in_buffer, (uLong)in_size) !=
-      Z_OK) {
+  size_t try_index = 0;
+  for (try_index; try_index < MAX_UNCOMPRESSE_TRY; try_index++) {
+    if (uncompress(out_buffer, (uLongf *)&out_size, in_buffer,
+                   (uLong)in_size) != Z_OK) {
+      out_size *= 2;
+      void *new_outbuff = realloc(out_buffer, out_size);
+      if (new_outbuff == NULL) {
+        sfree(out_buffer);
+        return NULL;
+      }
+      out_buffer = new_outbuff;
+    } else {
+      break;
+    }
+  }
+  if (try_index >= MAX_UNCOMPRESSE_TRY) {
     sfree(out_buffer);
     return NULL;
   }
+
   void *new_outbuff = realloc(out_buffer, out_size);
   if (new_outbuff == NULL) {
     sfree(out_buffer);

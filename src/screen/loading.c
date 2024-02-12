@@ -1,8 +1,6 @@
 #include "loading.h"
 
 void load_assets(w_state *state) {
-  printf("Loading assets...\n");
-
   state->render = LoadRenderTexture(RENDER_W, RENDER_H);
   // LoadRenderTexture(state->config->render_size, state->config->render_size);
   state->src_rnd = (Rectangle){0.0f, 0.0f, (float)state->render.texture.width,
