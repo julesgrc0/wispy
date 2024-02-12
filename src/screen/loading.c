@@ -11,7 +11,7 @@ void load_assets(w_state *state) {
   size_t len;
   w_asset *items = unpack_assets(state->hInstance, &len);
   if (!items) {
-    state->loading = LS_FAILED;
+    state->state = F_FAILED;
     return;
   }
 
@@ -55,7 +55,7 @@ void load_assets(w_state *state) {
 
   sfree(items);
 
-  state->loading = LS_OK;
+  state->state = F_OK;
 }
 
 void loading_screen(w_state *state) {
@@ -75,24 +75,24 @@ void loading_screen(w_state *state) {
       .y = (GetScreenHeight() - text_size) / 2.f};
 
   while (!loaded && !WindowShouldClose()) {
-    switch (state->loading) {
-    case LS_DISPLAY: {
+    switch (state->state) {
+    case F_DISPLAY: {
       BeginDrawing();
       ClearBackground(BLACK);
       DrawText(loading_text, loading_pos.x, loading_pos.y, text_size, WHITE);
       EndDrawing();
-      state->loading = LS_LOAD;
+      state->state = F_LOAD;
     } break;
-    case LS_LOAD:
+    case F_LOAD:
       load_assets(state);
       break;
-    case LS_FAILED: {
+    case F_FAILED: {
       BeginDrawing();
       ClearBackground(BLACK);
       DrawText(error_text, error_pos.x, error_pos.y, text_size, RED);
       EndDrawing();
     } break;
-    case LS_OK:
+    case F_OK:
       loaded = true;
       break;
     }

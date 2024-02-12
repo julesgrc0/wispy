@@ -15,6 +15,8 @@ typedef struct w_guibutton {
 w_guibutton *create_button(w_guicontext *ctx, Vector2 position, Color color,
                            char *text);
 
+void move_button(w_guibutton *button, Vector2 position);
+
 bool update_button(w_guibutton *button);
 
 void destroy_button(w_guibutton *button);

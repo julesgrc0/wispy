@@ -3,12 +3,13 @@
 
 #define CONFIG_NAME "config.dat"
 
-typedef enum w_loadstatus {
-  LS_DISPLAY,
-  LS_LOAD,
-  LS_OK,
-  LS_FAILED,
-} w_loadstatus;
+typedef enum w_framestate {
+  F_DISPLAY,
+  F_LOAD,
+  F_OK,
+  F_FAILED,
+  F_EXIT
+} w_framestate;
 
 typedef struct w_config {
   unsigned int fullscreen : 1;
@@ -32,7 +33,7 @@ typedef struct w_config {
 } w_config;
 
 typedef struct w_state {
-  w_loadstatus loading;
+  w_framestate state;
 
   char **textures_id;
   Texture *textures;

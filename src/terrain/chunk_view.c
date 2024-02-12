@@ -124,13 +124,12 @@ bool update_chunkview(w_chunkview *chunk_view, w_chunkgroup *grp,
 
 void filter_chunkview_blocks(w_chunk *chunk, Rectangle view,
                              w_renderblock *blocks, size_t *rendercount) {
-  // TODO: optimize this
 
-  unsigned int start_x = 0; // abs(viewx - floor(view.x / CUBE_W));
-  unsigned int end_x =
-      CHUNK_W; // abs(viewx - round((view.x + view.width) / CUBE_W));
-  unsigned int start_y = 0;
-  unsigned int end_y = CHUNK_H;
+  unsigned int start_x = (int)((view.x < 0 ? 0 : view.x) / CUBE_W) % CHUNK_W;
+  unsigned int end_x = start_x + RENDER_CUBE_COUNT + 1;
+
+  unsigned int start_y = (int)((view.y < 0 ? 0 : view.y) / CUBE_H) % CHUNK_H;
+  unsigned int end_y = start_y + RENDER_CUBE_COUNT + 1;
 
   Rectangle block = {.x = 0, .y = 0, .width = CUBE_W, .height = CUBE_H};
 

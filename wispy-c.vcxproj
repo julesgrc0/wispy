@@ -340,6 +340,7 @@
     <ClCompile Include="src\entities\player.c" />
     <ClCompile Include="src\gui\button.c" />
     <ClCompile Include="src\gui\gui.c" />
+    <ClCompile Include="src\gui\text.c" />
     <ClCompile Include="src\screen\game.c" />
     <ClCompile Include="src\screen\loading.c" />
     <ClCompile Include="src\screen\menu.c" />
@@ -359,6 +360,7 @@
     <ClInclude Include="src\entities\player.h" />
     <ClInclude Include="src\gui\button.h" />
     <ClInclude Include="src\gui\gui.h" />
+    <ClInclude Include="src\gui\text.h" />
     <ClInclude Include="src\resource.h" />
     <ClInclude Include="src\screen\game.h" />
     <ClInclude Include="src\screen\loading.h" />

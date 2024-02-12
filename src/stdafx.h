@@ -54,6 +54,7 @@
 
 #define PHYSICS_TICK (1.0f / 24.0f)
 
+#define RENDER_CUBE_COUNT 20
 #define RENDER_W 1280
 #define RENDER_H 720
 
@@ -66,8 +67,8 @@
 #define CHUNK_GROUP_MID_LEN 5
 #define CHUNK_GROUP_LOAD 2
 
-#define CUBE_W (RENDER_W / 20)
-#define CUBE_H (RENDER_H / 20)
+#define CUBE_W (RENDER_W / RENDER_CUBE_COUNT)
+#define CUBE_H (RENDER_H / RENDER_CUBE_COUNT)
 
 #define FULL_CHUNK_W (CHUNK_W * CUBE_W)
 #define FULL_CHUNK_H (CHUNK_H * CUBE_H)

@@ -54,23 +54,22 @@ void menu_screen(w_state *state) {
   w_guibutton *play_button = create_button(
       ctx, percent_to_pixel(ctx, (Vector2){0.5, 0.45}), WHITE, "Play");
   w_guibutton *setting_button = create_button(
-      ctx, percent_to_pixel(ctx, (Vector2){0.5, 0.55}), WHITE, "Settings");
+      ctx, percent_to_pixel(ctx, (Vector2){0.5, 0.52}), WHITE, "Settings");
   setting_button->default_color = Fade(WHITE, 0.5);
   setting_button->hover_color = Fade(WHITE, 0.5);
 
   w_guibutton *exit_button = create_button(
-      ctx, percent_to_pixel(ctx, (Vector2){0.5, 0.65}), WHITE, "Exit");
+      ctx, percent_to_pixel(ctx, (Vector2){0.5, 0.59}), WHITE, "Exit");
 
-  Vector2 title_position = percent_to_pixel(ctx, (Vector2){0.5, 0.3});
-  const char *title = "Wispy";
-  unsigned int title_size = 120;
-  title_position.y -= title_size;
-  title_position.x -= MeasureText(title, title_size) / 2;
+  w_guitext *title_text = create_text(
+      ctx, percent_to_pixel(ctx, (Vector2){0.5, 0.2}), "Wispy", 120, WHITE);
+  center_text(title_text, true, true);
 
-  const char *credis = "made by @julesgrc0 - alpha 0.0.1";
-  unsigned int credis_size = 20;
-  Vector2 credis_position = {.x = title_position.x,
-                             .y = title_position.y + title_size + credis_size};
+  w_guitext *credit_text =
+      create_text(ctx,
+                  Vector2Add(title_text->position,
+                             (Vector2){0, title_text->font_size + 10}),
+                  "made by @julesgrc0 - alpha 0.0.1", 20, WHITE);
 
   float move = 0.f;
   while (!WindowShouldClose() && is_active) {
@@ -113,12 +112,12 @@ void menu_screen(w_state *state) {
       // TODO: Implement settings screen
     }
     if (update_button(exit_button)) {
-      // TODO: exit properly
-      exit(0);
+      state->state = F_EXIT;
+      break;
     }
 
-    DrawText(title, title_position.x, title_position.y, title_size, WHITE);
-    DrawText(credis, credis_position.x, credis_position.y, credis_size, WHITE);
+    update_text(title_text);
+    update_text(credit_text);
 
     EndDrawing();
   }
@@ -126,8 +125,12 @@ void menu_screen(w_state *state) {
   destroy_chunkgroup(grp);
   destroy_chunkview(view);
 
-  destroy_gui(ctx);
+  destroy_text(credit_text);
+  destroy_text(title_text);
   destroy_button(play_button);
+  destroy_button(setting_button);
+  destroy_button(exit_button);
+  destroy_gui(ctx);
 
   UnloadShader(blurShader);
 }

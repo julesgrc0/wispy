@@ -88,64 +88,14 @@ void destroy_bridge(w_bridge *td) {
 }
 
 void physics_update(w_bridge *td) {
+  check_player_collision_vel(td->player, td->chunk_view);
+  Vector2 next_position =
+      Vector2Scale(td->player->velocity, PHYSICS_TICK * PLAYER_SPEED);
   update_player_input(td->player, td->keyboard);
   update_player_velocity(td->player);
 
-  Vector2 next_position =
-      Vector2Scale(td->player->velocity, PLAYER_SPEED * PHYSICS_TICK);
-  Rectangle player_rect = {.x = td->player->position.x,
-                           .y = td->player->position.y,
-                           .width = td->player->dst.width,
-                           .height = td->player->dst.height};
-
-  // TODO: find a better physics solution
-  if (next_position.y != 0) {
-
-    player_rect.y += next_position.y;
-    update_chunkview(td->next_view, td->chunk_group,
-                     (Rectangle){.x = player_rect.x,
-                                 .y = player_rect.y,
-                                 .width = RENDER_W,
-                                 .height = RENDER_H});
-
-    Rectangle overlap =
-        get_player_collision_overlap(player_rect, td->next_view);
-    if (overlap.y != 0) {
-      td->player->velocity.y = 0;
-
-      player_rect.y = round((overlap.y - player_rect.height) / CUBE_H) * CUBE_H;
-      td->player->is_onground = true;
-    } else {
-      td->player->is_onground = false;
-    }
-  }
-  if (next_position.x != 0) {
-    player_rect.x += next_position.x;
-    update_chunkview(td->next_view, td->chunk_group,
-                     (Rectangle){.x = player_rect.x,
-                                 .y = player_rect.y,
-                                 .width = RENDER_W,
-                                 .height = RENDER_H});
-
-    Rectangle overlap =
-        get_player_collision_overlap(player_rect, td->next_view);
-    if (overlap.x != 0 && overlap.y == 0) {
-
-      player_rect.x = overlap.x;
-      td->player->velocity.x = 0;
-
-    } else if (overlap.x != 0 && overlap.y != 0) {
-
-      td->player->is_onground = false;
-      player_rect.x =
-          ((int)((td->player->position.x) / CUBE_W)) * CUBE_W +
-          (td->player->velocity.x > 0 ? (CUBE_W - player_rect.width) : 0);
-      td->player->velocity.x = 0;
-    }
-  }
-
-  td->player->position.x = player_rect.x;
-  td->player->position.y = player_rect.y;
+  td->player->position.x += next_position.x;
+  td->player->position.y += next_position.y;
 
   td->camera_target = get_camera_target_player(td->player, td->camera);
   animate_player(td->player, PHYSICS_TICK, td->keyboard->key != 0);
@@ -180,6 +130,8 @@ void *update_bridge(void *arg)
 
   update_chunkview(td->chunk_view, td->chunk_group,
                    get_camera_view(td->camera));
+  update_chunkview_lighting(td->chunk_view, get_player_center(td->player));
+
   while (td->is_active) {
 
     if (td->keyboard->key != 0 || td->camera->target.x != td->camera_target.x ||
@@ -191,10 +143,7 @@ void *update_bridge(void *arg)
         td->is_active = false;
         return EXIT_FAILURE;
       }
-      update_chunkview_lighting(
-          td->chunk_view,
-          (Vector2){td->player->position.x + td->player->dst.width / 2,
-                    td->player->position.y + td->player->dst.height / 2});
+      update_chunkview_lighting(td->chunk_view, get_player_center(td->player));
     }
 
     QueryPerformanceCounter(&time_end);

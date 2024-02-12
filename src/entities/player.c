@@ -46,7 +46,7 @@ void update_player_input(w_player *player, w_keyboard *keyboard) {
   if (player->delay > 0) {
     player->delay--;
   }
-  if (keyboard->jump && player->is_onground && player->delay <= 0) {
+  if (keyboard->jump /* && player->is_onground*/ && player->delay <= 0) {
     player->velocity.y -= 5;
     player->delay = (1 / PHYSICS_TICK);
     player->is_onground = false;
@@ -91,6 +91,11 @@ void update_player_velocity(w_player *player) {
   }
 }
 
+Vector2 get_player_center(w_player *player) {
+  return (Vector2){player->position.x + player->dst.width / 2,
+                   player->position.y + player->dst.height / 2};
+}
+
 Vector2 get_camera_target_player(w_player *player, Camera2D *camera) {
 
   return center_camera_on_object(camera,
@@ -100,42 +105,47 @@ Vector2 get_camera_target_player(w_player *player, Camera2D *camera) {
                                              .height = player->dst.height});
 }
 
-Rectangle get_player_collision_overlap(Rectangle player, w_chunkview *view) {
+Rectangle check_player_collision_vel(w_player *player, w_chunkview *view) {
+  Rectangle next_velx = {.x = player->position.x +
+                              player->velocity.x * PLAYER_SPEED * PHYSICS_TICK,
+                         .y = player->position.y,
+                         .width = player->dst.width,
+                         .height = player->dst.height};
+  Rectangle next_vely = {.x = player->position.x,
+                         .y = player->position.y +
+                              player->velocity.y * PLAYER_SPEED * PHYSICS_TICK,
+                         .width = player->dst.width,
+                         .height = player->dst.height};
 
-  Rectangle overlap = {0};
-  float min_dst = MAXUINT16;
-  size_t col_count = 0;
+  bool col_x = false;
+  bool col_y = false;
   for (size_t i = 0; i < view->len; i++) {
     Rectangle block = view->blocks[i].dst;
-    if (CheckCollisionRecs(block, player)) {
-      Rectangle block_overlap = GetCollisionRec(block, player);
+    if (!col_x && CheckCollisionRecs(block, next_velx)) {
+      col_x = true;
+      player->velocity.x = 0;
 
-      float dist = Vector2Distance((Vector2){.x = block.x, .y = block.y},
-                                   (Vector2){.x = player.x, .y = player.y});
-
-      if (dist < min_dst) {
-        min_dst = dist;
-        overlap = block_overlap;
+      float adjust_x = GetCollisionRec(block, next_velx).x - player->dst.width;
+      if (adjust_x > player->position.x) {
+        player->position.x = adjust_x;
       }
 
-      col_count++;
-      if (col_count >= MAX_OVERLAP_LEN) {
+      if (col_y) {
         break;
       }
-      /*
-        Vector2 block_center = (Vector2){.x = block.x + block.width / 2,
-                                       .y = block.y + block.height / 2};
-      Vector2 player_center = (Vector2){.x = player.x + player.width / 2,
-                                        .y = player.y + player.height / 2};
+    }
 
-      float dist = Vector2Distance(block_center, player_center);
-      if (dist < min_dst) {
-        min_dst = dist;
-        overlap = ;
+    if (!col_y && CheckCollisionRecs(block, next_vely)) {
+      col_y = true;
+
+      player->velocity.y = 0;
+
+      float adjust_y = GetCollisionRec(block, next_vely).y - player->dst.height;
+      player->position.y = adjust_y;
+
+      if (col_x) {
+        break;
       }
-      */
     }
   }
-
-  return overlap;
 }

@@ -14,21 +14,26 @@ w_guibutton *create_button(w_guicontext *ctx, Vector2 position, Color color,
       .x = MeasureText(text, ctx->font_size),
       .y = ctx->font_size,
   };
+  move_button(button, position);
+  return button;
+}
+
+void move_button(w_guibutton *button, Vector2 position) {
   button->position = (Vector2){
       .x = position.x - (button->size.x / 2),
       .y = position.y - (button->size.y / 2),
   };
 
   button->rect = (Rectangle){
-      .x = button->position.x - (ctx->margin_width + ctx->border_size),
-      .y = button->position.y - (ctx->margin_height + ctx->border_size),
-      .width =
-          button->size.x + 2 * (button->ctx->margin_width + ctx->border_size),
-      .height =
-          button->size.y + 2 * (button->ctx->margin_height + ctx->border_size),
+      .x = button->position.x -
+           (button->ctx->margin_width + button->ctx->border_size),
+      .y = button->position.y -
+           (button->ctx->margin_height + button->ctx->border_size),
+      .width = button->size.x +
+               2 * (button->ctx->margin_width + button->ctx->border_size),
+      .height = button->size.y +
+                2 * (button->ctx->margin_height + button->ctx->border_size),
   };
-
-  return button;
 }
 
 bool update_button(w_guibutton *button) {
@@ -49,8 +54,4 @@ bool update_button(w_guibutton *button) {
   return IsMouseButtonDown(MOUSE_LEFT_BUTTON) && is_hover;
 }
 
-void destroy_button(w_guibutton *button) {
-  if (button) {
-    free(button);
-  }
-}
+void destroy_button(w_guibutton *button) { free(button); }

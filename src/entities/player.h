@@ -44,5 +44,6 @@ void animate_player(w_player *player, float dt, bool should_walk);
 void update_player_input(w_player *player, w_keyboard *keyboard);
 void update_player_velocity(w_player *player);
 
+Vector2 get_player_center(w_player *player);
 Vector2 get_camera_target_player(w_player *player, Camera2D *camera);
-Rectangle get_player_collision_overlap(Rectangle player, w_chunkview *view);
+Rectangle check_player_collision_vel(w_player *player, w_chunkview *view);
