@@ -29,12 +29,12 @@ void animate_player(w_player *player, bool should_walk) {
   player->animation += PHYSICS_TICK;
 
   if (should_walk || abs(player->velocity.x) > 0) {
-    if (player->animation > PHYSICS_TICK * 4) {
+    if (player->animation > PHYSICS_TICK * PLAYER_ANIMATION_WALK) {
       player->animation = 0;
       player->state = (player->state == P_WALK_1) ? P_WALK_2 : P_WALK_1;
     }
   } else {
-    if (player->animation > PHYSICS_TICK * 24) {
+    if (player->animation > PHYSICS_TICK * PLAYER_ANIMATION_IDLE) {
       player->animation = 0;
       player->state = (player->state == P_IDLE_1) ? P_IDLE_2 : P_IDLE_1;
     }
@@ -44,10 +44,16 @@ void animate_player(w_player *player, bool should_walk) {
 void update_player_input(w_player *player, w_keyboard *keyboard) {
   if (player->delay > 0) {
     player->delay--;
+    player->is_jumping = player->delay > 0;
+
+    player->velocity.y -=
+        (MAX_PLAYER_VELOCITY_Y * player->delay) / (PHYSICS_TICK / 2);
   }
-  if (keyboard->jump && player->delay <= 0) {
-    player->velocity.y -= PLAYER_JUMP;
-    player->delay = (1 / PHYSICS_TICK);
+  if (keyboard->jump && !player->is_jumping && player->on_ground &&
+      player->delay <= 0) {
+    player->delay = (1 / PHYSICS_TICK) / 3;
+    player->is_jumping = true;
+    player->on_ground = false;
   }
 
   if (keyboard->left) {
@@ -55,22 +61,24 @@ void update_player_input(w_player *player, w_keyboard *keyboard) {
     if (player->src.width > 0) {
       player->src.width = -player->src.width;
     }
-    player->velocity.x -= 1;
+
+    player->velocity.x -= MAX_PLAYER_VELOCITY_X;
   } else if (keyboard->right) {
 
     if (player->src.width < 0) {
       player->src.width = -player->src.width;
     }
-    player->velocity.x += 1;
+    player->velocity.x += MAX_PLAYER_VELOCITY_X;
   }
 }
 
 void update_player_velocity(w_player *player) {
-  player->velocity.y += 1 / 2.f;
+  if (!player->is_jumping) {
+    player->velocity.y += MAX_PLAYER_VELOCITY_Y / 2;
+  }
 
   player->velocity.x =
       Clamp(player->velocity.x, -MAX_PLAYER_VELOCITY_X, MAX_PLAYER_VELOCITY_X);
-
   player->velocity.y =
       Clamp(player->velocity.y, -PLAYER_JUMP, MAX_PLAYER_VELOCITY_Y);
 
@@ -112,8 +120,6 @@ void check_player_collision_vel(w_player *player, w_chunkview *view) {
                          .height = player->dst.height};
 
   bool col_x = false;
-  bool col_y = false;
-
   for (size_t i = 0; i < view->textures_len; i++) {
     Rectangle block = view->blocks[i].dst;
     if (!col_x && CheckCollisionRecs(block, next_velx)) {
@@ -124,19 +130,17 @@ void check_player_collision_vel(w_player *player, w_chunkview *view) {
       if (adjust_x > player->position.x) {
         player->position.x = adjust_x;
       }
-
-      if (col_y) {
-        break;
-      }
     }
 
-    if (!col_y && CheckCollisionRecs(block, next_vely)) {
+    if (CheckCollisionRecs(block, next_vely)) {
 
+      if (!player->is_jumping) {
+        player->on_ground = true;
+      }
       player->velocity.y = 0;
 
       float adjust_y = GetCollisionRec(block, next_vely).y - player->dst.height;
       if (adjust_y > player->position.y) {
-
         player->position.y = adjust_y;
       }
     }

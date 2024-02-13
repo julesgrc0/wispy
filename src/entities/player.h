@@ -5,13 +5,21 @@
 #include "../stdafx.h"
 #include "../terrain/chunk_view.h"
 
-#define PLAYER_SPEED 1000.f
-#define PLAYER_JUMP 10.f
+#define PLAYER_ANIMTATION_TIME(x) ((x * (1 / PHYSICS_TICK)) / 30)
+#define PLAYER_ANIMATION_IDLE PLAYER_ANIMTATION_TIME(12)
+#define PLAYER_ANIMATION_WALK PLAYER_ANIMTATION_TIME(2)
+
+// 30   12
+// 120
+
+#define PLAYER_SPEED 250.f
+#define PLAYER_JUMP 3.f
 #define PLAYER_FRICTION 0.8f
-#define MAX_PLAYER_VELOCITY_X 1.f
+
+#define MAX_PLAYER_VELOCITY_X 2.f
 #define MAX_PLAYER_VELOCITY_Y 5.f
 #define MIN_PLAYER_VELOCITY 0.1f
-#define MAX_OVERLAP_LEN 12
+
 #define PLAYER_SRC_RECT                                                        \
   (Rectangle) { 0, 0, 8, 16 }
 
@@ -32,6 +40,8 @@ typedef struct w_player {
   Vector2 position;
   Vector2 velocity;
 
+  bool on_ground;
+  bool is_jumping;
   w_playerstate state;
 } w_player;
 

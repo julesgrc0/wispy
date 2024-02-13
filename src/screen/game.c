@@ -58,9 +58,14 @@ void game_screen(w_state *state) {
       td->force_update = true;
     }
 
-    EndMode2D();
     DrawTexturePro(player_textures[td->player->state], td->player->src,
-                   td->player->dst, VEC_ZERO, 0, WHITE);
+                   (Rectangle){.x = td->player->position.x,
+                               .y = td->player->position.y,
+                               .width = td->player->dst.width,
+                               .height = td->player->dst.height},
+                   VEC_ZERO, 0, WHITE);
+
+    EndMode2D();
     EndTextureMode();
 
     BeginDrawing();
