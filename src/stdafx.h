@@ -52,7 +52,7 @@
   if (x)                                                                       \
     free(x);
 
-#define PHYSICS_TICK (1.0f / 60.0f)
+#define PHYSICS_TICK (1.0f / 120.0f)
 
 #define RENDER_CUBE_COUNT 20
 #define RENDER_CUBE_GAP 2
