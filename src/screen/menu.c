@@ -56,7 +56,7 @@ void menu_screen(w_state *state) {
       create_text(ctx,
                   Vector2Add(title_text->position,
                              (Vector2){0, title_text->font_size + 10}),
-                  "made by @julesgrc0 - alpha 0.0.1", 20, WHITE);
+                  "made by @julesgrc0 - alpha 0.0.4", 20, WHITE);
 
   float move = 0.f;
   while (!WindowShouldClose() && is_active) {
