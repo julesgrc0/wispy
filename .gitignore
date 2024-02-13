@@ -3,6 +3,7 @@
 /x64
 /Release
 /Debug
+/wispy-c
 *.user
 *.filters
 RELEASE.md

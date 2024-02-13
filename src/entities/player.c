@@ -129,7 +129,11 @@ void check_player_collision_vel(w_player *player, w_chunkview *view) {
 
   bool col_x = false;
   for (size_t i = 0; i < view->textures_len; i++) {
+    if (view->blocks[i].block.is_background)
+      continue;
+
     Rectangle block = view->blocks[i].dst;
+
     if (!col_x && CheckCollisionRecs(block, next_velx)) {
       col_x = true;
       player->velocity.x = 0;

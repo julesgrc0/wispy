@@ -21,9 +21,6 @@ w_state *init_mainframe() {
 #endif // _DEBUG
 
   unsigned int flags = 0;
-  if (state->config->vsync) {
-    flags |= FLAG_VSYNC_HINT;
-  }
 
   if (state->config->msaa4x) {
     flags |= FLAG_MSAA_4X_HINT;

@@ -178,6 +178,10 @@ void update_chunkview_lighting(w_chunkview *chunk_view, Vector2 light,
                             chunk_view->blocks[i].dst.y + (CUBE_H / 2)};
 
     float percent = 1.f - Vector2Distance(light, block_center) / radius;
+    if (chunk_view->blocks[i].block.is_background) {
+      percent -= 0.7;
+    }
+    percent = Clamp(percent, 0.f, 1.f);
     chunk_view->blocks[i].light = (Color){.r = (unsigned char)(255 * percent),
                                           .g = (unsigned char)(255 * percent),
                                           .b = (unsigned char)(255 * percent),

@@ -15,6 +15,8 @@ typedef enum w_blocktype {
 
 typedef struct w_block {
   w_blocktype type; // 16
+  bool is_background;
+  // bool is_solid;
 } w_block;
 
 typedef struct w_renderblock {
