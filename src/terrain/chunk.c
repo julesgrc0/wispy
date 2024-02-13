@@ -92,7 +92,8 @@ void *create_chunk_thread(void *arg)
         }
       }
 
-      chunk->blocks[y * CHUNK_W + x] = (w_block){.type = type};
+      chunk->blocks[y * CHUNK_W + x] =
+          (w_block){.type = type, .is_background = false};
     }
   }
 

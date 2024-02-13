@@ -135,7 +135,7 @@ void *update_bridge(void *arg)
                    get_camera_view(td->camera));
 
   update_chunkview_lighting(td->chunk_view, get_player_center(td->player),
-                            RENDER_CUBE_COUNT * CUBE_W);
+                            DEFAULT_LIGHT_RADIUS);
   do {
 
     if (td->keyboard->key != 0 || td->camera->target.x != td->camera_target.x ||
@@ -148,7 +148,7 @@ void *update_bridge(void *arg)
         return EXIT_FAILURE;
       }
       update_chunkview_lighting(td->chunk_view, get_player_center(td->player),
-                                RENDER_CUBE_COUNT * CUBE_W);
+                                DEFAULT_LIGHT_RADIUS);
       td->force_update = false;
     }
 

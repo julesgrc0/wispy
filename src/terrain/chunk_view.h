@@ -6,6 +6,8 @@
 #include "chunk.h"
 #include "chunk_group.h"
 
+#define DEFAULT_LIGHT_RADIUS 15 * CUBE_W
+
 typedef struct w_chunkview {
   w_chunk *target;
   w_chunk *next;

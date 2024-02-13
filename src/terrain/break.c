@@ -34,7 +34,7 @@ w_breakstate update_blockbreaker(w_blockbreaker *bb, w_player *player,
 
   Vector2 bmouse = vec_block_round(mouse);
   w_block *block = get_chunkview_block(bb->chunk_view, bmouse);
-  if (block == NULL || block->type == BLOCK_AIR) {
+  if (block == NULL || block->type == BLOCK_AIR || block->is_background) {
     bb->time = 0;
     return BS_NONE;
   }
@@ -56,8 +56,8 @@ w_breakstate update_blockbreaker(w_blockbreaker *bb, w_player *player,
     if (bb->stage >= BREAKER_STAGES - 1 || bb->time <= 0) {
       bb->time = 0;
       bb->stage = 0;
-      if (block != NULL && block->type != BLOCK_AIR) {
-        block->type = BLOCK_AIR;
+      if (block != NULL && block->type != BLOCK_AIR && !block->is_background) {
+        block->is_background = true;
       }
       return BS_BROKEN;
     }
