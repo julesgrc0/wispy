@@ -1,5 +1,6 @@
 #pragma once
 #include "../core/state.h"
+#include "../entities/player.h"
 #include "../stdafx.h"
 #include "chunk_view.h"
 
@@ -27,7 +28,8 @@ typedef struct w_blockbreaker {
 w_blockbreaker *create_blockbreaker(w_state *state, w_chunkview *chunk_view,
                                     Camera2D *camera);
 
-w_breakstate update_blockbreaker(w_blockbreaker *bb, Vector2 player, float dt);
+w_breakstate update_blockbreaker(w_blockbreaker *bb, w_player *player,
+                                 float dt);
 
 void draw_blockbreaker(w_blockbreaker *bb);
 

@@ -23,16 +23,16 @@ w_blockbreaker *create_blockbreaker(w_state *state, w_chunkview *chunk_view,
   return bb;
 }
 
-w_breakstate update_blockbreaker(w_blockbreaker *bb, Vector2 player, float dt) {
+w_breakstate update_blockbreaker(w_blockbreaker *bb, w_player *player,
+                                 float dt) {
   Vector2 mouse = get_mouse_block_center(bb->camera);
-  if (Vector2Distance(mouse, player) >= BREAKER_DISTANCE ||
+  if (Vector2Distance(mouse, get_player_center(player)) >= BREAKER_DISTANCE ||
       !IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
     bb->time = 0;
     return BS_NONE;
   }
 
   Vector2 bmouse = vec_block_round(mouse);
-  DrawRectangleLines(bmouse.x, bmouse.y, CUBE_W, CUBE_H, RED);
   w_block *block = get_chunkview_block(bb->chunk_view, bmouse);
   if (block == NULL || block->type == BLOCK_AIR) {
     bb->time = 0;
@@ -44,6 +44,11 @@ w_breakstate update_blockbreaker(w_blockbreaker *bb, Vector2 player, float dt) {
       bb->time = 0;
       return false;
     }
+    if ((player->src.width > 0 && bmouse.x < player->position.x) ||
+        (player->src.width < 0 && bmouse.x > player->position.x)) {
+      player->src.width = -player->src.width;
+    }
+
     bb->time -= dt;
     bb->stage =
         (BREAKER_STAGES - 1) - ((bb->time) / (BREAKER_TIME / BREAKER_STAGES));

@@ -89,25 +89,19 @@ void destroy_bridge(w_bridge *td) {
 }
 
 void physics_update(w_bridge *td) {
-#if 0
+
   check_player_collision_vel(td->player, td->chunk_view);
   Vector2 next_position =
       Vector2Scale(td->player->velocity, PHYSICS_TICK * PLAYER_SPEED);
-#endif
+
   update_player_input(td->player, td->keyboard);
   update_player_velocity(td->player);
 
-#if 0
   td->player->position.x += next_position.x;
   td->player->position.y += next_position.y;
-#endif
-  td->player->position.x +=
-      td->player->velocity.x * PHYSICS_TICK * PLAYER_SPEED;
-  td->player->position.y +=
-      td->player->velocity.y * PHYSICS_TICK * PLAYER_SPEED;
 
   td->camera_target = get_camera_target_player(td->player, td->camera);
-  animate_player(td->player, PHYSICS_TICK, td->keyboard->key != 0);
+  animate_player(td->player, td->keyboard->key != 0);
   clear_keyboard(td->keyboard);
 }
 

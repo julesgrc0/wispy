@@ -9,7 +9,7 @@
 #define PLAYER_JUMP 10.f
 #define PLAYER_FRICTION 0.8f
 #define MAX_PLAYER_VELOCITY_X 1.f
-#define MAX_PLAYER_VELOCITY_Y 1.f
+#define MAX_PLAYER_VELOCITY_Y 5.f
 #define MIN_PLAYER_VELOCITY 0.1f
 #define MAX_OVERLAP_LEN 12
 #define PLAYER_SRC_RECT                                                        \
@@ -38,7 +38,7 @@ typedef struct w_player {
 w_player *create_player(unsigned int x);
 void destroy_player(w_player *player);
 
-void animate_player(w_player *player, float dt, bool should_walk);
+void animate_player(w_player *player, bool should_walk);
 void update_player_input(w_player *player, w_keyboard *keyboard);
 void update_player_velocity(w_player *player);
 

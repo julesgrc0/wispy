@@ -50,8 +50,7 @@ void game_screen(w_state *state) {
     pthread_mutex_unlock(&td->chunk_view->mutex);
 #endif // _WIN32
 
-    w_breakstate bstate =
-        update_blockbreaker(bb, get_player_center(td->player), dt);
+    w_breakstate bstate = update_blockbreaker(bb, td->player, dt);
 
     if (bstate == BS_BREAKING) {
       draw_blockbreaker(bb);

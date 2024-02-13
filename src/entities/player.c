@@ -25,16 +25,16 @@ void destroy_player(w_player *player) {
   free(player);
 }
 
-void animate_player(w_player *player, float dt, bool should_walk) {
-  player->animation += dt;
+void animate_player(w_player *player, bool should_walk) {
+  player->animation += PHYSICS_TICK;
 
   if (should_walk || abs(player->velocity.x) > 0) {
-    if (player->animation > dt * 2) {
+    if (player->animation > PHYSICS_TICK * 4) {
       player->animation = 0;
       player->state = (player->state == P_WALK_1) ? P_WALK_2 : P_WALK_1;
     }
   } else {
-    if (player->animation > dt * 12) {
+    if (player->animation > PHYSICS_TICK * 24) {
       player->animation = 0;
       player->state = (player->state == P_IDLE_1) ? P_IDLE_2 : P_IDLE_1;
     }
@@ -42,13 +42,11 @@ void animate_player(w_player *player, float dt, bool should_walk) {
 }
 
 void update_player_input(w_player *player, w_keyboard *keyboard) {
-
-#if 0
   if (player->delay > 0) {
     player->delay--;
   }
   if (keyboard->jump && player->delay <= 0) {
-    player->velocity.y -= 5;
+    player->velocity.y -= PLAYER_JUMP;
     player->delay = (1 / PHYSICS_TICK);
   }
 
@@ -65,32 +63,16 @@ void update_player_input(w_player *player, w_keyboard *keyboard) {
     }
     player->velocity.x += 1;
   }
-#else
-  if (keyboard->up) {
-    player->velocity.y -= 1;
-
-  } else if (keyboard->down) {
-    player->velocity.y += 1;
-  }
-
-  if (keyboard->left) {
-    player->velocity.x -= 1;
-  } else if (keyboard->right) {
-    player->velocity.x += 1;
-  }
-#endif
 }
 
 void update_player_velocity(w_player *player) {
-#if 0
   player->velocity.y += 1 / 2.f;
-#endif
 
   player->velocity.x =
       Clamp(player->velocity.x, -MAX_PLAYER_VELOCITY_X, MAX_PLAYER_VELOCITY_X);
 
   player->velocity.y =
-      Clamp(player->velocity.y, -MAX_PLAYER_VELOCITY_Y, MAX_PLAYER_VELOCITY_Y);
+      Clamp(player->velocity.y, -PLAYER_JUMP, MAX_PLAYER_VELOCITY_Y);
 
   player->velocity = Vector2Scale(player->velocity, PLAYER_FRICTION);
 
@@ -131,6 +113,7 @@ void check_player_collision_vel(w_player *player, w_chunkview *view) {
 
   bool col_x = false;
   bool col_y = false;
+
   for (size_t i = 0; i < view->textures_len; i++) {
     Rectangle block = view->blocks[i].dst;
     if (!col_x && CheckCollisionRecs(block, next_velx)) {
@@ -148,15 +131,13 @@ void check_player_collision_vel(w_player *player, w_chunkview *view) {
     }
 
     if (!col_y && CheckCollisionRecs(block, next_vely)) {
-      col_y = true;
 
       player->velocity.y = 0;
 
       float adjust_y = GetCollisionRec(block, next_vely).y - player->dst.height;
-      player->position.y = adjust_y;
+      if (adjust_y > player->position.y) {
 
-      if (col_x) {
-        break;
+        player->position.y = adjust_y;
       }
     }
   }
