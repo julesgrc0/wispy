@@ -3,6 +3,7 @@
 #include "../core/state.h"
 #include "../entities/player.h"
 #include "../stdafx.h"
+#include "../terrain/break.h"
 #include "../terrain/chunk.h"
 
 #define DAY_DURATION 60.0f

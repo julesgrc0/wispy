@@ -144,7 +144,7 @@ void *update_bridge(void *arg)
   do {
 
     if (td->keyboard->key != 0 || td->camera->target.x != td->camera_target.x ||
-        td->camera->target.y != td->camera_target.y) {
+        td->camera->target.y != td->camera_target.y || td->force_update) {
 
       if (!update_chunkview(td->chunk_view, td->chunk_group,
                             get_camera_view(td->camera))) {
@@ -153,6 +153,7 @@ void *update_bridge(void *arg)
         return EXIT_FAILURE;
       }
       update_chunkview_lighting(td->chunk_view, get_player_center(td->player));
+      td->force_update = false;
     }
 
     QueryPerformanceCounter(&time_end);

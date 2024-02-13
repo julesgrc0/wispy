@@ -13,6 +13,7 @@
 
 typedef struct w_bridge {
   bool is_active;
+  bool force_update;
 
   w_chunkgroup *chunk_group;
   w_chunkview *chunk_view;

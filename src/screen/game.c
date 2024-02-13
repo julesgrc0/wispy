@@ -20,14 +20,17 @@ void game_screen(w_state *state) {
   };
 
   w_bridge *td = create_bridge();
-
+  w_blockbreaker *bb = create_blockbreaker(state, td->chunk_view, td->camera);
   while (!WindowShouldClose() && td->is_active) {
     update_keyboard(td->keyboard);
 
-    float speed = GetFrameTime() * PLAYER_SPEED * 0.95f;
+    float dt = GetFrameTime();
+    float speed = dt * PLAYER_SPEED * 0.95f;
 
     BeginTextureMode(state->render);
     ClearBackground(BLACK);
+    DrawRectangleGradientV(0, 0, RENDER_W, RENDER_H, (Color){66, 135, 245, 255},
+                           (Color){142, 184, 250, 255});
 
     BeginMode2D(*(td->camera));
     smooth_vec(&td->camera->target, td->camera_target, speed);
@@ -37,11 +40,6 @@ void game_screen(w_state *state) {
 #else
     pthread_mutex_lock(&td->chunk_view->mutex);
 #endif // _WIN32
-    Rectangle view = get_camera_view(td->camera);
-    DrawRectangleGradientV(view.x, view.y, view.width, view.height,
-                           (Color){66, 135, 245, 255},
-                           (Color){142, 184, 250, 255});
-
     for (unsigned int i = 0; i < td->chunk_view->textures_len; i++) {
       DrawTexturePro(block_textures[td->chunk_view->blocks[i].block.type - 1],
                      td->chunk_view->blocks[i].src,
@@ -54,46 +52,15 @@ void game_screen(w_state *state) {
     pthread_mutex_unlock(&td->chunk_view->mutex);
 #endif // _WIN32
 
-#ifdef _DEBUG
-    if (td->chunk_view->target != NULL) {
-      DrawRectangleLinesEx(
-          (Rectangle){.x = td->chunk_view->target->position * FULL_CHUNK_W,
-                      .y = 0,
-                      .width = FULL_CHUNK_W,
-                      .height = FULL_CHUNK_H},
-          5, RED);
-    }
-    if (td->chunk_view->next != NULL) {
-      DrawRectangleLinesEx(
-          (Rectangle){.x = td->chunk_view->next->position * FULL_CHUNK_W,
-                      .y = 0,
-                      .width = FULL_CHUNK_W,
-                      .height = FULL_CHUNK_H},
-          5, GREEN);
-    }
-#endif
+    w_breakstate bstate =
+        update_blockbreaker(bb, get_player_center(td->player), dt);
 
-#if 0
-    Vector2 mouse =
-        Vector2Subtract(GetScreenToWorld2D(GetMousePosition(), *td->camera),
-                        (Vector2){(CUBE_W / 2), (CUBE_H / 2)});
-    DrawCircleV(GetScreenToWorld2D(GetMousePosition(), *td->camera), 5, RED);
-
-    if (Vector2Distance(mouse, get_player_center(td->player)) < CUBE_W * 3) {
-      Rectangle mouse_block = {.x = round(mouse.x / CUBE_W) * CUBE_W,
-                               .y = round(mouse.y / CUBE_H) * CUBE_H,
-                               .width = CUBE_W,
-                               .height = CUBE_H};
-
-      w_block *block = get_chunkview_block(
-          td->chunk_view, (Vector2){mouse_block.x, mouse_block.y});
-      if (block != NULL && block->type != BLOCK_AIR) {
-        DrawRectangleLinesEx(mouse_block, 2, RED);
-      }
-      if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-      }
+    if (bstate == BS_BREAKING) {
+      draw_blockbreaker(bb);
+    } else if (bstate == BS_BROKEN) {
+      td->force_update = true;
     }
-#endif
+
     EndMode2D();
     DrawTexturePro(player_textures[td->player->state], td->player->src,
                    td->player->dst, VEC_ZERO, 0, WHITE);
@@ -106,6 +73,7 @@ void game_screen(w_state *state) {
     DrawFPS(0, 0);
     EndDrawing();
   }
+  destroy_blockbreaker(bb);
   destroy_bridge(td);
 
 #ifndef _DEBUG

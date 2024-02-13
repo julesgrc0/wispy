@@ -347,6 +347,7 @@
     <ClCompile Include="src\core\state.c" />
     <ClCompile Include="src\main.c" />
     <ClCompile Include="src\core\mainframe.c" />
+    <ClCompile Include="src\terrain\break.c" />
     <ClCompile Include="src\terrain\chunk.c" />
     <ClCompile Include="src\terrain\chunk_group.c" />
     <ClCompile Include="src\terrain\chunk_view.c" />
@@ -368,6 +369,7 @@
     <ClInclude Include="src\core\state.h" />
     <ClInclude Include="src\stdafx.h" />
     <ClInclude Include="src\terrain\block.h" />
+    <ClInclude Include="src\terrain\break.h" />
     <ClInclude Include="src\terrain\chunk.h" />
     <ClInclude Include="src\terrain\chunk_group.h" />
     <ClInclude Include="src\terrain\chunk_view.h" />

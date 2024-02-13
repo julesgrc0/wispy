@@ -195,15 +195,11 @@ w_block *get_chunkview_block(w_chunkview *chunk_view, Vector2 position) {
   w_chunk *chunk = (chunk_view->target->position == chunk_x)
                        ? chunk_view->target
                        : chunk_view->next;
-  LOG("chunk: %d", chunk->position);
   unsigned int block_x = (int)(position.x / CUBE_W) - chunk->position * CHUNK_W;
   unsigned int block_y = (int)(position.y / CUBE_H);
 
   if (block_x + block_y * CHUNK_W > CHUNK_W * CHUNK_H) {
     return NULL;
   }
-  LOG("(%d;%d) = %d", block_x, block_y,
-      chunk->blocks[block_x + block_y * CHUNK_W].type);
-  // chunk->blocks[block_x + block_y * CHUNK_W].type = BLOCK_AIR;
-  return &chunk->blocks[block_x + block_y * CHUNK_W];
+  return &(chunk->blocks[block_x + block_y * CHUNK_W]);
 }

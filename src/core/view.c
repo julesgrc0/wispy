@@ -27,36 +27,14 @@ void smooth_rect(Rectangle *box, Rectangle target, float move) {
   smooth_float(box->y, target.y, move);
 }
 
-Vector2 get_collision_resolution(w_collision *bc, Rectangle self_rect,
-                                 Rectangle other_rect) {
-  Vector2 resolution = VEC_ZERO;
-  float overlapX = 0.0f, overlapY = 0.0f;
+Vector2 get_mouse_block_center(Camera2D *camera) {
+  return Vector2Subtract(GetScreenToWorld2D(GetMousePosition(), *camera),
+                         (Vector2){(CUBE_W / 2), (CUBE_H / 2)});
+}
 
-  bc->left = self_rect.x < other_rect.x + other_rect.width &&
-             self_rect.x + self_rect.width > other_rect.x;
-  bc->right = self_rect.x + self_rect.width > other_rect.x &&
-              self_rect.x < other_rect.x;
-  bc->top = self_rect.y < other_rect.y + other_rect.height &&
-            self_rect.y + self_rect.height > other_rect.y;
-  bc->bottom = self_rect.y + self_rect.height > other_rect.y &&
-               self_rect.y < other_rect.y;
-
-  if (bc->left && !bc->right) {
-    overlapX = other_rect.x + other_rect.width - self_rect.x;
-  } else if (!bc->left && bc->right) {
-    overlapX = other_rect.x - (self_rect.x + self_rect.width);
-  }
-  if (bc->top && !bc->bottom) {
-    overlapY = other_rect.y + other_rect.height - self_rect.y;
-  } else if (!bc->top && bc->bottom) {
-    overlapY = other_rect.y - (self_rect.y + self_rect.height);
-  }
-
-  if (fabsf(overlapX) < fabsf(overlapY)) {
-    resolution.x = overlapX;
-  } else {
-    resolution.y = overlapY;
-  }
-
-  return resolution;
+Vector2 vec_block_round(Vector2 vec) {
+  return (Vector2){
+      .x = round(vec.x / CUBE_W) * CUBE_W,
+      .y = round(vec.y / CUBE_H) * CUBE_H,
+  };
 }
