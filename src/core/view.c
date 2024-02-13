@@ -28,8 +28,15 @@ void smooth_rect(Rectangle *box, Rectangle target, float move) {
 }
 
 Vector2 get_mouse_block_center(Camera2D *camera) {
-  return Vector2Subtract(GetScreenToWorld2D(GetMousePosition(), *camera),
-                         (Vector2){(CUBE_W / 2), (CUBE_H / 2)});
+  Vector2 mouse = GetMousePosition();
+
+  mouse.x = (mouse.x / GetScreenWidth()) * RENDER_W;
+  mouse.y = (mouse.y / GetScreenHeight()) * RENDER_H;
+
+  mouse.x += camera->target.x;
+  mouse.y += camera->target.y;
+
+  return Vector2Subtract(mouse, (Vector2){(CUBE_W / 2), (CUBE_H / 2)});
 }
 
 Vector2 vec_block_round(Vector2 vec) {

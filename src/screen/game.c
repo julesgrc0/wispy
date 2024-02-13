@@ -1,9 +1,7 @@
 #include "game.h"
 
 void game_screen(w_state *state) {
-#ifndef _DEBUG
-  HideCursor();
-#endif // !_DEBUG
+
   Texture block_textures[6] = {
       get_texture_by_id(state, "blocks\\grass.png"),
       get_texture_by_id(state, "blocks\\dirt.png"),
@@ -75,8 +73,4 @@ void game_screen(w_state *state) {
   }
   destroy_blockbreaker(bb);
   destroy_bridge(td);
-
-#ifndef _DEBUG
-  ShowCursor();
-#endif // !_DEBUG
 }

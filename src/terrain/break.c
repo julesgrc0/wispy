@@ -32,7 +32,7 @@ w_breakstate update_blockbreaker(w_blockbreaker *bb, Vector2 player, float dt) {
   }
 
   Vector2 bmouse = vec_block_round(mouse);
-
+  DrawRectangleLines(bmouse.x, bmouse.y, CUBE_W, CUBE_H, RED);
   w_block *block = get_chunkview_block(bb->chunk_view, bmouse);
   if (block == NULL || block->type == BLOCK_AIR) {
     bb->time = 0;
