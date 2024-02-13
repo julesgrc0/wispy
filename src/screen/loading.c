@@ -29,6 +29,7 @@ void load_assets(w_state *state) {
     if (strcmp(ext, ".png") == 0) {
       Image image = LoadImageFromMemory(".png", items[i].buffer, items[i].size);
       state->textures[state->textures_len] = LoadTextureFromImage(image);
+      SetTextureWrap(state->textures[state->textures_len], TEXTURE_WRAP_CLAMP);
       UnloadImage(image);
 
       state->textures_id[state->textures_len] = items[i].name;
