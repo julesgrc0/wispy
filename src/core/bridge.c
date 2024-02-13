@@ -101,7 +101,7 @@ void physics_update(w_bridge *td) {
   td->player->position.y += next_position.y;
 
   td->camera_target = get_camera_target_player(td->player, td->camera);
-  animate_player(td->player, td->keyboard->key != 0);
+  animate_player(td->player, td->keyboard->left || td->keyboard->right);
   clear_keyboard(td->keyboard);
 }
 
@@ -133,8 +133,9 @@ void *update_bridge(void *arg)
 
   update_chunkview(td->chunk_view, td->chunk_group,
                    get_camera_view(td->camera));
-  update_chunkview_lighting(td->chunk_view, get_player_center(td->player));
 
+  update_chunkview_lighting(td->chunk_view, get_player_center(td->player),
+                            RENDER_CUBE_COUNT * CUBE_W);
   do {
 
     if (td->keyboard->key != 0 || td->camera->target.x != td->camera_target.x ||
@@ -146,7 +147,8 @@ void *update_bridge(void *arg)
         td->is_active = false;
         return EXIT_FAILURE;
       }
-      update_chunkview_lighting(td->chunk_view, get_player_center(td->player));
+      update_chunkview_lighting(td->chunk_view, get_player_center(td->player),
+                                RENDER_CUBE_COUNT * CUBE_W);
       td->force_update = false;
     }
 

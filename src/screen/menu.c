@@ -66,7 +66,8 @@ void menu_screen(w_state *state) {
 
     update_chunkview(view, grp, get_camera_view(&camera));
     update_chunkview_lighting(
-        view, Vector2Add(camera.target, (Vector2){RENDER_W / 2, RENDER_H / 2}));
+        view, Vector2Add(camera.target, (Vector2){RENDER_W / 2, RENDER_H / 2}),
+        CUBE_W * RENDER_CUBE_COUNT * 0.75);
 
     BeginTextureMode(state->render);
     ClearBackground(BLACK);

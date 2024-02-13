@@ -8,6 +8,7 @@ w_player *create_player(unsigned int x) {
     return NULL;
   }
   memset(player, 0, sizeof(w_player));
+  player->jump = PJ_FALL;
   player->src = PLAYER_SRC_RECT;
   player->dst = (Rectangle){.x = (RENDER_W - CUBE_W) / 2.f,
                             .y = (RENDER_H - CUBE_H * 2) / 2.f,
@@ -44,16 +45,21 @@ void animate_player(w_player *player, bool should_walk) {
 void update_player_input(w_player *player, w_keyboard *keyboard) {
   if (player->delay > 0) {
     player->delay--;
-    player->is_jumping = player->delay > 0;
-
-    player->velocity.y -=
-        (MAX_PLAYER_VELOCITY_Y * player->delay) / (PHYSICS_TICK / 2);
   }
-  if (keyboard->jump && !player->is_jumping && player->on_ground &&
+
+  if (player->duration > 0) {
+    player->duration--;
+    player->jump = player->duration > 0 ? PJ_JUMP : PJ_FALL;
+    player->velocity.y -= (MAX_PLAYER_VELOCITY_Y * player->duration);
+    if (player->duration <= 0) {
+      player->delay = (1 / PHYSICS_TICK) * 0.15;
+    }
+  }
+
+  if (keyboard->jump && player->jump == PJ_GROUD && player->duration <= 0 &&
       player->delay <= 0) {
-    player->delay = (1 / PHYSICS_TICK) / 3;
-    player->is_jumping = true;
-    player->on_ground = false;
+    player->duration = (1 / PHYSICS_TICK) / 4;
+    player->jump = PJ_JUMP;
   }
 
   if (keyboard->left) {
@@ -73,8 +79,10 @@ void update_player_input(w_player *player, w_keyboard *keyboard) {
 }
 
 void update_player_velocity(w_player *player) {
-  if (!player->is_jumping) {
-    player->velocity.y += MAX_PLAYER_VELOCITY_Y / 2;
+  if (player->jump == PJ_GROUD) {
+    player->velocity.y += MAX_PLAYER_VELOCITY_Y * 0.5f;
+  } else if (player->jump == PJ_FALL) {
+    player->velocity.y += MAX_PLAYER_VELOCITY_Y * 0.75f;
   }
 
   player->velocity.x =
@@ -134,8 +142,8 @@ void check_player_collision_vel(w_player *player, w_chunkview *view) {
 
     if (CheckCollisionRecs(block, next_vely)) {
 
-      if (!player->is_jumping) {
-        player->on_ground = true;
+      if (player->jump == PJ_FALL) {
+        player->jump = PJ_GROUD;
       }
       player->velocity.y = 0;
 

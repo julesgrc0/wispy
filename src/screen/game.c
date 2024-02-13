@@ -25,6 +25,11 @@ void game_screen(w_state *state) {
     float dt = GetFrameTime();
     float speed = dt * PLAYER_SPEED * 0.95f;
 
+#ifdef _WIN32
+    WaitForSingleObject(td->chunk_view->mutex, INFINITE);
+#else
+    pthread_mutex_lock(&td->chunk_view->mutex);
+#endif // _WIN32
     BeginTextureMode(state->render);
     ClearBackground(BLACK);
     DrawRectangleGradientV(0, 0, RENDER_W, RENDER_H, (Color){66, 135, 245, 255},
@@ -33,23 +38,12 @@ void game_screen(w_state *state) {
     BeginMode2D(*(td->camera));
     smooth_vec(&td->camera->target, td->camera_target, speed);
 
-#ifdef _WIN32
-    WaitForSingleObject(td->chunk_view->mutex, INFINITE);
-#else
-    pthread_mutex_lock(&td->chunk_view->mutex);
-#endif // _WIN32
     for (unsigned int i = 0; i < td->chunk_view->textures_len; i++) {
       DrawTexturePro(block_textures[td->chunk_view->blocks[i].block.type - 1],
                      td->chunk_view->blocks[i].src,
                      td->chunk_view->blocks[i].dst, VEC_ZERO, 0,
                      td->chunk_view->blocks[i].light);
     }
-#ifdef _WIN32
-    ReleaseMutex(td->chunk_view->mutex);
-#else
-    pthread_mutex_unlock(&td->chunk_view->mutex);
-#endif // _WIN32
-
     w_breakstate bstate = update_blockbreaker(bb, td->player, dt);
 
     if (bstate == BS_BREAKING) {
@@ -67,6 +61,11 @@ void game_screen(w_state *state) {
 
     EndMode2D();
     EndTextureMode();
+#ifdef _WIN32
+    ReleaseMutex(td->chunk_view->mutex);
+#else
+    pthread_mutex_unlock(&td->chunk_view->mutex);
+#endif // _WIN32
 
     BeginDrawing();
     ClearBackground(BLACK);

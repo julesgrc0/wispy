@@ -167,7 +167,8 @@ void filter_chunkview_blocks(w_chunk *chunk, Rectangle view,
   }
 }
 
-void update_chunkview_lighting(w_chunkview *chunk_view, Vector2 light) {
+void update_chunkview_lighting(w_chunkview *chunk_view, Vector2 light,
+                               float radius) {
   if (chunk_view->blocks == NULL) {
     return;
   }
@@ -176,7 +177,7 @@ void update_chunkview_lighting(w_chunkview *chunk_view, Vector2 light) {
     Vector2 block_center = {chunk_view->blocks[i].dst.x + (CUBE_W / 2),
                             chunk_view->blocks[i].dst.y + (CUBE_H / 2)};
 
-    float percent = 1.f - Vector2Distance(light, block_center) / LIGHT_RADIUS;
+    float percent = 1.f - Vector2Distance(light, block_center) / radius;
     chunk_view->blocks[i].light = (Color){.r = (unsigned char)(255 * percent),
                                           .g = (unsigned char)(255 * percent),
                                           .b = (unsigned char)(255 * percent),
