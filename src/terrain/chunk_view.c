@@ -141,7 +141,10 @@ void filter_chunkview_blocks(w_chunk *chunk, Rectangle view,
   unsigned int end_y = CHUNK_H; // start_y + RENDER_CUBE_COUNT;
 
   Rectangle block = {.x = 0, .y = 0, .width = CUBE_W, .height = CUBE_H};
+
   for (unsigned int x = start_x; x < end_x; x++) {
+
+    bool noclear = false;
     for (unsigned int y = start_y; y < end_y; y++) {
 
       unsigned int index = y * CHUNK_W + x;
@@ -150,6 +153,26 @@ void filter_chunkview_blocks(w_chunk *chunk, Rectangle view,
       }
       if (chunk->blocks[index].type == BLOCK_AIR) {
         continue;
+      } else if (!noclear) {
+        /*
+          unsigned int left = index - 1;
+        unsigned int right = index + 1;
+
+        w_block *block_left =
+            left < CHUNK_W * CHUNK_H ? &(chunk->blocks[left]) : NULL;
+
+        w_block *block_right =
+            right < CHUNK_W * CHUNK_H ? &(chunk->blocks[right]) : NULL;
+
+        bool can_clear =
+            ((block_right == NULL || block_right->type == BLOCK_AIR) ||
+             (block_left == NULL || block_left->type == BLOCK_AIR));
+             */
+        if (chunk->blocks[index].is_background) {
+          chunk->blocks[index].type = BLOCK_AIR;
+          continue;
+        }
+        noclear = true;
       }
 
       block.x = (chunk->position * FULL_CHUNK_W) + (x * CUBE_W);
