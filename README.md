@@ -1,6 +1,6 @@
 # 🎮 Wispy
 
-![C](https://img.shields.io/badge/lang-C%20🔥-ccc) ![Platform](https://img.shields.io/badge/platform-windows%20🌐-purple) ![Game](https://img.shields.io/badge/game-wispy%20🎮-green) [![Release Build](https://github.com/julesgrc0/wispy/actions/workflows/release.yml/badge.svg)](https://github.com/julesgrc0/wispy/actions/workflows/release.yml)
+![C](https://img.shields.io/github/languages/top/julesgrc0/wispy?label=C%20🔥) ![Platform](https://img.shields.io/badge/Platform-Windows%20|%20Linux%20🌐-purple) ![Game](https://img.shields.io/badge/Game-Wispy%20🎮-green) ![Version](https://shields.io/github/v/release/julesgrc0/wispy?label=Version&color=lightblue) [![Release Build](https://github.com/julesgrc0/wispy/actions/workflows/release.yml/badge.svg)](https://github.com/julesgrc0/wispy/actions/workflows/release.yml)
 
 
 **Concept**: Wipsy is a kind of 2D Minecraft.
