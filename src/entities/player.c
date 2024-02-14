@@ -50,7 +50,7 @@ void update_player_input(w_player *player, w_keyboard *keyboard) {
   if (player->duration > 0) {
     player->duration--;
     player->jump = player->duration > 0 ? PJ_JUMP : PJ_FALL;
-    player->velocity.y -= (MAX_PLAYER_VELOCITY_Y * player->duration);
+    player->velocity.y -= (MAX_PLAYER_VELOCITY_Y / 2.F * player->duration);
     if (player->duration <= 0) {
       player->delay = (1 / PHYSICS_TICK) * 0.15;
     }
@@ -68,13 +68,15 @@ void update_player_input(w_player *player, w_keyboard *keyboard) {
       player->src.width = -player->src.width;
     }
 
-    player->velocity.x -= MAX_PLAYER_VELOCITY_X;
+    player->velocity.x -=
+        keyboard->shift ? MAX_PLAYER_SLOW_VELOCITY_X : MAX_PLAYER_VELOCITY_X;
   } else if (keyboard->right) {
 
     if (player->src.width < 0) {
       player->src.width = -player->src.width;
     }
-    player->velocity.x += MAX_PLAYER_VELOCITY_X;
+    player->velocity.x +=
+        keyboard->shift ? MAX_PLAYER_SLOW_VELOCITY_X : MAX_PLAYER_VELOCITY_X;
   }
 }
 

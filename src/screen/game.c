@@ -23,7 +23,7 @@ void game_screen(w_state *state) {
     update_keyboard(td->keyboard);
 
     float dt = GetFrameTime();
-    float speed = dt * PLAYER_SPEED * 0.95f;
+    float speed = dt * PLAYER_SPEED;
 
 #ifdef _WIN32
     WaitForSingleObject(td->chunk_view->mutex, INFINITE);

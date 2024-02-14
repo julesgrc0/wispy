@@ -1,9 +1,9 @@
-# 🎮 Wispy-C
+# 🎮 Wispy
 
-![C](https://img.shields.io/badge/lang-C%20🔥-ccc) ![Platform](https://img.shields.io/badge/platform-windows%20📦-purple) ![Game](https://img.shields.io/badge/game-wispy%20🎮-green) [![Release Build](https://github.com/julesgrc0/wispy-c/actions/workflows/release.yml/badge.svg)](https://github.com/julesgrc0/wispy-c/actions/workflows/release.yml)
+![C](https://img.shields.io/badge/lang-C%20🔥-ccc) ![Platform](https://img.shields.io/badge/platform-windows%20🌐-purple) ![Game](https://img.shields.io/badge/game-wispy%20🎮-green) [![Release Build](https://github.com/julesgrc0/wispy/actions/workflows/release.yml/badge.svg)](https://github.com/julesgrc0/wispy/actions/workflows/release.yml)
 
 
-**Concept**: Wispy-C this is a version of wispy initially developed in java. Wipsy is a kind of 2D Minecraft.
+**Concept**: Wipsy is a kind of 2D Minecraft.
 
 ## 🚀 Project Insight
 
@@ -46,7 +46,7 @@ Then enter the path to msbuild and select the desired configuration and platform
 Open the solution and select your target build configuration.
 
 ```
-wispy-c.sln
+wispy.sln
 ```
 
 **🚧 Building for Linux**
@@ -55,8 +55,7 @@ wispy-c.sln
 
 ## 🤝 Get Involved
 
-**Fork First**:
-Want to be part of this fun journey? Join Aywen's [Discord server](https://discord.gg/QjWsuaM3aB)! Look for the "AYWEN-LOGICIELS" category and the "#vos-projets" and then search for **Wispy-C**
+Wellcome to the community ! We are happy to see you here. If you want to [contribute](CONTRIBUTING.md) to the project, you can start by forking the repository and then submit a pull request 🔥 .
 
 ## 📃 License
 

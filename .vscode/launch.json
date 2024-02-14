@@ -10,8 +10,5 @@
             "cwd": "${fileDirname}",
             "console": "externalTerminal"
         }
-       
-       
-
     ]
 }

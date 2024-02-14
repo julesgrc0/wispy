@@ -6,7 +6,8 @@ void update_keyboard(w_keyboard *kb) {
   kb->up = IsKeyDown(KEY_UP);
   kb->down = IsKeyDown(KEY_DOWN);
   kb->jump = IsKeyDown(KEY_SPACE);
-  kb->inventory = IsKeyDown(KEY_RIGHT_ALT);
+  kb->inventory = IsKeyDown(KEY_RIGHT_ALT) || IsKeyDown(KEY_LEFT_SHIFT);
+  kb->shift = IsKeyDown(KEY_RIGHT_SHIFT) || IsKeyDown(KEY_LEFT_SHIFT);
 }
 
 void clear_keyboard(w_keyboard *kb) { kb->key = 0; }

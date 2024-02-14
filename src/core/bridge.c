@@ -34,13 +34,6 @@ w_bridge *create_bridge() {
   }
   memset(td->camera, 0, sizeof(Camera2D));
   td->camera->zoom = 1.f;
-  /*
-  DEBUG:
-
-  td->camera->zoom = 0.5f;
-  td->camera->offset.x += RENDER_W / 4;
-  td->camera->offset.y += RENDER_H / 4;
-  */
 
   td->camera->target = get_camera_target_player(td->player, td->camera);
   td->camera_target = td->camera->target;
@@ -135,7 +128,7 @@ void *update_bridge(void *arg)
                    get_camera_view(td->camera));
 
   update_chunkview_lighting(td->chunk_view, get_player_center(td->player),
-                            DEFAULT_LIGHT_RADIUS);
+                            RENDER_CUBE_COUNT * CUBE_W);
   do {
 
     if (td->keyboard->key != 0 || td->camera->target.x != td->camera_target.x ||
@@ -148,7 +141,7 @@ void *update_bridge(void *arg)
         return EXIT_FAILURE;
       }
       update_chunkview_lighting(td->chunk_view, get_player_center(td->player),
-                                DEFAULT_LIGHT_RADIUS);
+                                RENDER_CUBE_COUNT * CUBE_W);
       td->force_update = false;
     }
 

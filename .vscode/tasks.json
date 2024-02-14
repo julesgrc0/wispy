@@ -7,7 +7,7 @@
             "command": "",
             "args": [
                 "${input:msbuild}",
-                "${workspaceFolder}${pathSeparator}wispy-c.sln",
+                "${workspaceFolder}${pathSeparator}wispy.sln",
                 "/p:configuration=${input:configuration};platform=${input:platform}"
             ],
             "problemMatcher": [

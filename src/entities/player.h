@@ -8,15 +8,14 @@
 #define PLAYER_ANIMTATION_TIME(x) ((x * (1 / PHYSICS_TICK)) / 30)
 #define PLAYER_ANIMATION_IDLE PLAYER_ANIMTATION_TIME(12)
 #define PLAYER_ANIMATION_WALK PLAYER_ANIMTATION_TIME(4)
-
-// 30   12
-// 120
+#define PLAYER_ANIMATION_FALL PLAYER_ANIMTATION_TIME(2)
 
 #define PLAYER_SPEED 250.f
 #define PLAYER_JUMP 3.f
 #define PLAYER_FRICTION 0.8f
 
 #define MAX_PLAYER_VELOCITY_X 3.f
+#define MAX_PLAYER_SLOW_VELOCITY_X 1.f
 #define MAX_PLAYER_VELOCITY_Y 6.f
 #define MIN_PLAYER_VELOCITY 0.1f
 
@@ -27,7 +26,11 @@ typedef enum w_playerstate {
   P_IDLE_1,
   P_IDLE_2,
   P_WALK_1,
-  P_WALK_2
+  P_WALK_2,
+  P_FALL_1,
+  P_FALL_2,
+  P_CLIMB_1,
+  P_CLIMB_2,
 } w_playerstate;
 
 typedef enum w_playerjump {

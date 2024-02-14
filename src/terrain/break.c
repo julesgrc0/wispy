@@ -25,27 +25,26 @@ w_blockbreaker *create_blockbreaker(w_state *state, w_chunkview *chunk_view,
 
 w_breakstate update_blockbreaker(w_blockbreaker *bb, w_player *player,
                                  float dt) {
-  Vector2 mouse = get_mouse_block_center(bb->camera);
+  Vector2 mouse = vec_block_round(get_mouse_block_center(bb->camera));
   if (Vector2Distance(mouse, get_player_center(player)) >= BREAKER_DISTANCE ||
       !IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
     bb->time = 0;
     return BS_NONE;
   }
 
-  Vector2 bmouse = vec_block_round(mouse);
-  w_block *block = get_chunkview_block(bb->chunk_view, bmouse);
+  w_block *block = get_chunkview_block(bb->chunk_view, mouse);
   if (block == NULL || block->type == BLOCK_AIR || block->is_background) {
     bb->time = 0;
     return BS_NONE;
   }
 
   if (bb->time > 0) {
-    if (!Vector2Equals(bb->position, bmouse)) {
+    if (!Vector2Equals(bb->position, mouse)) {
       bb->time = 0;
       return false;
     }
-    if ((player->src.width > 0 && bmouse.x < player->position.x) ||
-        (player->src.width < 0 && bmouse.x > player->position.x)) {
+    if ((player->src.width > 0 && mouse.x < player->position.x) ||
+        (player->src.width < 0 && mouse.x > player->position.x)) {
       player->src.width = -player->src.width;
     }
 
@@ -66,7 +65,7 @@ w_breakstate update_blockbreaker(w_blockbreaker *bb, w_player *player,
   }
   bb->time = BREAKER_TIME;
   bb->stage = BREAKER_STAGES - 1;
-  bb->position = bmouse;
+  bb->position = mouse;
   return BS_NONE;
 }
 

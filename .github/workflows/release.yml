@@ -6,7 +6,7 @@ on:
     branches: ["main"]
 
 env:
-  SOLUTION_FILE_PATH: wispy-c.sln
+  SOLUTION_FILE_PATH: wispy.sln
   BUILD_CONFIGURATION: Release
   BUILD_PLATFORM: x64
 

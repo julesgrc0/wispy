@@ -10,6 +10,7 @@ typedef union w_keyboard {
     unsigned int right : 1;
     unsigned int up : 1;
     unsigned int down : 1;
+    unsigned int shift : 1;
   };
   uint8_t key;
 } w_keyboard;
