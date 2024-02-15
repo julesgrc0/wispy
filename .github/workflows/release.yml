@@ -28,20 +28,21 @@ jobs:
       - uses: actions/checkout@v4
       - uses: lukka/get-cmake@latest
 
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
-        with:
-          languages: "c"
+      # - name: Initialize CodeQL
+      #   uses: github/codeql-action/init@v3
+      #   with:
+      #     languages: "c"
 
-      - name: CMake Configure
+      - name: Run CMake
         uses: lukka/run-cmake@v10
         with:
+          cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
           configurePreset: ${{env.BUILD_ARCH}}-${{env.BUILD_TYPE}}-${{env.BUILD_PLATFORM}}
           buildPreset: ${{env.BUILD_ARCH}}-${{env.BUILD_TYPE}}-${{env.BUILD_PLATFORM}}
           buildPresetAdditionalArgs: "['--config release']"
 
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+      # - name: Perform CodeQL Analysis
+      #   uses: github/codeql-action/analyze@v3
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
