@@ -26,8 +26,10 @@ jobs:
         include:
           - os: windows-latest
             BUILD_PLATFORM: windows
+            OUT_FILENAME: wispy.exe
           - os: ubuntu-latest
             BUILD_PLATFORM: linux
+            OUT_FILENAME: wispy
           - arch: x64
             BUILD_ARCH: x64
           - arch: x86
@@ -51,10 +53,10 @@ jobs:
           sudo apt install -y libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev
 
       - name: Configure ${{matrix.BUILD_ARCH}}-${{env.BUILD_TYPE}}-${{matrix.BUILD_PLATFORM}}
-        run: cmake -S . -B out --preset=${{matrix.BUILD_ARCH}}-${{env.BUILD_TYPE}}-${{matrix.BUILD_PLATFORM}}
+        run: cmake -S . -B ${{env.BUILD_DIRECTORY}} --preset=${{matrix.BUILD_ARCH}}-${{env.BUILD_TYPE}}-${{matrix.BUILD_PLATFORM}}
 
       - name: Build ${{env.BUILD_TYPE}}
-        run: cmake --build out --config ${{env.BUILD_TYPE}} --target wispy
+        run: cmake --build ${{env.BUILD_DIRECTORY}} --config ${{env.BUILD_TYPE}} --target wispy
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
@@ -63,4 +65,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: wipsy-${{matrix.BUILD_PLATFORM}}-${{matrix.BUILD_ARCH}}
-          path: ./${{env.BUILD_DIRECTORY}}/${{matrix.BUILD_ARCH}}-${{env.BUILD_TYPE}}-${{matrix.BUILD_PLATFORM}}/wispy.exe
+          path: ./${{env.BUILD_DIRECTORY}}/${{matrix.OUT_FILENAME}}
+

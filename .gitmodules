@@ -1,8 +1,8 @@
 [submodule "lib/raylib"]
 	path = lib/raylib
 	url = https://github.com/raysan5/raylib.git
-	ignore = all
+	ignore = dirty
 [submodule "lib/zlib"]
 	path = lib/zlib
 	url = https://github.com/madler/zlib.git
-	ignore = all
+	ignore = dirty
