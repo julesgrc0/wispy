@@ -26,10 +26,10 @@ jobs:
         include:
           - os: windows-latest
             BUILD_PLATFORM: windows
-            OUT_FILENAME: wispy.exe
+            BUILD_FILEPATH: Release/wispy.exe
           - os: ubuntu-latest
             BUILD_PLATFORM: linux
-            OUT_FILENAME: wispy
+            BUILD_FILEPATH: wispy
           - arch: x64
             BUILD_ARCH: x64
           - arch: x86
@@ -65,5 +65,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: wipsy-${{matrix.BUILD_PLATFORM}}-${{matrix.BUILD_ARCH}}
-          path: ./${{env.BUILD_DIRECTORY}}/${{matrix.OUT_FILENAME}}
+          path: ./${{env.BUILD_DIRECTORY}}/${{matrix.BUILD_FILEPATH}}
 
