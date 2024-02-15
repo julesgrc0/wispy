@@ -50,12 +50,11 @@ jobs:
           sudo apt-get update -y
           sudo apt install -y libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev
 
-      - name: Run CMake
-        uses: lukka/run-cmake@v10
-        with:
-          cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
-          buildPreset: ${{matrix.BUILD_ARCH}}-${{env.BUILD_TYPE}}-${{matrix.BUILD_PLATFORM}}
-          buildPresetAdditionalArgs: "['--config release']"
+      - name: Configure ${{matrix.BUILD_ARCH}}-${{env.BUILD_TYPE}}-${{matrix.BUILD_PLATFORM}}
+        run: cmake -S . -B out --preset=${{matrix.BUILD_ARCH}}-${{env.BUILD_TYPE}}-${{matrix.BUILD_PLATFORM}}
+
+      - name: Build ${{env.BUILD_TYPE}}
+        run: cmake --build out --config ${{env.BUILD_TYPE}} --target wispy
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
@@ -63,5 +62,5 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{matrix.BUILD_ARCH}}-${{env.BUILD_TYPE}}-${{matrix.BUILD_PLATFORM}}-wipsy
+          name: wipsy-${{matrix.BUILD_PLATFORM}}-${{matrix.BUILD_ARCH}}
           path: ./${{env.BUILD_DIRECTORY}}/${{matrix.BUILD_ARCH}}-${{env.BUILD_TYPE}}-${{matrix.BUILD_PLATFORM}}/wispy.exe
