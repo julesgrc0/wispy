@@ -159,15 +159,5 @@
         "CMAKE_BUILD_TYPE": "Release"
       }
     }
-  ],
-  "buildPresets": [
-    {
-      "name": "windows-base",
-      "configurePreset": "windows-base"
-    },
-    {
-      "name": "linux-base",
-      "configurePreset": "linux-base"
-    }
   ]
 }

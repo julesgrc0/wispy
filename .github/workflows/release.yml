@@ -54,7 +54,6 @@ jobs:
         uses: lukka/run-cmake@v10
         with:
           cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
-          configurePreset: ${{matrix.BUILD_ARCH}}-${{env.BUILD_TYPE}}-${{matrix.BUILD_PLATFORM}}
           buildPreset: ${{matrix.BUILD_ARCH}}-${{env.BUILD_TYPE}}-${{matrix.BUILD_PLATFORM}}
           buildPresetAdditionalArgs: "['--config release']"
 
