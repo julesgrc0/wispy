@@ -13,7 +13,8 @@
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "installDir": "${sourceDir}/out/install/${presetName}",
       "cacheVariables": {
-        "CMAKE_C_COMPILER": "cl.exe"
+        "CMAKE_C_COMPILER": "cl.exe",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "OFF"
       },
       "condition": {
         "type": "equals",
@@ -28,7 +29,8 @@
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "installDir": "${sourceDir}/out/install/${presetName}",
       "cacheVariables": {
-        "CMAKE_C_COMPILER": "gcc"
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "OFF"
       },
       "condition": {
         "type": "equals",
@@ -158,6 +160,28 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release"
       }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "x64-release-windows",
+      "configurePreset": "x64-release-windows",
+      "cleanFirst": true
+    },
+    {
+      "name": "x86-release-windows",
+      "configurePreset": "x86-release-windows",
+      "cleanFirst": true
+    },
+    {
+      "name": "x64-release-linux",
+      "configurePreset": "x64-release-linux",
+      "cleanFirst": true
+    },
+    {
+      "name": "x86-release-linux",
+      "configurePreset": "x86-release-linux",
+      "cleanFirst": true
     }
   ]
 }
