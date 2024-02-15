@@ -7,9 +7,7 @@ on:
 
 env:
   BUILD_DIRECTORY: out
-  BUILD_ARCH: x64
   BUILD_TYPE: release
-  BUILD_PLATFORM: windows
 
 permissions:
   security-events: write
@@ -23,29 +21,48 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest]
+        os: [windows-latest, ubuntu-latest]
+        arch: [x64, x86]
+        include:
+          - os: windows-latest
+            BUILD_PLATFORM: windows
+          - os: ubuntu-latest
+            BUILD_PLATFORM: linux
+          - arch: x64
+            BUILD_ARCH: x64
+          - arch: x86
+            BUILD_ARCH: x86
     steps:
       - uses: actions/checkout@v4
+        with:  
+          submodules: true
+
       - uses: lukka/get-cmake@latest
 
-      # - name: Initialize CodeQL
-      #   uses: github/codeql-action/init@v3
-      #   with:
-      #     languages: "c"
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: "c"
+
+      - name: Install Dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update -y
+          sudo apt install -y libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev
 
       - name: Run CMake
         uses: lukka/run-cmake@v10
         with:
           cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
-          configurePreset: ${{env.BUILD_ARCH}}-${{env.BUILD_TYPE}}-${{env.BUILD_PLATFORM}}
-          buildPreset: ${{env.BUILD_ARCH}}-${{env.BUILD_TYPE}}-${{env.BUILD_PLATFORM}}
+          configurePreset: ${{matrix.BUILD_ARCH}}-${{env.BUILD_TYPE}}-${{matrix.BUILD_PLATFORM}}
+          buildPreset: ${{matrix.BUILD_ARCH}}-${{env.BUILD_TYPE}}-${{matrix.BUILD_PLATFORM}}
           buildPresetAdditionalArgs: "['--config release']"
 
-      # - name: Perform CodeQL Analysis
-      #   uses: github/codeql-action/analyze@v3
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{env.BUILD_ARCH}}-${{env.BUILD_TYPE}}-${{env.BUILD_PLATFORM}}-wipsy
-          path: ./${{env.BUILD_DIRECTORY}}/${{env.BUILD_ARCH}}-${{env.BUILD_TYPE}}-${{env.BUILD_PLATFORM}}/wispy.exe
+          name: ${{matrix.BUILD_ARCH}}-${{env.BUILD_TYPE}}-${{matrix.BUILD_PLATFORM}}-wipsy
+          path: ./${{env.BUILD_DIRECTORY}}/${{matrix.BUILD_ARCH}}-${{env.BUILD_TYPE}}-${{matrix.BUILD_PLATFORM}}/wispy.exe

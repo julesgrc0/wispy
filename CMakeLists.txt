@@ -13,7 +13,6 @@ set(SKIP_INSTALL_ALL ON CACHE BOOL "" FORCE)
 
 option(BUILD_MINSIZE "Build a smaller executable" OFF)
 
-
 add_subdirectory(lib/raylib)
 add_subdirectory(lib/zlib)
 
@@ -21,6 +20,10 @@ include_directories(${CMAKE_SOURCE_DIR}/raylib/src)
 include_directories(${CMAKE_SOURCE_DIR}/zlib)
 
 file(GLOB_RECURSE SOURCES "src/*.c" "src/*.rc")
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  add_definitions(-D_DEBUG)
+endif()
 
 add_executable(${PROJECT_NAME} WIN32 ${SOURCES})
 target_link_libraries(${PROJECT_NAME} raylib zlibstatic)

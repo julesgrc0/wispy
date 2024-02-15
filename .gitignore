@@ -5,7 +5,7 @@
 /Release
 /Debug
 /wispy
-
+/.vscode/settings.json
 /out
 
 RELEASE.md

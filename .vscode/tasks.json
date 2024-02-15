@@ -6,6 +6,12 @@
             "label": "Configure",
             "command": [
                "cmake -S . -B out --preset=${input:arch}-${input:type}-${input:platform}"
+
+               // Ubuntu 
+               // sudo apt-get update -y
+               // sudo apt install -y build-essential git 
+               // sudo apt install -y cmake
+               // sudo apt install -y libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -17,9 +23,23 @@
         },
         {
             "type": "shell",
-            "label": "Build",
+            "label": "Build Debug",
             "command": [
-                "if ${input:type} == 'debug' (cmake --build out --config debug) else (cmake --build out --config release)"
+                "cmake --build out --config debug"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "group": "build",
+        },
+        {
+            "type": "shell",
+            "label": "Build Release",
+            "command": [
+                "cmake --build out --config release"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -57,6 +77,8 @@
             "type": "pickString",
             "options": [
                 "windows",
+                "linux",
+                "android"
             ],
             "default": "windows",
             "description": "Platform"

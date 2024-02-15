@@ -19,9 +19,15 @@ w_chunkgroup *create_chunkgroup(unsigned int position) {
 void destroy_chunkgroup(w_chunkgroup *grp) {
   LOG("destroying chunk group: %d", grp->position);
   for (unsigned int i = 0; i < CHUNK_GROUP_LEN; i++) {
+    #ifdef _WIN32
     if (grp->chunks[i]->handle != INVALID_HANDLE_VALUE) {
       WaitForSingleObject(grp->chunks[i]->handle, INFINITE);
     }
+    #else
+    if (grp->chunks[i]->handle != 0) {
+      pthread_join(grp->chunks[i]->handle, NULL);
+    }
+    #endif // _WIN32
 
     free(grp->chunks[i]);
   }

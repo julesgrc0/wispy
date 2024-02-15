@@ -9,9 +9,13 @@ void load_assets(w_state *state) {
                                 (float)GetScreenHeight()};
 
   size_t items_len;
+  #ifdef _WIN32
   w_asset *items = unpack_assets(state->hInstance, &items_len);
+  #else
+  w_asset *items = unpack_assets(&items_len);
+  #endif
   if (!items) {
-    state->state = F_FAILED;
+    state->state = FS_FAILED;
     return;
   }
 
@@ -75,7 +79,7 @@ void load_assets(w_state *state) {
 
   sfree(items);
 
-  state->state = F_OK;
+  state->state = FS_OK;
 }
 
 void loading_screen(w_state *state) {
@@ -96,23 +100,23 @@ void loading_screen(w_state *state) {
 
   while (!loaded && !WindowShouldClose()) {
     switch (state->state) {
-    case F_DISPLAY: {
+    case FS_DISPLAY: {
       BeginDrawing();
       ClearBackground(BLACK);
       DrawText(loading_text, loading_pos.x, loading_pos.y, text_size, WHITE);
       EndDrawing();
-      state->state = F_LOAD;
+      state->state = FS_LOAD;
     } break;
-    case F_LOAD:
+    case FS_LOAD:
       load_assets(state);
       break;
-    case F_FAILED: {
+    case FS_FAILED: {
       BeginDrawing();
       ClearBackground(BLACK);
       DrawText(error_text, error_pos.x, error_pos.y, text_size, RED);
       EndDrawing();
     } break;
-    case F_OK:
+    case FS_OK:
       loaded = true;
       break;
     }

@@ -26,9 +26,9 @@ typedef struct w_bridge {
 
 #ifdef _WIN32
   HANDLE handle;
-#else
+#elif __linux__
   pthread_t handle;
-#endif
+#endif // _WIN32
 
 } w_bridge;
 

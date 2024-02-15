@@ -100,7 +100,7 @@ void menu_screen(w_state *state) {
       // TODO: Implement settings screen
     }
     if (update_button(exit_button)) {
-      state->state = F_EXIT;
+      state->state = FS_EXIT;
       break;
     }
 

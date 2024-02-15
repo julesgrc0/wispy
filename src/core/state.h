@@ -4,11 +4,11 @@
 #define CONFIG_NAME "config.dat"
 
 typedef enum w_framestate {
-  F_DISPLAY,
-  F_LOAD,
-  F_OK,
-  F_FAILED,
-  F_EXIT
+  FS_DISPLAY,
+  FS_LOAD,
+  FS_OK,
+  FS_FAILED,
+  FS_EXIT
 } w_framestate;
 
 typedef struct w_config {

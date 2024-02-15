@@ -1,4 +1,6 @@
 #pragma once
+#ifndef _STDAFX_H
+#define _STDAFX_H
 
 #define _CRT_SECURE_NO_WARNINGS
 #define _CRTDBG_MAP_ALLOC
@@ -45,6 +47,10 @@
 
 #include <pthread.h>
 #include <unistd.h>
+
+// #ifdef __linux__
+// #include <linux/time.h>
+// #endif
 
 #endif
 
@@ -109,6 +115,22 @@
     printf("[%s]: %lld ns\n", #name, elapsed_time);                            \
   } while (0);
 
+#elif defined(_DEBUG) && defined(__linux__)
+#define measure(name, x)                                                       \
+  do {                                                                         \
+    struct timespec start, end;                                                \
+    long long elapsed_time;                                                    \
+    clock_gettime(CLOCK_MONOTONIC, &start);                                     \
+                                                                               \
+    x;                                                                         \
+                                                                               \
+    clock_gettime(CLOCK_MONOTONIC, &end);                                       \
+    elapsed_time =                                                             \
+        (end.tv_sec - start.tv_sec) * 1000000000 + (end.tv_nsec - start.tv_nsec);\
+    printf("[%s]: %lld ns\n", #name, elapsed_time);                            \
+  } while (0);
 #else
 #define measure(name, x)
 #endif // _DEBUG && _WIN32
+
+#endif // _STDAFX_H

@@ -7,7 +7,7 @@ w_state *init_mainframe() {
 
   memset(state, 0, sizeof(w_state));
 
-  state->state = F_DISPLAY;
+  state->state = FS_DISPLAY;
   state->config = load_config();
 
 #ifdef _DEBUG
@@ -71,11 +71,11 @@ void destroy_mainframe(w_state *state) {
 
 void loop_mainframe(w_state *state) {
   loading_screen(state);
-  if (state->state != F_OK)
+  if (state->state != FS_OK)
     return;
 
   menu_screen(state);
-  if (state->state != F_OK)
+  if (state->state != FS_OK)
     return;
 
   game_screen(state);

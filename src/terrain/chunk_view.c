@@ -50,7 +50,7 @@ void update_renderblock_async(w_chunkview *chunk_view, w_renderblock *blocks,
 #ifdef _WIN32
   WaitForSingleObject(chunk_view->mutex, INFINITE);
 #else
-  pthread_mutex_lock(&td->mutex);
+  pthread_mutex_lock(&chunk_view->mutex);
 #endif // _WIN32
 
   sfree(chunk_view->blocks);
@@ -60,7 +60,7 @@ void update_renderblock_async(w_chunkview *chunk_view, w_renderblock *blocks,
 #ifdef _WIN32
   ReleaseMutex(chunk_view->mutex);
 #else
-  pthread_mutex_unlock(&td->mutex);
+  pthread_mutex_unlock(&chunk_view->mutex);
 #endif // _WIN32
 }
 

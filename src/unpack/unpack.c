@@ -1,8 +1,7 @@
 #include "unpack.h"
 
-char *load_resource(HINSTANCE hInstance, size_t *size) {
 #ifdef _WIN32
-
+char *load_resource(HINSTANCE hInstance, size_t *size) {
   HRSRC hResInfo = FindResourceA(hInstance, MAKEINTRESOURCE(IDR_ASSETS_PACK1),
                                  "ASSETS_PACK");
   if (!hResInfo) {
@@ -20,18 +19,47 @@ char *load_resource(HINSTANCE hInstance, size_t *size) {
   FreeResource(hResData);
 
   return data;
-#else
-  return NULL; // TODO
-#endif
 }
+#else 
+char *load_resource(size_t *size) {
+  FILE *file = fopen("resource.pack", "rb");
+  if (file == NULL) {
+    return NULL;
+  }
 
-w_asset *unpack_assets(HINSTANCE hInstance, size_t *size) {
+  fseek(file, 0, SEEK_END);
+  *size = ftell(file);
+  fseek(file, 0, SEEK_SET);
+
+  char *data = malloc(*size);
+  if (data == NULL) {
+    fclose(file);
+    return NULL;
+  }
+
+  fread(data, 1, *size, file);
+  fclose(file);
+
+  return data;
+}
+#endif
+
+#ifdef _WIN32
+w_asset *unpack_assets(HINSTANCE hInstance, size_t *size)
+#else
+w_asset *unpack_assets(size_t *size) 
+#endif
+{
   *size = 0;
   size_t in_size = 0;
 
+#ifdef _WIN32
   if (hInstance == NULL)
     return NULL;
   char *in_buffer = load_resource(hInstance, &in_size);
+#else
+  char *in_buffer = load_resource(&in_size);
+#endif
 
   if (in_buffer == NULL)
     return NULL;

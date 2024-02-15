@@ -7,11 +7,23 @@ w_chunk *create_chunk(unsigned int position, bool thread) {
     return NULL;
   }
   chunk->position = position;
+
+#ifdef _WIN32
   chunk->handle = INVALID_HANDLE_VALUE;
+#else
+  chunk->handle = 0;
+#endif // _WIN32
 
   if (thread) {
+#ifdef _WIN32
     chunk->handle = CreateThread(NULL, 0, &create_chunk_thread, chunk, 0, 0);
-    if (chunk->handle == INVALID_HANDLE_VALUE) {
+    if (chunk->handle == INVALID_HANDLE_VALUE)
+#else
+    chunk->handle =
+        pthread_create(&chunk->handle, NULL, &create_chunk_thread, chunk);
+    if (chunk->handle == 0)
+#endif // _WIN32
+    {
       LOG("failed to create chunk thread");
       free(chunk);
       return NULL;
@@ -32,8 +44,13 @@ DWORD WINAPI create_chunk_thread(PVOID arg)
 void *create_chunk_thread(void *arg)
 #endif // _WIN32
 {
-  if (!arg)
+  if (!arg) {
+#ifdef _WIN32
     return EXIT_FAILURE;
+#else
+    return NULL;
+#endif // _WIN32
+  }
 
   LOG("creating chunk");
   w_chunk *chunk = arg;
@@ -100,8 +117,17 @@ void *create_chunk_thread(void *arg)
   UnloadImage(topLayer);
   UnloadImage(mineral);
 
+#ifdef _WIN32
   chunk->handle = INVALID_HANDLE_VALUE;
+#else
+  chunk->handle = 0;
+#endif // _WIN32
 
   LOG("chunk created: %d", chunk->position);
+
+#ifdef _WIN32
   return EXIT_SUCCESS;
+#else
+  return NULL;
+#endif // _WIN32
 }

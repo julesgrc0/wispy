@@ -49,11 +49,12 @@ w_bridge *create_bridge() {
   td->is_active = true;
 #ifdef _WIN32
   td->handle = CreateThread(NULL, 0, &update_bridge, td, 0, NULL);
+  if (td->handle == INVALID_HANDLE_VALUE)
 #else
   td->handle = pthread_create(&td->handle, NULL, &update_bridge, td);
+  if (td->handle == 0)
 #endif // _WIN32
-
-  if (td->handle == INVALID_HANDLE_VALUE) {
+  {
     LOG("failed to create bridge thread");
     destroy_bridge(td);
     return NULL;
@@ -68,9 +69,15 @@ void destroy_bridge(w_bridge *td) {
   LOG("destroying bridge thread");
 
   td->is_active = false;
+#ifdef _WIN32
   if (td->handle != INVALID_HANDLE_VALUE && td->handle != NULL) {
     WaitForSingleObject(td->handle, INFINITE);
   }
+#elif __linux__
+  if (td->handle != 0) {
+    pthread_join(td->handle, NULL);
+  }
+#endif // _WIN32
 
   destroy_chunkgroup(td->chunk_group);
   destroy_chunkview(td->chunk_view);
@@ -106,7 +113,11 @@ void *update_bridge(void *arg)
 {
   LOG("starting bridge thread");
   if (!arg) {
+#ifdef _WIN32
     return EXIT_FAILURE;
+#else
+    return NULL;
+#endif
   }
 
   w_bridge *td = arg;
@@ -118,10 +129,6 @@ void *update_bridge(void *arg)
   QueryPerformanceCounter(&time_start);
 #else
   struct timespec time_start, time_end;
-  time_start.tv_sec = 0;
-  time_start.tv_nsec = 0;
-  time_end.tv_sec = 0;
-  time_end.tv_nsec = 0;
 #endif // _WIN32
 
   update_chunkview(td->chunk_view, td->chunk_group,
@@ -138,21 +145,37 @@ void *update_bridge(void *arg)
                             get_camera_view(td->camera))) {
         LOG("failed to update chunk view");
         td->is_active = false;
+
+#ifdef _WIN32
         return EXIT_FAILURE;
+#else
+        return NULL;
+#endif
       }
       update_chunkview_lighting(td->chunk_view, get_player_center(td->player),
                                 RENDER_CUBE_COUNT * CUBE_W);
       td->force_update = false;
     }
 
+#ifdef _WIN32
     QueryPerformanceCounter(&time_end);
     if (time_end.QuadPart - time_start.QuadPart >=
         time_frequency.QuadPart * PHYSICS_TICK) {
       QueryPerformanceCounter(&time_start);
+#elif __linux__
+    clock_gettime(CLOCK_MONOTONIC, &time_end);
+    if (time_end.tv_nsec - time_start.tv_nsec >= PHYSICS_TICK * 1000000000) {
+      time_start.tv_nsec = time_end.tv_nsec;
+#endif // _WIN32
+
       physics_update(td);
     }
   } while (td->is_active);
 
   LOG("exiting bridge thread");
+#ifdef _WIN32
   return EXIT_SUCCESS;
+#else
+  return NULL;
+#endif
 }

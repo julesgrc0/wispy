@@ -1,4 +1,10 @@
 {
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 1
+  },
   "configurePresets": [
     {
       "name": "windows-base",
@@ -13,6 +19,21 @@
         "type": "equals",
         "lhs": "${hostSystemName}",
         "rhs": "Windows"
+      }
+    },
+    {
+      "name": "linux-base",
+      "hidden": true,
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "installDir": "${sourceDir}/out/install/${presetName}",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
       }
     },
     {
@@ -88,7 +109,65 @@
         "CMAKE_BUILD_TYPE": "MinSizeRel",
         "BUILD_MINSIZE": "ON"
       }
+    },
+
+    {
+      "name": "x64-debug-linux",
+      "displayName": "x64 Debug Linux",
+      "inherits": "linux-base",
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "x64-release-linux",
+      "displayName": "x64 Release Linux",
+      "inherits": "linux-base",
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "x86-debug-linux",
+      "displayName": "x86 Debug Linux",
+      "inherits": "linux-base",
+      "architecture": {
+        "value": "x86",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "x86-release-linux",
+      "displayName": "x86 Release Linux",
+      "inherits": "linux-base",
+      "architecture": {
+        "value": "x86",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
     }
   ],
-  "version": 3
+  "buildPresets": [
+    {
+      "name": "windows-base",
+      "configurePreset": "windows-base"
+    },
+    {
+      "name": "linux-base",
+      "configurePreset": "linux-base"
+    }
+  ]
 }
