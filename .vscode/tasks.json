@@ -2,47 +2,64 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "type": "cppbuild",
-            "label": "Build",
-            "command": "",
-            "args": [
-                "${input:msbuild}",
-                "${workspaceFolder}${pathSeparator}wispy.sln",
-                "/p:configuration=${input:configuration};platform=${input:platform}"
+            "type": "shell",
+            "label": "Configure",
+            "command": [
+               "cmake -S . -B out --preset=${input:arch}-${input:type}-${input:platform}"
             ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
             "problemMatcher": [
                 "$msCompile"
             ],
-            "group": "build"
+            "group": "build",
+        },
+        {
+            "type": "shell",
+            "label": "Build",
+            "command": [
+                "if ${input:type} == 'debug' (cmake --build out --config debug) else (cmake --build out --config release)"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "group": "build",
         }
     ],
     "inputs": [
         {
-            "id": "platform",
+            "id": "arch",
             "type": "pickString",
             "options": [
                 "x64",
                 "x86"
             ],
             "default": "x64",
-            "description": "Target platform"
+            "description": "Architecture"
         },
         {
-            "id": "configuration",
+            "id": "type",
             "type": "pickString",
             "options": [
-                "Debug",
-                "Release",
-                "Release Light Size"
+                "debug",
+                "release",
+                "relminsize",
             ],
-            "default": "Debug",
-            "description": "Target configuration"
+            "default": "debug",
+            "description": "Build type"
         },
         {
-            "id": "msbuild",
-            "type": "promptString",
-            "description": "MSBuild path",
-            "default": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\MSBuild\\Current\\Bin\\msbuild.exe"
-        }
+            "id": "platform",
+            "type": "pickString",
+            "options": [
+                "windows",
+            ],
+            "default": "windows",
+            "description": "Platform"
+        },
     ]
 }

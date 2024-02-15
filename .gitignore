@@ -1,9 +1,11 @@
 /.vs
-/.nsight
+*.user
+*.filters
 /x64
 /Release
 /Debug
 /wispy
-*.user
-*.filters
+
+/out
+
 RELEASE.md

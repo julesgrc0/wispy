@@ -6,53 +6,39 @@ on:
     branches: ["main"]
 
 env:
-  SOLUTION_FILE_PATH: wispy.sln
-  BUILD_CONFIGURATION: Release
-  BUILD_PLATFORM: x64
+  BUILD_DIRECTORY: out
+  BUILD_ARCH: x64
+  BUILD_TYPE: release
+  BUILD_PLATFORM: windows
 
 permissions:
+  security-events: write
+  actions: read
   contents: read
 
 jobs:
   build:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 360
-    permissions:
-      security-events: write
-      actions: read
-      contents: read
     strategy:
       fail-fast: false
       matrix:
         os: [windows-latest]
-        include:
-          - os: windows-latest
-            vcpkgPackages: "zlib:x64-windows-static raylib:x64-windows-static"
     steps:
       - uses: actions/checkout@v4
+      - uses: lukka/get-cmake@latest
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
           languages: "c"
 
-      - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v1.0.2
-
-      - name: Setup Vcpkg
-        uses: lukka/run-vcpkg@v11.1
+      - name: CMake Configure
+        uses: lukka/run-cmake@v10
         with:
-          vcpkgGitCommitId: 3265c187c74914aa5569b75355badebfdbab7987
-
-      - name: Integrate vcpkg
-        run: vcpkg integrate install
-
-      - name: Install Packages
-        run: vcpkg install ${{ matrix.vcpkgPackages }}
-
-      - name: Build Solution
-        working-directory: ${{env.GITHUB_WORKSPACE}}
-        run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.BUILD_PLATFORM}} ${{env.SOLUTION_FILE_PATH}}
+          configurePreset: ${{env.BUILD_ARCH}}-${{env.BUILD_TYPE}}-${{env.BUILD_PLATFORM}}
+          buildPreset: ${{env.BUILD_ARCH}}-${{env.BUILD_TYPE}}-${{env.BUILD_PLATFORM}}
+          buildPresetAdditionalArgs: "['--config release']"
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
@@ -60,5 +46,5 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: release-wipsy
-          path: ./${{env.BUILD_PLATFORM}}/${{env.BUILD_CONFIGURATION}}/wispy.exe
+          name: ${{env.BUILD_ARCH}}-${{env.BUILD_TYPE}}-${{env.BUILD_PLATFORM}}-wipsy
+          path: ./${{env.BUILD_DIRECTORY}}/${{env.BUILD_ARCH}}-${{env.BUILD_TYPE}}-${{env.BUILD_PLATFORM}}/wispy.exe
