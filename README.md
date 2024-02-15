@@ -1,6 +1,6 @@
 # 🎮 Wispy
 
-![C](https://img.shields.io/github/languages/top/julesgrc0/wispy?label=C%20🔥) ![Platform](https://img.shields.io/badge/Platform-Windows%20|%20Linux%20🌐-purple) ![Game](https://img.shields.io/badge/Game-Wispy%20🎮-green) ![Version](https://shields.io/github/v/release/julesgrc0/wispy?label=Version&color=lightblue) [![Release Build](https://github.com/julesgrc0/wispy/actions/workflows/release.yml/badge.svg)](https://github.com/julesgrc0/wispy/actions/workflows/release.yml)
+![C](https://img.shields.io/github/languages/top/julesgrc0/wispy?label=C%20🔥) ![Platform](https://img.shields.io/badge/Platform%20🌍-Windows%20|%20Linux%20|%20Android-purple) ![Game](https://img.shields.io/badge/Game%20🎮-Wispy-green) ![Version](https://shields.io/github/v/release/julesgrc0/wispy?label=Version%20🧮&color=lightblue) [![Release Build](https://github.com/julesgrc0/wispy/actions/workflows/release.yml/badge.svg)](https://github.com/julesgrc0/wispy/actions/workflows/release.yml)
 
 
 **Concept**: Wipsy is a kind of 2D Minecraft.
@@ -18,8 +18,7 @@
 **⚙ Requirements**
 
 - [python](https://www.python.org/downloads/)
-- [vcpkg](https://github.com/microsoft/vcpkg.git)
-- [msbuild](https://visualstudio.microsoft.com/fr/downloads/) (Windows)
+- [cmake](https://cmake.org/)
 - [upx](https://github.com/upx/upx) (Optional)
 
 **📦 Packing Assets**
@@ -28,28 +27,61 @@
 python ./tools/pack_assets.py
 ```
 
+**🌐 Clone the repository**
+
+```bash
+git clone --recurse-submodules https://github.com/julesgrc0/wispy.git
+```
+
 **💻 Building for Windows**
 
-> With VSCode
+> Command Line
 
-On your keyboard type this shortcut to run the build command:
+```bash
+cmake -S . -B out --preset=<x64|x86>-<debug|release|relminsize>-<windows|linux|android>
+cmake --build out --config <debug|release>
+```
+
+> VSCode
+
+Run the build task with the following shortcut:
 
 <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>B</kbd>
 
-Then enter the path to msbuild and select the desired configuration and platform from this one:
+Then select your target build configuration :
 
-- Debug/Release/Release Light Size
-- x64/x86
+- `Debug` 
+- `Release`
+- `RelMinSize` (Compressed with UPX)
 
-> With Visual Studio
+- `x64` (64 bits)
+- `x86` (32 bits)
 
-Open the solution and select your target build configuration.
+- `windows`
+- `linux` 
+- `android` (Not implemented yet)
 
+> Visual Studio
+
+Open the project folder and select the build configuration.
+
+**🐧 Building for Linux**
+
+> Install the required packages
+
+```bash
+sudo apt-get update -y
+sudo apt-get install -y libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev
 ```
-wispy.sln
+
+> Build with CMake
+
+```bash
+cmake -S . -B out --preset=<x64|x86>-<debug|release|relminsize>-<windows|linux|android>
+cmake --build out --config <debug|release>
 ```
 
-**🚧 Building for Linux**
+**🚧 Building for Android**
 
 > TODO
 
