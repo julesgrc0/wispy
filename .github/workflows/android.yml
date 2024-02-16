@@ -6,7 +6,7 @@ on:
     branches: ["main"]
 
 env:
-  BUILD_PATH: ./android/app/build/outputs/apk/release
+  BUILD_PATH: ./android/app/release
   BUILD_TYPE: release
   BUILD_PLATFORM: android
 
