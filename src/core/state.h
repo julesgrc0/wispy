@@ -20,16 +20,6 @@ typedef struct w_config {
   unsigned int height : 12;
 
   unsigned int max_fps : 10;
-  unsigned int max_chunks : 10;
-
-  /*
-  unsigned int render_size : 12;
-  unsigned int render_distance : 6;
-
-  unsigned int max_render_block : 8;
-
-  unsigned int block_size : 8;
-  */
 } w_config;
 
 typedef struct w_state {

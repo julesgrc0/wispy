@@ -58,7 +58,7 @@
 #endif
 
 #ifndef WISPY_VERSION
-#define WISPY_VERSION "?.?.?"
+#define WISPY_VERSION "version ?.?.?"
 #endif
 
 #define sfree(x)                                                               \
@@ -98,9 +98,9 @@
   printf("INFO: ");                                                            \
   printf(__VA_ARGS__);                                                         \
   printf("\n");
-#elif defined(__ANDROID__)
+#elif defined(_DEBUG) && defined(__ANDROID__)
 #define LOG(...)                                                               \
-  __android_log_print(ANDROID_LOG_INFO, "INFO", __VA_ARGS__);
+    __android_log_print(ANDROID_LOG_INFO, "WISPY", __VA_ARGS__);
 #else
 #define LOG(...)
 #endif // _DEBUG
