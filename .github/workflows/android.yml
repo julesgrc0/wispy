@@ -30,8 +30,6 @@ jobs:
         with:  
           submodules: true
 
-      - uses: lukka/get-cmake@latest
-
       - name: Setup Java JDK
         uses: actions/setup-java@v3.13.0
         with:
@@ -43,10 +41,11 @@ jobs:
         with:
           api-level: 34
           ndk-version: '26.1.10909125'
-          cmake-version: '3.29.0'
 
       - name: Build Application
         run: |
+            sudo apt-get update -y
+            sudo apt-get install -y cmake
             cd ./android
             chmod +x ./gradlew
             ./gradlew assembleRelease
