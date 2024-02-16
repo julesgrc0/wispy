@@ -52,11 +52,11 @@ void menu_screen(w_state *state) {
       ctx, percent_to_pixel(ctx, (Vector2){0.5, 0.2}), "Wispy", 120, WHITE);
   center_text(title_text, true, true);
 
-  w_guitext *credit_text =
-      create_text(ctx,
-                  Vector2Add(title_text->position,
-                             (Vector2){0, title_text->font_size + 10}),
-                  "made by @julesgrc0 - alpha 0.0.4", 20, WHITE);
+  w_guitext *credit_text = create_text(
+      ctx,
+      Vector2Add(title_text->position,
+                 (Vector2){0, title_text->font_size + 10}),
+      (char *)TextFormat("made by @julesgrc0 - %s", WISPY_VERSION), 20, WHITE);
 
   float move = 0.f;
   while (!WindowShouldClose() && is_active) {

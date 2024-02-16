@@ -23,9 +23,11 @@ include_directories(
 
 file(GLOB_RECURSE SOURCES "src/*.c" "src/*.rc")
 
+add_definitions(-DWISPY_VERSION="${PROJECT_VERSION}")
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   add_definitions(-D_DEBUG)
 endif()
+
 
 if(ANDROID)
   add_library(${PROJECT_NAME} SHARED ${SOURCES})

@@ -57,6 +57,10 @@
 
 #endif
 
+#ifndef WISPY_VERSION
+#define WISPY_VERSION "?.?.?"
+#endif
+
 #define sfree(x)                                                               \
   if (x)                                                                       \
     free(x);

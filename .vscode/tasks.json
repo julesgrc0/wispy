@@ -25,7 +25,7 @@
             "type": "shell",
             "label": "Build Debug",
             "command": [
-                "cmake --build out --config debug"
+                "cmake --build out --config debug  --target wispy"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -39,7 +39,7 @@
             "type": "shell",
             "label": "Build Release",
             "command": [
-                "cmake --build out --config release"
+                "cmake --build out --config release --target wispy"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
