@@ -6,7 +6,7 @@ on:
     branches: ["main"]
 
 env:
-  BUILD_DIRECTORY: out
+  BUILD_PATH: out
   BUILD_TYPE: release
   BUILD_PLATFORM: linux
 
@@ -38,14 +38,14 @@ jobs:
           sudo apt install -y libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev
        
       - name: Configure CMake
-        run: cmake -S . -B ${{env.BUILD_DIRECTORY}} --preset=${{matrix.arch}}-${{env.BUILD_TYPE}}-${{env.BUILD_PLATFORM}}
+        run: cmake -S . -B ${{env.BUILD_PATH}} --preset=${{matrix.arch}}-${{env.BUILD_TYPE}}-${{env.BUILD_PLATFORM}}
 
       - name: Build Project
-        run: cmake --build ${{env.BUILD_DIRECTORY}} --config ${{env.BUILD_TYPE}} --target wispy
+        run: cmake --build ${{env.BUILD_PATH}} --config ${{env.BUILD_TYPE}} --target wispy
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: wipsy-${{env.BUILD_PLATFORM}}-${{matrix.arch}}
-          path: ./${{env.BUILD_DIRECTORY}}/wispy
+          path: ./${{env.BUILD_PATH}}/wispy
 

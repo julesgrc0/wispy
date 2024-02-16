@@ -6,7 +6,7 @@ on:
     branches: ["main"]
 
 env:
-  BUILD_DIRECTORY: out
+  BUILD_PATH: ./android/app/build/outputs/apk/release
   BUILD_TYPE: release
   BUILD_PLATFORM: android
 
@@ -52,9 +52,15 @@ jobs:
             chmod +x ./gradlew
             ./gradlew assembleRelease
 
+      - name: Sign Application
+        run: |
+          keytool -genkey -v -keystore release-key.keystore -alias wispy -keyalg RSA -keysize 2048 -validity 10000 -storepass ${{ secrets.KEYSTORE_PASSWORD }} -keypass ${{ secrets.KEY_PASSWORD }} -dname "CN=, OU=, O=, L=, S=, C="
+          ${ANDROID_HOME}/build-tools/30.0.3/apksigner sign --ks release-key.keystore --ks-key-alias wispy --ks-pass pass:${{ secrets.KEYSTORE_PASSWORD }} --key-pass pass:${{ secrets.KEY_PASSWORD }} --out ./${{env.BUILD_PATH}}signed-app-release.apk ./${{env.BUILD_PATH}}app-release.apk
+          
+
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: wipsy-${{env.BUILD_PLATFORM}}-${{matrix.arch}}
-          path: ./${{env.BUILD_DIRECTORY}}/android/app/build/outputs/apk/release/app-release.apk
+          name: wipsy-${{env.BUILD_PLATFORM}}-${{matrix.arch}}.apk
+          path: ${{env.BUILD_PATH}}/signed-app-release.apk
 
