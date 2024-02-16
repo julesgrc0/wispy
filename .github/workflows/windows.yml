@@ -1,0 +1,59 @@
+name: Windows Release Build
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+env:
+  BUILD_DIRECTORY: out
+  BUILD_TYPE: release
+  BUILD_PLATFORM: windows
+
+
+permissions:
+  security-events: write
+  actions: read
+  contents: read
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest]
+        arch: [x64, x86]
+    steps:
+      - uses: actions/checkout@v4
+        with:  
+          submodules: true
+
+      - uses: lukka/get-cmake@latest
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: "c"
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt install -y libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev
+       
+      - name: Configure CMake
+        run: cmake -S . -B ${{env.BUILD_DIRECTORY}} --preset=${{matrix.arch}}-${{env.BUILD_TYPE}}-${{env.BUILD_PLATFORM}}
+
+      - name: Build Project
+        run: cmake --build ${{env.BUILD_DIRECTORY}} --config ${{env.BUILD_TYPE}} --target wispy
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wipsy-linux-${{matrix.arch}}
+          path: ./${{env.BUILD_DIRECTORY}}/Release/wispy.exe
+

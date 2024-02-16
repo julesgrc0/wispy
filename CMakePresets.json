@@ -39,6 +39,22 @@
       }
     },
     {
+      "name": "android-base",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "installDir": "${sourceDir}/out/install/${presetName}",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "OFF"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Android"
+      }
+    },
+    {
       "name": "x64-debug-windows",
       "displayName": "x64 Debug Windows",
       "inherits": "windows-base",
@@ -160,6 +176,56 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release"
       }
+    },
+
+    {
+      "name": "x64-debug-android",
+      "displayName": "x64 Debug Android",
+      "inherits": ["android-base"],
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "x64-release-android",
+      "displayName": "x64 Release Android",
+      "inherits": "android-base",
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+
+    {
+      "name": "x86-debug-android",
+      "displayName": "x86 Debug Android",
+      "inherits": ["android-base"],
+      "architecture": {
+        "value": "x86",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "x86-release-android",
+      "displayName": "x64 Release Android",
+      "inherits": "android-base",
+      "architecture": {
+        "value": "x86",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
     }
   ],
   "buildPresets": [
@@ -181,6 +247,16 @@
     {
       "name": "x86-release-linux",
       "configurePreset": "x86-release-linux",
+      "cleanFirst": true
+    },
+    {
+      "name": "x64-release-android",
+      "configurePreset": "x64-release-android",
+      "cleanFirst": true
+    },
+    {
+      "name": "x86-release-android",
+      "configurePreset": "x86-release-android",
       "cleanFirst": true
     }
   ]

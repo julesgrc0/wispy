@@ -1,6 +1,6 @@
 # 🎮 Wispy
 
-![C](https://img.shields.io/github/languages/top/julesgrc0/wispy?label=C%20🔥) ![Platform](https://img.shields.io/badge/Platform%20🌍-Windows%20|%20Linux%20|%20Android-purple) ![Game](https://img.shields.io/badge/Game%20🎮-Wispy-green) ![Version](https://shields.io/github/v/release/julesgrc0/wispy?label=Version%20🧮&color=lightblue) [![Release Build](https://github.com/julesgrc0/wispy/actions/workflows/release.yml/badge.svg)](https://github.com/julesgrc0/wispy/actions/workflows/release.yml)
+![C](https://img.shields.io/github/languages/top/julesgrc0/wispy?label=C%20🔥) ![Platform](https://img.shields.io/badge/Platform%20🌍-Windows%20|%20Linux%20|%20Android-purple) ![Game](https://img.shields.io/badge/Game%20🎮-Wispy-green) ![Version](https://shields.io/github/v/release/julesgrc0/wispy?label=Version%20🧮&color=lightblue) [![Release Build](https://github.com/julesgrc0/wispy/actions/workflows/windows.yml/badge.svg)](https://github.com/julesgrc0/wispy/actions/workflows/windows.yml)  [![Release Build](https://github.com/julesgrc0/wispy/actions/workflows/linux.yml/badge.svg)](https://github.com/julesgrc0/wispy/actions/workflows/linux.yml) [![Release Build](https://github.com/julesgrc0/wispy/actions/workflows/android.yml/badge.svg)](https://github.com/julesgrc0/wispy/actions/workflows/android.yml)
 
 
 **Concept**: Wipsy is a kind of 2D Minecraft.

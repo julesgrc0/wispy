@@ -1,0 +1,54 @@
+name: Android Release Build
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+env:
+  BUILD_DIRECTORY: out
+  BUILD_TYPE: release
+  BUILD_PLATFORM: android
+
+
+permissions:
+  security-events: write
+  actions: read
+  contents: read
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        arch: [x64, x86]
+    steps:
+      - uses: actions/checkout@v4
+        with:  
+          submodules: true
+
+      - uses: lukka/get-cmake@latest
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v3.13.0
+        with:
+          distribution: 'adopt'
+          java-version: '11'
+    
+      - name: Build Application
+        run: ./gradlew assembleRelease
+
+      - name: Sign APK
+        run: |
+          echo ${{ secrets.KEYSTORE_PASSWORD }} | gpg --batch --yes --passphrase-fd 0 --output ./android/app/release.keystore --decrypt ./android/app/release.keystore.gpg
+          ./gradlew bundleRelease
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wipsy-linux-${{matrix.arch}}
+          path: ./${{env.BUILD_DIRECTORY}}/android/app/build/outputs/apk/release/app-release.apk
+

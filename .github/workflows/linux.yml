@@ -1,4 +1,4 @@
-name: Release Build
+name: Linux Release Build
 on:
   push:
     branches: ["main"]
@@ -8,6 +8,8 @@ on:
 env:
   BUILD_DIRECTORY: out
   BUILD_TYPE: release
+  BUILD_PLATFORM: linux
+
 
 permissions:
   security-events: write
@@ -21,19 +23,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, ubuntu-latest]
+        os: [ubuntu-latest]
         arch: [x64, x86]
-        include:
-          - os: windows-latest
-            BUILD_PLATFORM: windows
-            BUILD_FILEPATH: Release/wispy.exe
-          - os: ubuntu-latest
-            BUILD_PLATFORM: linux
-            BUILD_FILEPATH: wispy
-          - arch: x64
-            BUILD_ARCH: x64
-          - arch: x86
-            BUILD_ARCH: x86
     steps:
       - uses: actions/checkout@v4
         with:  
@@ -47,15 +38,14 @@ jobs:
           languages: "c"
 
       - name: Install Dependencies
-        if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update -y
           sudo apt install -y libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev
+       
+      - name: Configure CMake
+        run: cmake -S . -B ${{env.BUILD_DIRECTORY}} --preset=${{matrix.arch}}-${{env.BUILD_TYPE}}-${{env.BUILD_PLATFORM}}
 
-      - name: Configure ${{matrix.BUILD_ARCH}}-${{env.BUILD_TYPE}}-${{matrix.BUILD_PLATFORM}}
-        run: cmake -S . -B ${{env.BUILD_DIRECTORY}} --preset=${{matrix.BUILD_ARCH}}-${{env.BUILD_TYPE}}-${{matrix.BUILD_PLATFORM}}
-
-      - name: Build ${{env.BUILD_TYPE}}
+      - name: Build Project
         run: cmake --build ${{env.BUILD_DIRECTORY}} --config ${{env.BUILD_TYPE}} --target wispy
 
       - name: Perform CodeQL Analysis
@@ -64,6 +54,6 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: wipsy-${{matrix.BUILD_PLATFORM}}-${{matrix.BUILD_ARCH}}
-          path: ./${{env.BUILD_DIRECTORY}}/${{matrix.BUILD_FILEPATH}}
+          name: wipsy-linux-${{matrix.arch}}
+          path: ./${{env.BUILD_DIRECTORY}}/wispy
 
