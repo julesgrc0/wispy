@@ -55,7 +55,8 @@ jobs:
       - name: Sign Application
         run: |
           keytool -genkey -v -keystore release-key.keystore -alias wispy -keyalg RSA -keysize 2048 -validity 10000 -storepass ${{ secrets.KEYSTORE_PASSWORD }} -keypass ${{ secrets.KEY_PASSWORD }} -dname "CN=julesgrc0, OU=Engineering, O=Wispy, L=France, S=France, C=FR"
-          ${ANDROID_HOME}/build-tools/30.0.3/apksigner sign --ks release-key.keystore --ks-key-alias wispy --ks-pass pass:${{ secrets.KEYSTORE_PASSWORD }} --key-pass pass:${{ secrets.KEY_PASSWORD }} --out ${{env.BUILD_PATH}}signed-app-release.apk ${{env.BUILD_PATH}}app-release.apk
+          echo "y" | $ANDROID_HOME/cmdline-tools/bin/sdkmanager "build-tools;31.0.0 "
+          ${ANDROID_HOME}/build-tools/31.0.0/apksigner sign --ks release-key.keystore --ks-key-alias wispy --ks-pass pass:${{ secrets.KEYSTORE_PASSWORD }} --key-pass pass:${{ secrets.KEY_PASSWORD }} --out ${{env.BUILD_PATH}}signed-app-release.apk ${{env.BUILD_PATH}}app-release.apk
           
 
       - name: Upload Artifact
