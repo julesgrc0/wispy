@@ -23,6 +23,9 @@ void game_screen(w_state *state) {
     update_keyboard(td->keyboard);
 
     float dt = GetFrameTime();
+
+    // TODO: make the player speed move faster if the player is far away from
+    // the camera
     float speed = dt * PLAYER_SPEED;
 
 #ifdef _WIN32
@@ -61,6 +64,7 @@ void game_screen(w_state *state) {
 
     EndMode2D();
     EndTextureMode();
+
 #ifdef _WIN32
     ReleaseMutex(td->chunk_view->mutex);
 #else
@@ -71,6 +75,11 @@ void game_screen(w_state *state) {
     ClearBackground(BLACK);
     DrawTexturePro(state->render.texture, state->src_rnd, state->dest_rnd,
                    VEC_ZERO, 0.0f, WHITE);
+
+    /*
+        TODO: add custom input controls for android version
+    */
+
     DrawFPS(0, 0);
     EndDrawing();
   }

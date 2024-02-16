@@ -1,15 +1,18 @@
 #include "unpack.h"
 
 #ifdef _WIN32
-char *load_resource(HINSTANCE hInstance, size_t *size) {
+char *load_resource(HINSTANCE hInstance, size_t *size)
+{
   HRSRC hResInfo = FindResourceA(hInstance, MAKEINTRESOURCE(IDR_ASSETS_PACK1),
                                  "ASSETS_PACK");
-  if (!hResInfo) {
+  if (!hResInfo)
+  {
     return NULL;
   }
 
   HGLOBAL hResData = LoadResource(hInstance, hResInfo);
-  if (!hResData) {
+  if (!hResData)
+  {
     return NULL;
   }
 
@@ -20,10 +23,12 @@ char *load_resource(HINSTANCE hInstance, size_t *size) {
 
   return data;
 }
-#else 
-char *load_resource(size_t *size) {
+#else
+char *load_resource(size_t *size)
+{
   FILE *file = fopen("resource.pack", "rb");
-  if (file == NULL) {
+  if (file == NULL)
+  {
     return NULL;
   }
 
@@ -32,7 +37,8 @@ char *load_resource(size_t *size) {
   fseek(file, 0, SEEK_SET);
 
   char *data = malloc(*size);
-  if (data == NULL) {
+  if (data == NULL)
+  {
     fclose(file);
     return NULL;
   }
@@ -47,12 +53,11 @@ char *load_resource(size_t *size) {
 #ifdef _WIN32
 w_asset *unpack_assets(HINSTANCE hInstance, size_t *size)
 #else
-w_asset *unpack_assets(size_t *size) 
+w_asset *unpack_assets(size_t *size)
 #endif
 {
   *size = 0;
   size_t in_size = 0;
-
 #ifdef _WIN32
   if (hInstance == NULL)
     return NULL;
@@ -70,57 +75,70 @@ w_asset *unpack_assets(size_t *size)
     return NULL;
 
   size_t try_index = 0;
-  for (try_index; try_index < MAX_UNCOMPRESSE_TRY; try_index++) {
+  for (try_index; try_index < MAX_UNCOMPRESSE_TRY; try_index++)
+  {
     if (uncompress(out_buffer, (uLongf *)&out_size, in_buffer,
-                   (uLong)in_size) != Z_OK) {
+                   (uLong)in_size) != Z_OK)
+    {
       out_size *= 2;
       void *new_outbuff = realloc(out_buffer, out_size);
-      if (new_outbuff == NULL) {
+      if (new_outbuff == NULL)
+      {
         sfree(out_buffer);
         return NULL;
       }
       out_buffer = new_outbuff;
-    } else {
+    }
+    else
+    {
       break;
     }
   }
-  if (try_index >= MAX_UNCOMPRESSE_TRY) {
+  if (try_index >= MAX_UNCOMPRESSE_TRY)
+  {
     sfree(out_buffer);
     return NULL;
   }
 
   void *new_outbuff = realloc(out_buffer, out_size);
-  if (new_outbuff == NULL) {
+  if (new_outbuff == NULL)
+  {
     sfree(out_buffer);
     return NULL;
   }
   out_buffer = new_outbuff;
 
   w_asset *items = malloc(sizeof(w_asset));
-  if (items == NULL) {
+  if (items == NULL)
+  {
     sfree(out_buffer);
     return NULL;
   }
 
   size_t items_len = 0;
-  if (items == NULL) {
+  if (items == NULL)
+  {
     sfree(out_buffer);
     return NULL;
   }
 
   size_t index = 0;
-  while (index < out_size) {
+  while (index < out_size)
+  {
     w_asset item = {0};
     size_t current_size = 0;
 
     item.name = malloc(0);
-    do {
+    do
+    {
       void *new_name = realloc(item.name, current_size + 1);
-      if (new_name == NULL) {
+      if (new_name == NULL)
+      {
         sfree(item.name);
         sfree(out_buffer);
 
-        for (size_t i = 0; i < items_len; i++) {
+        for (size_t i = 0; i < items_len; i++)
+        {
           sfree(items[i].name);
           sfree(items[i].buffer);
         }
@@ -149,12 +167,14 @@ w_asset *unpack_assets(size_t *size)
     index += item.size;
 
     void *new_items = realloc(items, (items_len + 1) * sizeof(w_asset));
-    if (new_items == NULL) {
+    if (new_items == NULL)
+    {
       sfree(item.name);
       sfree(item.buffer);
       sfree(out_buffer);
 
-      for (size_t i = 0; i < items_len; i++) {
+      for (size_t i = 0; i < items_len; i++)
+      {
         sfree(items[i].name);
         sfree(items[i].buffer);
       }

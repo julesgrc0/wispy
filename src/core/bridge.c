@@ -73,7 +73,7 @@ void destroy_bridge(w_bridge *td) {
   if (td->handle != INVALID_HANDLE_VALUE && td->handle != NULL) {
     WaitForSingleObject(td->handle, INFINITE);
   }
-#elif __linux__
+#else
   if (td->handle != 0) {
     pthread_join(td->handle, NULL);
   }

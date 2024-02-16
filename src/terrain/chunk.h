@@ -8,7 +8,7 @@ typedef struct w_chunk {
 
   #ifdef _WIN32
   HANDLE handle;
-  #elif __linux__
+  #else
   pthread_t handle;
   #endif // _WIN32
   

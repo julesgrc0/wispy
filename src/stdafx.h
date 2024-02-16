@@ -42,15 +42,18 @@
 #undef far
 
 #define MAKEINTRESOURCE(i) ((LPSTR)((ULONG_PTR)((WORD)(i))))
-#else
+
+#elif __linux__
 #define MAX_PATH 260
 
 #include <pthread.h>
 #include <unistd.h>
 
-// #ifdef __linux__
-// #include <linux/time.h>
-// #endif
+#elif __ANDROID__
+
+#include <jni.h>
+#include <android/log.h>
+#include <pthread.h>
 
 #endif
 
@@ -86,17 +89,16 @@
 #define VEC_ZERO                                                               \
   (Vector2) { 0 }
 
-#ifdef _DEBUG
+#if defined(_DEBUG) && (defined(__linux__) || defined(_WIN32))
 #define LOG(...)                                                               \
   printf("INFO: ");                                                            \
   printf(__VA_ARGS__);                                                         \
   printf("\n");
-#define LOGIF(cond, ...)                                                       \
-  if (cond)                                                                    \
-  printf(__VA_ARGS__)
+#elif defined(__ANDROID__)
+#define LOG(...)                                                               \
+  __android_log_print(ANDROID_LOG_INFO, "INFO", __VA_ARGS__);
 #else
 #define LOG(...)
-#define LOGIF(cond, ...)
 #endif // _DEBUG
 
 #if defined(_DEBUG) && defined(_WIN32)
@@ -115,7 +117,7 @@
     printf("[%s]: %lld ns\n", #name, elapsed_time);                            \
   } while (0);
 
-#elif defined(_DEBUG) && defined(__linux__)
+#elif defined(_DEBUG) && (defined(__linux__)  || defined(__ANDROID__))
 #define measure(name, x)                                                       \
   do {                                                                         \
     struct timespec start, end;                                                \
