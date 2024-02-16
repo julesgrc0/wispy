@@ -15,6 +15,5 @@ typedef struct w_asset {
 char *load_resource(HINSTANCE hInstance, size_t *size);
 w_asset *unpack_assets(HINSTANCE hInstance, size_t *size);
 #else
-char *load_resource(size_t *size);
 w_asset *unpack_assets(size_t *size);
 #endif

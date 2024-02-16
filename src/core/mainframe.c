@@ -22,7 +22,6 @@ w_state *init_mainframe()
 #endif // _DEBUG
 
   unsigned int flags = 0;
-
   if (state->config->msaa4x)
   {
     flags |= FLAG_MSAA_4X_HINT;
@@ -33,19 +32,16 @@ w_state *init_mainframe()
     flags |= FLAG_VSYNC_HINT;
   }
 
+
   if (state->config->fullscreen)
   {
     flags |= FLAG_FULLSCREEN_MODE;
   }
 
-  SetConfigFlags(flags);
-  SetTargetFPS(state->config->max_fps);
-
   InitWindow(state->config->width, state->config->height, "Wispy");
 
-#ifdef __ANDROID__
-  SetWindowSize(GetScreenWidth(), GetScreenHeight());
-#endif
+  SetConfigFlags(flags);
+  SetTargetFPS(state->config->max_fps);
 
   return state;
 }

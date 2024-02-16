@@ -23,31 +23,6 @@ char *load_resource(HINSTANCE hInstance, size_t *size)
 
   return data;
 }
-#else
-char *load_resource(size_t *size)
-{
-  FILE *file = fopen("resource.pack", "rb");
-  if (file == NULL)
-  {
-    return NULL;
-  }
-
-  fseek(file, 0, SEEK_END);
-  *size = ftell(file);
-  fseek(file, 0, SEEK_SET);
-
-  char *data = malloc(*size);
-  if (data == NULL)
-  {
-    fclose(file);
-    return NULL;
-  }
-
-  fread(data, 1, *size, file);
-  fclose(file);
-
-  return data;
-}
 #endif
 
 #ifdef _WIN32
@@ -63,7 +38,7 @@ w_asset *unpack_assets(size_t *size)
     return NULL;
   char *in_buffer = load_resource(hInstance, &in_size);
 #else
-  char *in_buffer = load_resource(&in_size);
+  char *in_buffer = LoadFileData("resource.pack", &in_size);
 #endif
 
   if (in_buffer == NULL)

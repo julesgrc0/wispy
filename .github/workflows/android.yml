@@ -40,9 +40,6 @@ jobs:
     
       - name: Setup Android SDK
         uses: android-actions/setup-android@v2
-        with:
-          api-level: 34
-          ndk-version: '26.1.10909125'
 
       - name: Build Application
         run: |
