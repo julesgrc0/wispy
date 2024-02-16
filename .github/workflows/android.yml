@@ -31,8 +31,6 @@ jobs:
           submodules: true
 
       - uses: lukka/get-cmake@latest
-        with:
-          cmakeVersion: 3.29.0
 
       - name: Setup Java JDK
         uses: actions/setup-java@v3.13.0
@@ -45,7 +43,6 @@ jobs:
         with:
           api-level: 34
           ndk-version: '26.1.10909125'
-          cmake-version: '3.29.0'
 
       - name: Build Application
         run: |
