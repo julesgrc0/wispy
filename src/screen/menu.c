@@ -58,55 +58,61 @@ void menu_screen(w_state *state) {
                  (Vector2){0, title_text->font_size + 10}),
       (char *)TextFormat("made by @julesgrc0 - %s", WISPY_VERSION), 20, WHITE);
 
-  float move = 0.f;
-  while (!WindowShouldClose() && is_active) {
+    while (!WindowShouldClose() && is_active) {
 
     camera.target.x += sinf(GetTime() * 0.05) * 100.0f * GetFrameTime();
     camera.target.y += cosf(GetTime() * 0.05) * 100.0f * GetFrameTime();
 
     update_chunkview(view, grp, get_camera_view(&camera));
     update_chunkview_lighting(
-        view, Vector2Add(camera.target, (Vector2){RENDER_W / 2, RENDER_H / 2}),
-        DEFAULT_LIGHT_RADIUS * 0.75);
+         view, Vector2Add(camera.target, (Vector2){RENDER_W / 2, RENDER_H / 2}),
+         DEFAULT_LIGHT_RADIUS * 0.75);
 
-    BeginTextureMode(state->render);
-    ClearBackground(BLACK);
-    DrawRectangleGradientV(0, 0, RENDER_W, RENDER_H, (Color){66, 135, 245, 255},
-                           (Color){142, 184, 250, 255});
-    BeginMode2D(camera);
-    for (unsigned int i = 0; i < view->textures_len; i++) {
-      DrawTexturePro(block_textures[view->blocks[i].block.type - 1],
-                     view->blocks[i].src, view->blocks[i].dst, VEC_ZERO, 0,
-                     view->blocks[i].light);
-    }
-    EndMode2D();
+     BeginTextureMode(state->render);
+     ClearBackground(BLACK);
+     DrawRectangleGradientV(0, 0, RENDER_W, RENDER_H, (Color){66, 135, 245, 255},
+                            (Color){142, 184, 250, 255});
+     BeginMode2D(camera);
+     for (unsigned int i = 0; i < view->textures_len; i++) {
+       DrawTexturePro(block_textures[view->blocks[i].block.type - 1],
+                      view->blocks[i].src, view->blocks[i].dst, VEC_ZERO, 0,
+                      view->blocks[i].light);
+     }
+     EndMode2D();
 
-    EndTextureMode();
+     EndTextureMode();
 
     BeginDrawing();
     ClearBackground(BLACK);
-    BeginShaderMode(blurShader);
-    DrawTexturePro(state->render.texture, state->src_rnd, state->dest_rnd,
-                   VEC_ZERO, 0.0f, WHITE);
-    EndShaderMode();
-    DrawRectangleLinesEx(
-        (Rectangle){0, 0, ctx->render_size.x, ctx->render_size.y}, 5,
-        Fade(BLACK, 0.9));
 
-    if (update_button(play_button)) {
-      is_active = false;
+     #ifndef __ANDROID__
+     BeginShaderMode(blurShader);
+     #endif
+    
+     DrawTexturePro(state->render.texture, state->src_rnd, state->dest_rnd,
+                    VEC_ZERO, 0.0f, WHITE);
+    
+     #ifndef __ANDROID__
+     EndShaderMode();
+     #endif
+    
+    DrawRectangleLinesEx(
+         (Rectangle){0, 0, ctx->render_size.x, ctx->render_size.y}, 5,
+         Fade(BLACK, 0.9));
+
+     if (update_button(play_button)) {
+       is_active = false;
     }
-    if (update_button(setting_button)) {
-      // TODO: Implement settings screen
-    }
-    if (update_button(exit_button)) {
-      state->state = FS_EXIT;
-      break;
+     if (update_button(setting_button)) {
+       // TODO: Implement settings screen
+     }
+     if (update_button(exit_button)) {
+       state->state = FS_EXIT;
+       break;
     }
 
     update_text(title_text);
     update_text(credit_text);
-
     EndDrawing();
   }
 

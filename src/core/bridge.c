@@ -51,8 +51,7 @@ w_bridge *create_bridge() {
   td->handle = CreateThread(NULL, 0, &update_bridge, td, 0, NULL);
   if (td->handle == INVALID_HANDLE_VALUE)
 #else
-  td->handle = pthread_create(&td->handle, NULL, &update_bridge, td);
-  if (td->handle == 0)
+  if (pthread_create(&td->handle, NULL, &update_bridge, td) != 0)
 #endif // _WIN32
   {
     LOG("failed to create bridge thread");

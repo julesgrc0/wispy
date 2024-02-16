@@ -46,8 +46,8 @@
 #elif __linux__
 #define MAX_PATH 260
 
-#include <pthread.h>
 #include <unistd.h>
+#include <pthread.h>
 
 #elif __ANDROID__
 

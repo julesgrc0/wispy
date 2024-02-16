@@ -18,7 +18,13 @@ void game_screen(w_state *state) {
   };
 
   w_bridge *td = create_bridge();
+  if(td == NULL) return;
+
   w_blockbreaker *bb = create_blockbreaker(state, td->chunk_view, td->camera);
+  if(bb == NULL) {
+      destroy_bridge(td);
+      return;
+  }
   while (!WindowShouldClose() && td->is_active) {
     update_keyboard(td->keyboard);
 

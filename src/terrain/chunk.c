@@ -19,9 +19,7 @@ w_chunk *create_chunk(unsigned int position, bool thread) {
     chunk->handle = CreateThread(NULL, 0, &create_chunk_thread, chunk, 0, 0);
     if (chunk->handle == INVALID_HANDLE_VALUE)
 #else
-    chunk->handle =
-        pthread_create(&chunk->handle, NULL, &create_chunk_thread, chunk);
-    if (chunk->handle == 0)
+    if (pthread_create(&chunk->handle, NULL, &create_chunk_thread, chunk) != 0)
 #endif // _WIN32
     {
       LOG("failed to create chunk thread");
