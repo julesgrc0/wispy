@@ -37,11 +37,6 @@ jobs:
         with:
           languages: "c"
 
-      - name: Install Dependencies
-        run: |
-          sudo apt-get update -y
-          sudo apt install -y libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev
-       
       - name: Configure CMake
         run: cmake -S . -B ${{env.BUILD_DIRECTORY}} --preset=${{matrix.arch}}-${{env.BUILD_TYPE}}-${{env.BUILD_PLATFORM}}
 

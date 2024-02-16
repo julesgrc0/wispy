@@ -39,12 +39,12 @@ jobs:
           java-version: '11'
     
       - name: Build Application
-        run: ./gradlew assembleRelease
+        run: ./android/gradlew assembleRelease
 
-      - name: Sign APK
-        run: |
-          echo ${{ secrets.KEYSTORE_PASSWORD }} | gpg --batch --yes --passphrase-fd 0 --output ./android/app/release.keystore --decrypt ./android/app/release.keystore.gpg
-          ./gradlew bundleRelease
+    #   - name: Sign APK
+    #     run: |
+    #       echo ${{ secrets.KEYSTORE_PASSWORD }} | gpg --batch --yes --passphrase-fd 0 --output ./android/app/release.keystore --decrypt ./android/app/release.keystore.gpg
+    #       ./android/gradlew bundleRelease
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
