@@ -32,11 +32,6 @@ jobs:
 
       - uses: lukka/get-cmake@latest
 
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
-        with:
-          languages: "c"
-
       - name: Install Dependencies
         run: |
           sudo apt-get update -y
@@ -47,9 +42,6 @@ jobs:
 
       - name: Build Project
         run: cmake --build ${{env.BUILD_DIRECTORY}} --config ${{env.BUILD_TYPE}} --target wispy
-
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4

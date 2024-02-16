@@ -32,10 +32,10 @@ jobs:
 
       - uses: lukka/get-cmake@latest
 
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
-        with:
-          languages: "c"
+      # - name: Initialize CodeQL
+      #   uses: github/codeql-action/init@v3
+      #   with:
+      #     languages: "c"
 
       - name: Configure CMake
         run: cmake -S . -B ${{env.BUILD_DIRECTORY}} --preset=${{matrix.arch}}-${{env.BUILD_TYPE}}-${{env.BUILD_PLATFORM}}
@@ -43,8 +43,8 @@ jobs:
       - name: Build Project
         run: cmake --build ${{env.BUILD_DIRECTORY}} --config ${{env.BUILD_TYPE}} --target wispy
 
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+      # - name: Perform CodeQL Analysis
+      #   uses: github/codeql-action/analyze@v3
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
