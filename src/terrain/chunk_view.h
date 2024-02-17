@@ -15,7 +15,7 @@ typedef struct w_chunkview {
   unsigned int textures_len; // : 15; // 2^15 = 2^14 * 2
 
 #ifdef _WIN32
-  HANDLE mutex;
+  CRITICAL_SECTION csec;
 #else
   pthread_mutex_t mutex;
 #endif // _WIN32

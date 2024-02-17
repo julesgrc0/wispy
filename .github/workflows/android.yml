@@ -6,7 +6,7 @@ on:
     branches: ["main"]
 
 env:
-  BUILD_PATH: ./android/app/release
+  BUILD_PATH: ./app/build/outputs/apk/release
   BUILD_TYPE: release
   BUILD_PLATFORM: android
 
@@ -48,7 +48,6 @@ jobs:
             cd ./android
             chmod +x ./gradlew
             ./gradlew assembleRelease
-            tree
 
       # - name: Sign Application
       #   run: |

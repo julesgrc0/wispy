@@ -20,11 +20,9 @@ w_chunkview *create_chunkview(w_chunk *current)
   chunk_view->target = current;
 
 #ifdef _WIN32
-  chunk_view->mutex = CreateMutexA(NULL, FALSE, NULL);
-  if (chunk_view->mutex == INVALID_HANDLE_VALUE)
+  InitializeCriticalSection(&chunk_view->csec);  
 #else
   if (pthread_mutex_init(&chunk_view->mutex, NULL) != 0)
-#endif // _WIN32
   {
     free(chunk_view->blocks);
     free(chunk_view);
@@ -32,6 +30,7 @@ w_chunkview *create_chunkview(w_chunk *current)
     LOG("failed to create mutex for chunk view");
     return NULL;
   }
+#endif // _WIN32
 
 LOG("creating chunk view");
 return chunk_view;
@@ -41,14 +40,13 @@ void destroy_chunkview(w_chunkview *chunk_view)
 {
   LOG("destroying chunk view");
 #ifdef _WIN32
-  if(!CloseHandle(chunk_view->mutex))
+  DeleteCriticalSection(&chunk_view->csec);
 #else
   if(pthread_mutex_destroy(&chunk_view->mutex) != 0)
-#endif // _WIN32
   {
     LOG("failed to close mutex (chunk view)");
   }
-
+#endif // _WIN32
   free(chunk_view->blocks);
   free(chunk_view);
 }
@@ -57,7 +55,7 @@ void update_renderblock_async(w_chunkview *chunk_view, w_renderblock *blocks,
                               size_t textures_len)
 {
 #ifdef _WIN32
-  WaitForSingleObject(chunk_view->mutex, INFINITE);
+  EnterCriticalSection(&chunk_view->csec);
 #else
   pthread_mutex_lock(&chunk_view->mutex);
 #endif // _WIN32
@@ -67,7 +65,7 @@ void update_renderblock_async(w_chunkview *chunk_view, w_renderblock *blocks,
   chunk_view->blocks = blocks;
 
 #ifdef _WIN32
-  ReleaseMutex(chunk_view->mutex);
+  LeaveCriticalSection(&chunk_view->csec);
 #else
   pthread_mutex_unlock(&chunk_view->mutex);
 #endif // _WIN32
