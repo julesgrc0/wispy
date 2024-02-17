@@ -9,11 +9,11 @@ void load_assets(w_state *state) {
                                 (float)GetScreenHeight()};
 
   size_t items_len;
-  #ifdef _WIN32
+#ifdef _WIN32
   w_asset *items = unpack_assets(state->hInstance, &items_len);
-  #else
+#else
   w_asset *items = unpack_assets(&items_len);
-  #endif
+#endif
   if (!items) {
     state->state = FS_FAILED;
     return;

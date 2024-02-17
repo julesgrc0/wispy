@@ -163,8 +163,10 @@ void *update_bridge(void *arg)
       QueryPerformanceCounter(&time_start);
 #elif __linux__
     clock_gettime(CLOCK_MONOTONIC, &time_end);
-    if (time_end.tv_nsec - time_start.tv_nsec >= PHYSICS_TICK * 1000000000) {
-      time_start.tv_nsec = time_end.tv_nsec;
+    if ((time_end.tv_sec - time_start.tv_sec) +
+            (time_end.tv_nsec - time_start.tv_nsec) / 1000000000 >=
+        PHYSICS_TICK) {
+      clock_gettime(CLOCK_MONOTONIC, &time_start);
 #endif // _WIN32
 
       physics_update(td);

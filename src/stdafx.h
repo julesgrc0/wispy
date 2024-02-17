@@ -46,13 +46,13 @@
 #elif __linux__
 #define MAX_PATH 260
 
-#include <unistd.h>
 #include <pthread.h>
+#include <unistd.h>
 
 #elif __ANDROID__
 
-#include <jni.h>
 #include <android/log.h>
+#include <jni.h>
 #include <pthread.h>
 
 #endif
@@ -99,8 +99,7 @@
   printf(__VA_ARGS__);                                                         \
   printf("\n");
 #elif defined(_DEBUG) && defined(__ANDROID__)
-#define LOG(...)                                                               \
-    __android_log_print(ANDROID_LOG_INFO, "WISPY", __VA_ARGS__);
+#define LOG(...) __android_log_print(ANDROID_LOG_INFO, "WISPY", __VA_ARGS__);
 #else
 #define LOG(...)
 #endif // _DEBUG
@@ -121,18 +120,18 @@
     printf("[%s]: %lld ns\n", #name, elapsed_time);                            \
   } while (0);
 
-#elif defined(_DEBUG) && (defined(__linux__)  || defined(__ANDROID__))
+#elif defined(_DEBUG) && (defined(__linux__) || defined(__ANDROID__))
 #define measure(name, x)                                                       \
   do {                                                                         \
     struct timespec start, end;                                                \
     long long elapsed_time;                                                    \
-    clock_gettime(CLOCK_MONOTONIC, &start);                                     \
+    clock_gettime(CLOCK_MONOTONIC, &start);                                    \
                                                                                \
     x;                                                                         \
                                                                                \
-    clock_gettime(CLOCK_MONOTONIC, &end);                                       \
-    elapsed_time =                                                             \
-        (end.tv_sec - start.tv_sec) * 1000000000 + (end.tv_nsec - start.tv_nsec);\
+    clock_gettime(CLOCK_MONOTONIC, &end);                                      \
+    elapsed_time = (end.tv_sec - start.tv_sec) * 1000000000 +                  \
+                   (end.tv_nsec - start.tv_nsec);                              \
     printf("[%s]: %lld ns\n", #name, elapsed_time);                            \
   } while (0);
 #else

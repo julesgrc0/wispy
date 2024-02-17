@@ -18,12 +18,13 @@ void game_screen(w_state *state) {
   };
 
   w_bridge *td = create_bridge();
-  if(td == NULL) return;
+  if (td == NULL)
+    return;
 
   w_blockbreaker *bb = create_blockbreaker(state, td->chunk_view, td->camera);
-  if(bb == NULL) {
-      destroy_bridge(td);
-      return;
+  if (bb == NULL) {
+    destroy_bridge(td);
+    return;
   }
   while (!WindowShouldClose() && td->is_active) {
     update_keyboard(td->keyboard);
@@ -35,48 +36,49 @@ void game_screen(w_state *state) {
     float speed = dt * PLAYER_SPEED;
 
 #ifdef _WIN32
-    if(TryEnterCriticalSection(&td->chunk_view->csec))
+    if (TryEnterCriticalSection(&td->chunk_view->csec))
 #else
-    if(pthread_mutex_trylock(&td->chunk_view->mutex) == 0)
+    if (pthread_mutex_trylock(&td->chunk_view->mutex) == 0)
 #endif // _WIN32
     {
-        BeginTextureMode(state->render);
-        ClearBackground(BLACK);
-        DrawRectangleGradientV(0, 0, RENDER_W, RENDER_H, (Color){66, 135, 245, 255},
-                            (Color){142, 184, 250, 255});
+      BeginTextureMode(state->render);
+      ClearBackground(BLACK);
+      DrawRectangleGradientV(0, 0, RENDER_W, RENDER_H,
+                             (Color){66, 135, 245, 255},
+                             (Color){142, 184, 250, 255});
 
-        BeginMode2D(*(td->camera));
-        smooth_vec(&td->camera->target, td->camera_target, speed);
+      BeginMode2D(*(td->camera));
+      smooth_vec(&td->camera->target, td->camera_target, speed);
 
-        for (unsigned int i = 0; i < td->chunk_view->textures_len; i++) {
+      for (unsigned int i = 0; i < td->chunk_view->textures_len; i++) {
         DrawTexturePro(block_textures[td->chunk_view->blocks[i].block.type - 1],
-                        td->chunk_view->blocks[i].src,
-                        td->chunk_view->blocks[i].dst, VEC_ZERO, 0,
-                        td->chunk_view->blocks[i].light);
-        }
-        w_breakstate bstate = update_blockbreaker(bb, td->player, dt);
+                       td->chunk_view->blocks[i].src,
+                       td->chunk_view->blocks[i].dst, VEC_ZERO, 0,
+                       td->chunk_view->blocks[i].light);
+      }
+      w_breakstate bstate = update_blockbreaker(bb, td->player, dt);
 
-        if (bstate == BS_BREAKING) {
+      if (bstate == BS_BREAKING) {
         draw_blockbreaker(bb);
-        } else if (bstate == BS_BROKEN) {
+      } else if (bstate == BS_BROKEN) {
         td->force_update = true;
-        }
+      }
 
-        DrawTexturePro(player_textures[td->player->state], td->player->src,
-                    (Rectangle){.x = td->player->position.x,
-                                .y = td->player->position.y,
-                                .width = td->player->dst.width,
-                                .height = td->player->dst.height},
-                    VEC_ZERO, 0, WHITE);
+      DrawTexturePro(player_textures[td->player->state], td->player->src,
+                     (Rectangle){.x = td->player->position.x,
+                                 .y = td->player->position.y,
+                                 .width = td->player->dst.width,
+                                 .height = td->player->dst.height},
+                     VEC_ZERO, 0, WHITE);
 
-        EndMode2D();
-        EndTextureMode();
+      EndMode2D();
+      EndTextureMode();
 
-    #ifdef _WIN32
-        LeaveCriticalSection(&td->chunk_view->csec);
-    #else
-        pthread_mutex_unlock(&td->chunk_view->mutex);
-    #endif // _WIN32
+#ifdef _WIN32
+      LeaveCriticalSection(&td->chunk_view->csec);
+#else
+      pthread_mutex_unlock(&td->chunk_view->mutex);
+#endif // _WIN32
     }
     BeginDrawing();
     ClearBackground(BLACK);
