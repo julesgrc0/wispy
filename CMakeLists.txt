@@ -42,7 +42,10 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/lib/zlib
 )
 
-file(GLOB_RECURSE SOURCES "src/*.c" "src/*.rc")
+file(GLOB_RECURSE SOURCES "src/*.c")
+if(MSVC)
+  list(APPEND SOURCES "src/ressource.rc")
+endif()
 
 add_definitions(-DWISPY_VERSION="version ${PROJECT_VERSION}")
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")

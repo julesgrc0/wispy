@@ -2,9 +2,9 @@
 
 w_config *load_config()
 {
-    w_config *cfg = malloc(sizeof(w_config));
-    if (cfg == NULL)
-        return NULL;
+  w_config *cfg = malloc(sizeof(w_config));
+  if (cfg == NULL)
+    return NULL;
 
 #ifndef __ANDROID__
   char *config_path = malloc(MAX_PATH * 2);
@@ -28,13 +28,17 @@ w_config *load_config()
 #endif // !__ANDROID__
 
     cfg->fullscreen = 1;
+#ifdef _WIN32
     cfg->vsync = 0;
+#else
+  cfg->vsync = 1;
+#endif
     cfg->msaa4x = 1;
 
     cfg->max_fps = 0;
     cfg->height = 0;
     cfg->width = 0;
-    
+
 #if defined(_DEBUG) && !defined(__ANDROID__)
     cfg->fullscreen = 0;
     cfg->height = 720;
