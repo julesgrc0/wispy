@@ -39,12 +39,12 @@ void load_assets(w_state *state) {
       state->textures_id[state->textures_len] = items[i].name;
       state->textures_len++;
     } else if (strcmp(ext, ".ttf") == 0) {
-      int fontSize = 72;
-      char fontChars[73] =
+      const int fontsize = 72;
+      char codepoints[73] =
           "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789()?:+-"
           "=*\"'";
       state->font = LoadFontFromMemory(".ttf", items[i].buffer, items[i].size,
-                                       fontSize, fontChars, 73);
+                                       fontsize, (int*)codepoints, 73);
 
       sfree(items[i].name);
     } else if (strcmp(ext, ".vs") == 0 || strcmp(ext, ".fs") == 0) {
@@ -90,6 +90,8 @@ void loading_screen(w_state *state) {
   const char *loading_text = "Loading...";
   const char *error_text = "Failed to load resources !";
 
+  // TODO: use gui label
+
   Vector2 loading_pos = {
       .x = (GetScreenWidth() - MeasureText(loading_text, text_size)) / 2.f,
       .y = (GetScreenHeight() - text_size) / 2.f};
@@ -103,7 +105,7 @@ void loading_screen(w_state *state) {
     case FS_DISPLAY: {
       BeginDrawing();
       ClearBackground(BLACK);
-      DrawText(loading_text, loading_pos.x, loading_pos.y, text_size, WHITE);
+      DrawText(loading_text, (int)loading_pos.x, (int)loading_pos.y, text_size, WHITE);
       EndDrawing();
       state->state = FS_LOAD;
     } break;
@@ -113,7 +115,7 @@ void loading_screen(w_state *state) {
     case FS_FAILED: {
       BeginDrawing();
       ClearBackground(BLACK);
-      DrawText(error_text, error_pos.x, error_pos.y, text_size, RED);
+      DrawText(error_text, (int)error_pos.x, (int)error_pos.y, text_size, RED);
       EndDrawing();
     } break;
     case FS_OK:

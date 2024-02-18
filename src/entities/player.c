@@ -29,7 +29,7 @@ void destroy_player(w_player *player) {
 void animate_player(w_player *player, bool should_walk) {
   player->animation += PHYSICS_TICK;
 
-  if (should_walk || abs(player->velocity.x) > 0) {
+  if (should_walk || fabsf(player->velocity.x) > 0) {
     if (player->animation > PHYSICS_TICK * PLAYER_ANIMATION_WALK) {
       player->animation = 0;
       player->state = (player->state == P_WALK_1) ? P_WALK_2 : P_WALK_1;
@@ -52,7 +52,7 @@ void update_player_input(w_player *player, w_keyboard *keyboard) {
     player->jump = player->duration > 0 ? PJ_JUMP : PJ_FALL;
     player->velocity.y -= (MAX_PLAYER_VELOCITY_Y / 2.F * player->duration);
     if (player->duration <= 0) {
-      player->delay = (1 / PHYSICS_TICK) * 0.15;
+      player->delay = (1 / PHYSICS_TICK) * 0.15f;
     }
   }
 

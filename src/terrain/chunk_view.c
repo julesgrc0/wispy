@@ -71,7 +71,7 @@ bool update_chunkview(w_chunkview *chunk_view, w_chunkgroup *grp,
     return true;
   }
 
-  unsigned int position = floor(view.x / FULL_CHUNK_W);
+  unsigned int position = floorf(view.x / FULL_CHUNK_W);
   if (position != chunk_view->target->position) {
     int group_move = need_chunkgroup_update(grp, position);
     if (group_move > 0) {

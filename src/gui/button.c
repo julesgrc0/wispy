@@ -8,7 +8,7 @@ w_guibutton *create_button(w_guicontext *ctx, Vector2 position, Color color,
 
   button->ctx = ctx;
   button->default_color = color;
-  button->hover_color = Fade(color, 0.8);
+  button->hover_color = Fade(color, 0.8f);
   button->text = text;
   button->size = (Vector2){
       .x = MeasureText(text, ctx->font_size),

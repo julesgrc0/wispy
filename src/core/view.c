@@ -41,7 +41,7 @@ Vector2 get_mouse_block_center(Camera2D *camera) {
 
 Vector2 vec_block_round(Vector2 vec) {
   return (Vector2){
-      .x = round(vec.x / CUBE_W) * CUBE_W,
-      .y = round(vec.y / CUBE_H) * CUBE_H,
+      .x = round(vec.x / (float)CUBE_W) * (float)CUBE_W,
+      .y = round(vec.y / (float)CUBE_H) * (float)CUBE_H,
   };
 }

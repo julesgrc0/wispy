@@ -23,13 +23,13 @@ void menu_screen(w_state *state) {
                             .y = CHUNK_MID_H * CUBE_H};
 
   w_guicontext *ctx =
-      create_gui((Vector2){GetRenderWidth(), GetRenderHeight()});
+      create_gui((Vector2){(float)GetRenderWidth(), (float)GetRenderHeight()});
   ctx->font_size = 25;
   ctx->margin_height = 10;
   ctx->margin_width = 40;
 
   w_guibutton *play_button = create_button(
-      ctx, percent_to_pixel(ctx, (Vector2){0.5, 0.45}), WHITE, "Play");
+      ctx, percent_to_pixel(ctx, (Vector2){0.5f, 0.45f}), WHITE, "Play");
   w_guibutton *setting_button =
       create_button(ctx,
                     (Vector2){
@@ -49,7 +49,7 @@ void menu_screen(w_state *state) {
       WHITE, "Exit");
 
   w_guitext *title_text = create_text(
-      ctx, percent_to_pixel(ctx, (Vector2){0.5, 0.2}), "Wispy", 120, WHITE);
+      ctx, percent_to_pixel(ctx, (Vector2){0.5f, 0.2f}), "Wispy", 120, WHITE);
   center_text(title_text, true, true);
 
   w_guitext *credit_text = create_text(
@@ -65,8 +65,8 @@ void menu_screen(w_state *state) {
         angle += speed;
         angle = fmod(angle, 360.0);
 
-        camera.target.x += (sin(angle) * 1000.0) * speed;
-        camera.target.y += (cos(angle) * 1000.0) * speed;
+        camera.target.x += (float)((sin(angle) * 1000.0) * speed);
+        camera.target.y += (float)((cos(angle) * 1000.0) * speed);
 
     update_chunkview(view, grp, get_camera_view(&camera));
     update_chunkview_lighting(
@@ -97,7 +97,7 @@ void menu_screen(w_state *state) {
 
     DrawRectangleLinesEx(
         (Rectangle){0, 0, ctx->render_size.x, ctx->render_size.y}, 5,
-        Fade(BLACK, 0.9));
+        Fade(BLACK, 0.9f));
 
     if (update_button(play_button)) {
       is_active = false;
