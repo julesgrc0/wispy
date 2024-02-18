@@ -128,6 +128,7 @@ void *update_bridge(void *arg)
   QueryPerformanceCounter(&time_start);
 #else
   struct timespec time_start, time_end;
+  clock_gettime(CLOCK_MONOTONIC, &time_start);
 #endif // _WIN32
 
   update_chunkview(td->chunk_view, td->chunk_group,
@@ -164,7 +165,7 @@ void *update_bridge(void *arg)
 #elif __linux__
     clock_gettime(CLOCK_MONOTONIC, &time_end);
     if ((time_end.tv_sec - time_start.tv_sec) +
-            (time_end.tv_nsec - time_start.tv_nsec) / 1000000000 >=
+            (time_end.tv_nsec - time_start.tv_nsec) / 1000000000.0 >=
         PHYSICS_TICK) {
       clock_gettime(CLOCK_MONOTONIC, &time_start);
 #endif // _WIN32
