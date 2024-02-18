@@ -6,13 +6,27 @@ import zlib
 from io import TextIOWrapper
 
 
-def write_to_pack(out_file: TextIOWrapper, folder_path: str) -> int:
+def write_to_pack(out_file: TextIOWrapper, folder_path: str, redirect_files: dict[str, str]) -> int:
     total_size = 0
     null = 0
+    
     for root, _, files in os.walk(folder_path):
         for file in files:
             file_path = os.path.join(root, file)
             relative_path = os.path.relpath(file_path, folder_path)
+
+            if file in redirect_files.keys():
+                if redirect_files[file] == "none":
+                    print(f"[+] SKIP {file} (ignored)")
+                    continue
+
+                file_path = os.path.join(root, file)
+                relative_path = os.path.relpath(os.path.join(root, redirect_files[file]), folder_path)
+
+                print(f"[+] REDIRECT {file} => {redirect_files[file]}")
+            elif file in redirect_files.values():
+                print(f"[+] SKIP {file} (ignored)")
+                continue
 
             file_size = os.path.getsize(file_path)
             total_size += file_size
@@ -22,7 +36,7 @@ def write_to_pack(out_file: TextIOWrapper, folder_path: str) -> int:
                 length=1, byteorder="little", signed=False))  # end of string
             out_file.write(file_size.to_bytes(
                 length=4, byteorder="little", signed=False))  # sizeof(unsigned int) = 4
-            print(f"[+] {file_path:100}{file_size} o")
+            print(f"[+] {file_path:100}{file_size} o{' ' * 10}({relative_path})")
 
             with open(file_path, "rb") as file:
                 out_file.write(file.read())
@@ -31,20 +45,25 @@ def write_to_pack(out_file: TextIOWrapper, folder_path: str) -> int:
 
 
 def main(args: list[str]) -> int:
+    redirect_files = {}
+    for arg in args:
+        parts = arg.split("=")
+        if len(parts) == 2:
+            redirect_files[parts[0]] = parts[1]
+            
     base_dir = os.path.dirname(os.path.abspath(__file__))
-
     assets_dir = os.path.join(os.path.dirname(base_dir), "assets")
 
     out_tmp = os.path.join(base_dir, "resource.tmp")
     out_gz = os.path.join(base_dir, "resource.pack")
 
     print("[PACK]: Start packing...")
-    print(f"[-] {'filename':100}{'size (octet)'}\n")
+    print(f"[I] {'filename':100}size{' '*10}id\n")
 
     start_t = time.time()
     total_size = 0
     with open(out_tmp, "wb+") as fp:
-        total_size = write_to_pack(fp, assets_dir)
+        total_size = write_to_pack(fp, assets_dir, redirect_files)
         fp.close()
 
     with open(out_tmp, 'rb') as fp_in:
