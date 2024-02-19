@@ -1,5 +1,5 @@
 #pragma once
-#include "../core/keyboard.h"
+#include "../core/controls.h"
 #include "../core/state.h"
 #include "../core/view.h"
 #include "../stdafx.h"
@@ -58,7 +58,7 @@ w_player *create_player(unsigned int x);
 void destroy_player(w_player *player);
 
 void animate_player(w_player *player, bool should_walk);
-void update_player_input(w_player *player, w_keyboard *keyboard);
+void update_player_input(w_player *player, w_controls *ctrl);
 void update_player_velocity(w_player *player);
 
 Vector2 get_player_center(w_player *player);

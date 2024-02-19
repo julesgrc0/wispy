@@ -42,7 +42,7 @@ void animate_player(w_player *player, bool should_walk) {
   }
 }
 
-void update_player_input(w_player *player, w_keyboard *keyboard) {
+void update_player_input(w_player *player, w_controls *ctrl) {
   if (player->delay > 0) {
     player->delay--;
   }
@@ -56,27 +56,27 @@ void update_player_input(w_player *player, w_keyboard *keyboard) {
     }
   }
 
-  if (keyboard->jump && player->jump == PJ_GROUD && player->duration <= 0 &&
+  if (ctrl->jump && player->jump == PJ_GROUD && player->duration <= 0 &&
       player->delay <= 0) {
     player->duration = (1 / PHYSICS_TICK) / 4;
     player->jump = PJ_JUMP;
   }
 
-  if (keyboard->left) {
+  if (ctrl->left) {
 
     if (player->src.width > 0) {
       player->src.width = -player->src.width;
     }
 
     player->velocity.x -=
-        keyboard->shift ? MAX_PLAYER_SLOW_VELOCITY_X : MAX_PLAYER_VELOCITY_X;
-  } else if (keyboard->right) {
+        ctrl->shift ? MAX_PLAYER_SLOW_VELOCITY_X : MAX_PLAYER_VELOCITY_X;
+  } else if (ctrl->right) {
 
     if (player->src.width < 0) {
       player->src.width = -player->src.width;
     }
     player->velocity.x +=
-        keyboard->shift ? MAX_PLAYER_SLOW_VELOCITY_X : MAX_PLAYER_VELOCITY_X;
+        ctrl->shift ? MAX_PLAYER_SLOW_VELOCITY_X : MAX_PLAYER_VELOCITY_X;
   }
 }
 

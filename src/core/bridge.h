@@ -8,7 +8,7 @@
 #include "../terrain/chunk_group.h"
 #include "../terrain/chunk_view.h"
 
-#include "keyboard.h"
+#include "controls.h"
 #include "state.h"
 
 typedef struct w_bridge {
@@ -17,7 +17,7 @@ typedef struct w_bridge {
 
   w_chunkgroup *chunk_group;
   w_chunkview *chunk_view;
-  w_keyboard *keyboard;
+  w_controls *ctrl;
 
   w_player *player;
 

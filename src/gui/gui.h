@@ -1,6 +1,9 @@
 #pragma once
 #include "../stdafx.h"
 
+#define PERCENT_W(x) RENDER_W *x
+#define PERCENT_H(x) RENDER_H *x
+
 typedef struct w_guicontext {
   Vector2 render_size;
   float border_size;

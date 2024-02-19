@@ -58,15 +58,15 @@ void menu_screen(w_state *state) {
                  (Vector2){0, title_text->font_size + 10}),
       (char *)TextFormat("made by @julesgrc0 - %s", WISPY_VERSION), 20, WHITE);
 
-    double angle = 0.0;
-    while (!WindowShouldClose() && is_active) {
+  double angle = 0.0;
+  while (!WindowShouldClose() && is_active) {
 
-        double speed = GetFrameTime() * 0.1;
-        angle += speed;
-        angle = fmod(angle, 360.0);
+    double speed = GetFrameTime() * 0.1;
+    angle += speed;
+    angle = fmod(angle, 360.0);
 
-        camera.target.x += (float)((sin(angle) * 1000.0) * speed);
-        camera.target.y += (float)((cos(angle) * 1000.0) * speed);
+    camera.target.x += (float)((sin(angle) * 1000.0) * speed);
+    camera.target.y += (float)((cos(angle) * 1000.0) * speed);
 
     update_chunkview(view, grp, get_camera_view(&camera));
     update_chunkview_lighting(
@@ -124,4 +124,8 @@ void menu_screen(w_state *state) {
   destroy_button(setting_button);
   destroy_button(exit_button);
   destroy_gui(ctx);
+
+  if (is_active) {
+    state->state = FS_EXIT;
+  }
 }

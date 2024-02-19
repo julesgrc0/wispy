@@ -38,13 +38,11 @@ w_bridge *create_bridge() {
   td->camera->target = get_camera_target_player(td->player, td->camera);
   td->camera_target = td->camera->target;
 
-  td->keyboard = malloc(sizeof(w_keyboard));
-  if (td->keyboard == NULL) {
-    LOG("failed to allocate memory for keyboard");
+  td->ctrl = create_controls();
+  if (td->ctrl == NULL) {
     destroy_bridge(td);
     return NULL;
   }
-  memset(td->keyboard, 0, sizeof(w_keyboard));
 
   td->is_active = true;
 #ifdef _WIN32
@@ -78,12 +76,12 @@ void destroy_bridge(w_bridge *td) {
   }
 #endif // _WIN32
 
+  destroy_controls(td->ctrl);
   destroy_chunkgroup(td->chunk_group);
   destroy_chunkview(td->chunk_view);
   destroy_player(td->player);
 
   sfree(td->camera);
-  sfree(td->keyboard);
   sfree(td);
 }
 
@@ -93,15 +91,15 @@ void physics_update(w_bridge *td) {
   Vector2 next_position =
       Vector2Scale(td->player->velocity, PHYSICS_TICK * PLAYER_SPEED);
 
-  update_player_input(td->player, td->keyboard);
+  update_player_input(td->player, td->ctrl);
   update_player_velocity(td->player);
 
   td->player->position.x += next_position.x;
   td->player->position.y += next_position.y;
 
   td->camera_target = get_camera_target_player(td->player, td->camera);
-  animate_player(td->player, td->keyboard->left || td->keyboard->right);
-  clear_keyboard(td->keyboard);
+  animate_player(td->player, td->ctrl->left || td->ctrl->right);
+  clear_controls(td->ctrl);
 }
 
 #ifdef _WIN32
@@ -138,7 +136,7 @@ void *update_bridge(void *arg)
                             RENDER_CUBE_COUNT * CUBE_W);
   do {
 
-    if (td->keyboard->key != 0 || td->camera->target.x != td->camera_target.x ||
+    if (td->ctrl->key != 0 || td->camera->target.x != td->camera_target.x ||
         td->camera->target.y != td->camera_target.y || td->force_update) {
 
       if (!update_chunkview(td->chunk_view, td->chunk_group,

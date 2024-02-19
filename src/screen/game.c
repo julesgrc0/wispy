@@ -27,7 +27,9 @@ void game_screen(w_state *state) {
     return;
   }
   while (!WindowShouldClose() && td->is_active) {
-    update_keyboard(td->keyboard);
+#ifndef __ANDROID__
+    update_controls(td->ctrl);
+#endif
 
     float dt = GetFrameTime();
 
@@ -72,6 +74,11 @@ void game_screen(w_state *state) {
                      VEC_ZERO, 0, WHITE);
 
       EndMode2D();
+#ifdef __ANDROID__
+      draw_controls(td->ctrl);
+#endif
+      DrawFPS(0, 0);
+
       EndTextureMode();
 
 #ifdef _WIN32
@@ -84,12 +91,6 @@ void game_screen(w_state *state) {
     ClearBackground(BLACK);
     DrawTexturePro(state->render.texture, state->src_rnd, state->dest_rnd,
                    VEC_ZERO, 0.0f, WHITE);
-
-    /*
-        TODO: add custom input controls for android version
-    */
-
-    DrawFPS(0, 0);
     EndDrawing();
   }
   destroy_blockbreaker(bb);
