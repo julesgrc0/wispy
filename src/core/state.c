@@ -31,16 +31,10 @@ w_config *load_config() {
     cfg->height = 0;
     cfg->width = 0;
 
-#ifdef __ANDROID__
-    cfg->vsync = 0;
-    cfg->msaa4x = 0;
-    cfg->max_fps = 60;
-#endif
-
 #if defined(_DEBUG) && !defined(__ANDROID__)
     cfg->fullscreen = 0;
-    cfg->height = 720;
-    cfg->width = 1280;
+    cfg->height = RENDER_H;
+    cfg->width = RENDER_W;
 #endif // _DEBUG
 
 #ifndef __ANDROID__

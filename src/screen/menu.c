@@ -19,7 +19,7 @@ void menu_screen(w_state *state) {
 
   Camera2D camera = {0};
   camera.zoom = 1.0f;
-  camera.target = (Vector2){CHUNK_GROUP_MID_LEN * CHUNK_W * CUBE_W,
+  camera.target = (Vector2){.x = CHUNK_GROUP_MID_LEN * CHUNK_W * CUBE_W,
                             .y = CHUNK_MID_H * CUBE_H};
 
   w_guicontext *ctx =
@@ -59,13 +59,14 @@ void menu_screen(w_state *state) {
       (char *)TextFormat("made by @julesgrc0 - %s", WISPY_VERSION), 20, WHITE);
 
   double angle = 0.0;
+
   while (!WindowShouldClose() && is_active) {
 
     double speed = GetFrameTime() * 0.1;
     angle += speed;
     angle = fmod(angle, 360.0);
 
-    camera.target.x += (float)((sin(angle) * 1000.0) * speed);
+    camera.target.x += GetFrameTime() * 10.f; //(float)((sin(angle) * 1000.0) * speed);
     camera.target.y += (float)((cos(angle) * 1000.0) * speed);
 
     update_chunkview(view, grp, get_camera_view(&camera));

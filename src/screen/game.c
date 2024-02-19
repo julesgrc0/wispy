@@ -26,10 +26,55 @@ void game_screen(w_state *state) {
     destroy_bridge(td);
     return;
   }
+
+#ifdef __ANDROID__
+  w_guicontext *ctx = create_gui((Vector2){RENDER_W, RENDER_H});
+  if (ctx == NULL) {
+    destroy_bridge(td);
+    destroy_blockbreaker(bb);
+    return;
+  }
+
+  w_guijoystick *js =
+      create_joystick(ctx, (Vector2){PERCENT_W(0.2), RENDER_H}, PERCENT_W(0.1));
+  if (js == NULL) {
+    destroy_bridge(td);
+    destroy_blockbreaker(bb);
+    destroy_gui(ctx);
+    return;
+  }
+
+  w_guiaction *break_button =
+      create_action(ctx, (Vector2){RENDER_W, PERCENT_H(0.8)}, PERCENT_W(0.05),
+                    block_textures[0]);
+  if (break_button == NULL) {
+    destroy_bridge(td);
+    destroy_blockbreaker(bb);
+
+    destroy_joystick(js);
+    destroy_gui(ctx);
+    return;
+  }
+
+  w_guiaction *jump_button =
+      create_action(ctx, (Vector2){PERCENT_W(0.95), RENDER_H}, PERCENT_W(0.05),
+                    player_textures[3]);
+  if (jump_button == NULL) {
+    destroy_bridge(td);
+    destroy_blockbreaker(bb);
+
+    destroy_action(break_button);
+    destroy_joystick(js);
+    destroy_gui(ctx);
+    return;
+  }
+
+#endif // __ANDROID__
+
   while (!WindowShouldClose() && td->is_active) {
 #ifndef __ANDROID__
     update_controls(td->ctrl);
-#endif
+#endif // !__ANDROID__
 
     float dt = GetFrameTime();
 
@@ -58,7 +103,7 @@ void game_screen(w_state *state) {
                        td->chunk_view->blocks[i].dst, VEC_ZERO, 0,
                        td->chunk_view->blocks[i].light);
       }
-      w_breakstate bstate = update_blockbreaker(bb, td->player, dt);
+      w_breakstate bstate = update_blockbreaker(bb, td->ctrl, td->player, dt);
 
       if (bstate == BS_BREAKING) {
         draw_blockbreaker(bb);
@@ -74,10 +119,19 @@ void game_screen(w_state *state) {
                      VEC_ZERO, 0, WHITE);
 
       EndMode2D();
+
 #ifdef __ANDROID__
-      draw_controls(td->ctrl);
-#endif
-      DrawFPS(0, 0);
+      td->ctrl->joystick = update_joystick(js);
+      td->ctrl->is_breaking = update_action(break_button);
+      td->ctrl->is_jumping = update_action(jump_button);
+
+      update_controls(td->ctrl);
+
+      DrawText(TextFormat("FPS: %d\nJoystick: %f %f\nJump %d\nTouchs: %d",
+                          GetFPS(), td->ctrl->joystick.x, td->ctrl->joystick.y,
+                          td->ctrl->is_jumping, GetTouchPointCount()),
+               0, 10, 30, WHITE);
+#endif // __ANDROID__
 
       EndTextureMode();
 
@@ -93,6 +147,14 @@ void game_screen(w_state *state) {
                    VEC_ZERO, 0.0f, WHITE);
     EndDrawing();
   }
+
+#ifdef __ANDROID__
+  destroy_joystick(js);
+  destroy_action(break_button);
+  destroy_action(jump_button);
+  destroy_gui(ctx);
+#endif // __ANDROID__
+
   destroy_blockbreaker(bb);
   destroy_bridge(td);
 }

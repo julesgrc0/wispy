@@ -23,14 +23,23 @@ w_blockbreaker *create_blockbreaker(w_state *state, w_chunkview *chunk_view,
   return bb;
 }
 
-w_breakstate update_blockbreaker(w_blockbreaker *bb, w_player *player,
-                                 float dt) {
+w_breakstate update_blockbreaker(w_blockbreaker *bb, w_controls *ctrl,
+                                 w_player *player, float dt) {
+#ifdef __ANDROID__
+  Vector2 mouse = vec_block_round(
+      Vector2Add(player->position, Vector2Scale(ctrl->joystick, CUBE_W)));
+  if (!ctrl->is_breaking) {
+    bb->time = 0;
+    return BS_NONE;
+  }
+#else
   Vector2 mouse = vec_block_round(get_mouse_block_center(bb->camera));
   if (Vector2Distance(mouse, get_player_center(player)) >= BREAKER_DISTANCE ||
       !IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
     bb->time = 0;
     return BS_NONE;
   }
+#endif
 
   w_block *block = get_chunkview_block(bb->chunk_view, mouse);
   if (block == NULL || block->type == BLOCK_AIR || block->is_background) {
@@ -39,10 +48,12 @@ w_breakstate update_blockbreaker(w_blockbreaker *bb, w_player *player,
   }
 
   if (bb->time > 0) {
+
     if (!Vector2Equals(bb->position, mouse)) {
       bb->time = 0;
       return false;
     }
+
     if ((player->src.width > 0 && mouse.x < player->position.x) ||
         (player->src.width < 0 && mouse.x > player->position.x)) {
       player->src.width = -player->src.width;

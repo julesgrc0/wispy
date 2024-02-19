@@ -5,13 +5,12 @@
             "type": "shell",
             "label": "Configure",
             "command": [
-               "cmake -S . -B out --preset=${input:arch}-${input:type}-${input:platform}"
-
-               // Ubuntu 
-               // sudo apt-get update -y
-               // sudo apt install -y build-essential git 
-               // sudo apt install -y cmake
-               // sudo apt install -y libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev
+                "cmake -S . -B out --preset=${input:arch}-${input:type}-${input:platform}"
+                // Ubuntu 
+                // sudo apt-get update -y
+                // sudo apt install -y build-essential git 
+                // sudo apt install -y cmake
+                // sudo apt install -y libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -77,8 +76,7 @@
             "type": "pickString",
             "options": [
                 "windows",
-                "linux",
-                "android"
+                "linux"
             ],
             "default": "windows",
             "description": "Platform"

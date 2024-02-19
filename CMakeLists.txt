@@ -90,6 +90,7 @@ if(BUILD_MINSIZE)
   endif()
 endif()
 
+
 if(UNIX OR ANDROID)
   if(EXISTS ${CMAKE_SOURCE_DIR}/tools/resource.pack)
       add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD

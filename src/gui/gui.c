@@ -14,7 +14,11 @@ w_guicontext *create_gui(Vector2 render_size) {
   return ctx;
 }
 
-void destroy_gui(w_guicontext *ctx) { free(ctx); }
+void destroy_gui(w_guicontext *ctx) {
+  if (ctx) {
+    free(ctx);
+  }
+}
 
 Vector2 percent_to_pixel(w_guicontext *ctx, Vector2 vec) {
   return (Vector2){.x = ctx->render_size.x * vec.x,

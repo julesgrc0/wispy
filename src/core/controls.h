@@ -19,17 +19,9 @@ typedef struct w_controls {
   };
 
 #ifdef __ANDROID__
-  Vector2 cursor_position;
-  Vector2 joystick_position;
-  Vector2 break_position;
-  Vector2 jump_position;
-
-  float joystick_size;
-  float cursor_size;
-  float actions_size;
-
-  bool is_breaking;
+  Vector2 joystick;
   bool is_jumping;
+  bool is_breaking;
 #endif
 } w_controls;
 #pragma pack(pop)
@@ -41,6 +33,7 @@ void update_controls(w_controls *kb);
 void clear_controls(w_controls *kb);
 
 #ifdef __ANDROID__
-void draw_controls(w_controls *kb);
-void draw_control_button(Vector2 position, float joystick_size, Color color);
+bool check_collision_touch(Vector2 position, float size);
+Vector2 get_collision_touch(Vector2 position, float size);
+bool has_touch();
 #endif

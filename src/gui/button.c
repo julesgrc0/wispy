@@ -54,4 +54,8 @@ bool update_button(w_guibutton *button) {
   return IsMouseButtonDown(MOUSE_LEFT_BUTTON) && is_hover;
 }
 
-void destroy_button(w_guibutton *button) { free(button); }
+void destroy_button(w_guibutton *button) {
+  if (button) {
+    free(button);
+  }
+}

@@ -1,25 +1,28 @@
 # 🎮 Wispy
 
-![C](https://img.shields.io/github/languages/top/julesgrc0/wispy?label=C%20🔥) ![Platform](https://img.shields.io/badge/Platform%20🌍-Windows%20|%20Linux%20|%20Android-purple) ![Game](https://img.shields.io/badge/Game%20🎮-Wispy-green) ![Version](https://shields.io/github/v/release/julesgrc0/wispy?label=Version%20🧮&color=lightblue) [![Release Build](https://github.com/julesgrc0/wispy/actions/workflows/windows.yml/badge.svg)](https://github.com/julesgrc0/wispy/actions/workflows/windows.yml)  [![Release Build](https://github.com/julesgrc0/wispy/actions/workflows/linux.yml/badge.svg)](https://github.com/julesgrc0/wispy/actions/workflows/linux.yml) [![Release Build](https://github.com/julesgrc0/wispy/actions/workflows/android.yml/badge.svg)](https://github.com/julesgrc0/wispy/actions/workflows/android.yml)
-
+![C](https://img.shields.io/github/languages/top/julesgrc0/wispy?label=C%20🔥) ![Platform](https://img.shields.io/badge/Platform%20🌍-Windows%20|%20Linux%20|%20Android-purple) ![Game](https://img.shields.io/badge/Game%20🎮-Wispy-green) ![Version](https://shields.io/github/v/release/julesgrc0/wispy?label=Version%20🧮&color=lightblue) [![Release Build](https://github.com/julesgrc0/wispy/actions/workflows/windows.yml/badge.svg)](https://github.com/julesgrc0/wispy/actions/workflows/windows.yml) [![Release Build](https://github.com/julesgrc0/wispy/actions/workflows/linux.yml/badge.svg)](https://github.com/julesgrc0/wispy/actions/workflows/linux.yml) [![Release Build](https://github.com/julesgrc0/wispy/actions/workflows/android.yml/badge.svg)](https://github.com/julesgrc0/wispy/actions/workflows/android.yml)
 
 **Concept**: Wipsy is a kind of 2D Minecraft.
+
+| ![Screenshot 1](./preview/menu.png)  | ![Screenshot 2](./preview/game0.png) |
+| ------------------------------------ | ------------------------------------ |
+| ![Screenshot 3](./preview/game1.png) | ![Screenshot 4](./preview/game2.png) |
 
 ## 🚀 Project Insight
 
 ### 📚 Libraries
 
-- zlib   
-- raylib 
-- pthread (linux)
+- zlib
+- raylib
+- pthread (linux/android)
 
-### 🛠 Building 
+### 🛠 Building
 
 **⚙ Requirements**
 
 - [python](https://www.python.org/downloads/)
 - [cmake](https://cmake.org/)
-- [upx](https://github.com/upx/upx) (Optional)
+- [upx](https://github.com/upx/upx) (windows)
 
 **📦 Packing Assets**
 
@@ -35,13 +38,6 @@ git clone --recurse-submodules https://github.com/julesgrc0/wispy.git
 
 **💻 Building for Windows**
 
-> Command Line
-
-```bash
-cmake -S . -B out --preset=<x64|x86>-<debug|release|relminsize>-<windows|linux|android>
-cmake --build out --config <debug|release>
-```
-
 > VSCode
 
 Run the build task with the following shortcut:
@@ -50,16 +46,9 @@ Run the build task with the following shortcut:
 
 Then select your target build configuration :
 
-- `Debug` 
-- `Release`
-- `RelMinSize` (Compressed with UPX)
-
-- `x64` (64 bits)
-- `x86` (32 bits)
-
-- `windows`
-- `linux` 
-- `android` (Not implemented yet)
+- `Debug`/`Release`/`RelMinSize` (Compressed with UPX)
+- `x64`/`x86`
+- `windows`/`linux`
 
 > Visual Studio
 
@@ -81,9 +70,15 @@ cmake -S . -B out --preset=<x64|x86>-<debug|release|relminsize>-<windows|linux|a
 cmake --build out --config <debug|release>
 ```
 
-**🚧 Building for Android**
+**📱 Building for Android**
 
-> TODO
+> Build with Android Studio
+
+Open the project folder with Android Studio and select the build configuration.
+
+> Command line
+
+See the workflow file [android.yml](.github/workflows/android.yml) for more details.
 
 ## 🤝 Get Involved
 

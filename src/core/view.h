@@ -24,6 +24,6 @@ Rectangle get_camera_view(Camera2D *camera);
 void smooth_vec(Vector2 *position, Vector2 target, float move);
 void smooth_rect(Rectangle *box, Rectangle target, float move);
 
-Vector2 get_mouse_position();
+Vector2 get_render_position(Vector2 position);
 Vector2 get_mouse_block_center(Camera2D *camera);
 Vector2 vec_block_round(Vector2 vec);

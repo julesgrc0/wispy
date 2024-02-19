@@ -29,4 +29,8 @@ void update_text(w_guitext *text) {
            text->color);
 }
 
-void destroy_text(w_guitext *text) { free(text); }
+void destroy_text(w_guitext *text) {
+  if (text) {
+    free(text);
+  }
+}
