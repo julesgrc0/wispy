@@ -1,5 +1,7 @@
 #pragma once
 #include "gui.h"
+#include "../core/view.h"
+#include "../core/controls.h"
 
 typedef struct w_guibutton {
   w_guicontext *ctx;

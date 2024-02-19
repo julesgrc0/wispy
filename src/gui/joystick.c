@@ -20,13 +20,13 @@ Vector2 update_joystick(w_guijoystick *js) {
   DrawCircle(js->position.x, js->position.y, js->size * 0.9f,
              Fade(WHITE, 0.3f));
 
-#ifdef __ANDROID
+#ifdef __ANDROID__
   if (has_touch()) {
-    Vector2 mouse = get_render_position(GetMousePosition());
+    Vector2 mouse = VEC(FORMAT_W(GetMouseX()), FORMAT_H(GetMouseY()));
     Vector2 touch = get_collision_touch(js->position, js->size);
 #else
   if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
-    Vector2 mouse = get_render_position(GetMousePosition());
+    Vector2 mouse = VEC(FORMAT_W(GetMouseX()), FORMAT_H(GetMouseY()));
     Vector2 touch = CheckCollisionCircles(mouse, 1, js->position, js->size)
                         ? mouse
                         : VEC_ZERO;

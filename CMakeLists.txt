@@ -34,18 +34,10 @@ endif()
 
 option(BUILD_MINSIZE "Build a smaller executable" OFF)
 
-if(ANDROID)
 add_custom_target(pack_assets
-    COMMAND python ${CMAKE_SOURCE_DIR}/tools/pack_assets.py menu_blur.android.fs=menu_blur.fs
+    COMMAND python ${CMAKE_SOURCE_DIR}/tools/pack_assets.py
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
   )
-else()
-add_custom_target(pack_assets
-    COMMAND python ${CMAKE_SOURCE_DIR}/tools/pack_assets.py menu_blur.android.fs=none
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-  )
-endif()
-
 
 add_subdirectory(lib/raylib)
 add_subdirectory(lib/zlib)

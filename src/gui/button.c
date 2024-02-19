@@ -38,20 +38,28 @@ void move_button(w_guibutton *button, Vector2 position) {
 
 bool update_button(w_guibutton *button) {
   bool is_hover =
+#ifdef __ANDROID__
+      has_touch() && check_collision_touch_rect(button->rect);
+#else
       CheckCollisionRecs(button->rect, (Rectangle){
-                                           .x = GetMousePosition().x,
-                                           .y = GetMousePosition().y,
+                                           .x = FORMAT_W(GetMouseX()),
+                                           .y = FORMAT_H(GetMouseY()),
                                            .width = 1,
                                            .height = 1,
                                        });
+#endif
+
   Color color = is_hover ? button->hover_color : button->default_color;
 
   DrawRectangleRoundedLines(button->rect, button->ctx->border_radius, 1.f,
                             button->ctx->border_size, color);
   DrawText(button->text, button->position.x, button->position.y,
            button->ctx->font_size, color);
-
+#ifdef __ANDROID__
+  return is_hover;
+#else
   return IsMouseButtonDown(MOUSE_LEFT_BUTTON) && is_hover;
+#endif
 }
 
 void destroy_button(w_guibutton *button) {

@@ -67,19 +67,27 @@
 
 #define PHYSICS_TICK (1.0f / 120.0f)
 
-#define RENDER_CUBE_COUNT 20
-#define RENDER_CUBE_GAP 2
 #define RENDER_W 1280
 #define RENDER_H 720
+
+#define PERCENT_W(x) RENDER_W *x
+#define PERCENT_H(x) RENDER_H *x
+#define PIXELS_W(x) RENDER_W / x
+#define PIXELS_H(x) RENDER_H / x
+
+#define FORMAT_TO(x, size, target) (x / size) * target
+#define FORMAT_W(x) FORMAT_TO(x, GetScreenWidth(), RENDER_W)
+#define FORMAT_H(x) FORMAT_TO(x, GetScreenHeight(), RENDER_H)
+
+#define RENDER_CUBE_COUNT 20
+#define RENDER_CUBE_GAP 2
 
 #define CHUNK_MID_H 128
 #define CHUNK_H 256 // 2^8
 #define CHUNK_W 64  // 2^6
-
 #define CHUNK_GROUP_LEN 10
 #define CHUNK_GROUP_UPDATE_DIST 2
 #define CHUNK_GROUP_MID_LEN 5
-#define CHUNK_GROUP_LOAD 2
 
 #define CUBE_W (RENDER_W / RENDER_CUBE_COUNT)
 #define CUBE_H (RENDER_H / RENDER_CUBE_COUNT)
@@ -87,11 +95,12 @@
 #define FULL_CHUNK_W (CHUNK_W * CUBE_W)
 #define FULL_CHUNK_H (CHUNK_H * CUBE_H)
 
-#define BLOCK_BRUTE_VALUE_MAX 255
 #define BLOCK_TOP_LAYER_H 40
 
 #define VEC_ZERO                                                               \
   (Vector2) { 0 }
+#define VEC(...)                                                               \
+  (Vector2) { __VA_ARGS__ }
 
 #if defined(_DEBUG) && (defined(__linux__) || defined(_WIN32))
 #define LOG(...)                                                               \

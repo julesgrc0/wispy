@@ -27,17 +27,9 @@ void smooth_rect(Rectangle *box, Rectangle target, float move) {
   smooth_float(box->y, target.y, move);
 }
 
-Vector2 get_render_position(Vector2 position) {
-
-  return (Vector2){
-      .x = (position.x / GetScreenWidth()) * RENDER_W,
-      .y = (position.y / GetScreenHeight()) * RENDER_H,
-  };
-}
-
 Vector2 get_mouse_block_center(Camera2D *camera) {
-  Vector2 mouse =
-      Vector2Add(get_render_position(GetMousePosition()), camera->target);
+  Vector2 mouse = Vector2Add(VEC(FORMAT_W(GetMouseX()), FORMAT_H(GetMouseY())),
+                             camera->target);
   return Vector2Subtract(mouse, (Vector2){(CUBE_W / 2), (CUBE_H / 2)});
 }
 

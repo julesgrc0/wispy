@@ -49,7 +49,8 @@ bool check_collision_touch(Vector2 position, float size) {
 Vector2 get_collision_touch(Vector2 position, float size) {
   const int touch_count = GetTouchPointCount();
   for (int i = 0; i < touch_count; i++) {
-    Vector2 point =  get_render_position(GetTouchPosition(i));
+    Vector2 point =
+        VEC(FORMAT_W(GetTouchPosition(i).x), FORMAT_H(GetTouchPosition(i).y));
     if (CheckCollisionPointCircle(point, position, size)) {
       return point;
     }
@@ -57,5 +58,19 @@ Vector2 get_collision_touch(Vector2 position, float size) {
   return VEC_ZERO;
 }
 
+bool check_collision_touch_rect(Rectangle rect) {
+  return !Vector2Equals(get_collision_touch_rect(rect), VEC_ZERO);
+}
+Vector2 get_collision_touch_rect(Rectangle rect) {
+  const int touch_count = GetTouchPointCount();
+  for (int i = 0; i < touch_count; i++) {
+    Vector2 point =
+        VEC(FORMAT_W(GetTouchPosition(i).x), FORMAT_H(GetTouchPosition(i).y));
+    if (CheckCollisionPointRec(point, rect)) {
+      return point;
+    }
+  }
+  return VEC_ZERO;
+}
 bool has_touch() { return GetTouchPointCount() > 0; }
 #endif

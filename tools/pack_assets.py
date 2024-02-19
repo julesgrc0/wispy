@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import zlib
+import json
 
 from io import TextIOWrapper
 
@@ -9,7 +10,7 @@ from io import TextIOWrapper
 def write_to_pack(out_file: TextIOWrapper, folder_path: str, redirect_files: dict[str, str]) -> int:
     total_size = 0
     null = 0
-    
+
     for root, _, files in os.walk(folder_path):
         for file in files:
             file_path = os.path.join(root, file)
@@ -21,7 +22,8 @@ def write_to_pack(out_file: TextIOWrapper, folder_path: str, redirect_files: dic
                     continue
 
                 file_path = os.path.join(root, file)
-                relative_path = os.path.relpath(os.path.join(root, redirect_files[file]), folder_path)
+                relative_path = os.path.relpath(os.path.join(
+                    root, redirect_files[file]), folder_path)
 
                 print(f"[+] REDIRECT {file} => {redirect_files[file]}")
             elif file in redirect_files.values():
@@ -35,7 +37,8 @@ def write_to_pack(out_file: TextIOWrapper, folder_path: str, redirect_files: dic
             out_file.write(null.to_bytes(
                 length=1, byteorder="little", signed=False))  # end of string
             out_file.write(file_size.to_bytes(
-                length=4, byteorder="little", signed=False))  # sizeof(unsigned int) = 4
+                # sizeof(unsigned int) = 4
+                length=4, byteorder="little", signed=False))
             print(f"[+] {file_path:100}{file_size} o{' ' * 10}({relative_path})")
 
             with open(file_path, "rb") as file:
@@ -45,12 +48,8 @@ def write_to_pack(out_file: TextIOWrapper, folder_path: str, redirect_files: dic
 
 
 def main(args: list[str]) -> int:
-    redirect_files = {}
-    for arg in args:
-        parts = arg.split("=")
-        if len(parts) == 2:
-            redirect_files[parts[0]] = parts[1]
-            
+    redirect_files = json.load(open(args[0], "r")) if len(args) > 0 else {}
+
     base_dir = os.path.dirname(os.path.abspath(__file__))
     assets_dir = os.path.join(os.path.dirname(base_dir), "assets")
 

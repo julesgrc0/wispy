@@ -126,11 +126,6 @@ void game_screen(w_state *state) {
       td->ctrl->is_jumping = update_action(jump_button);
 
       update_controls(td->ctrl);
-
-      DrawText(TextFormat("FPS: %d\nJoystick: %f %f\nJump %d\nTouchs: %d",
-                          GetFPS(), td->ctrl->joystick.x, td->ctrl->joystick.y,
-                          td->ctrl->is_jumping, GetTouchPointCount()),
-               0, 10, 30, WHITE);
 #endif // __ANDROID__
 
       EndTextureMode();
