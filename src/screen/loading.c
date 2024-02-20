@@ -34,6 +34,10 @@ void load_assets(w_state *state) {
       Image image = LoadImageFromMemory(".png", items[i].buffer, items[i].size);
       state->textures[state->textures_len] = LoadTextureFromImage(image);
       SetTextureWrap(state->textures[state->textures_len], TEXTURE_WRAP_CLAMP);
+#ifndef __ANDROID__
+      SetTextureFilter(state->textures[state->textures_len],
+                       TEXTURE_FILTER_ANISOTROPIC_16X);
+#endif
       UnloadImage(image);
 
       state->textures_id[state->textures_len] = items[i].name;
@@ -44,7 +48,7 @@ void load_assets(w_state *state) {
           "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789()?:+-"
           "=*\"'";
       state->font = LoadFontFromMemory(".ttf", items[i].buffer, items[i].size,
-                                       fontsize, (int*)codepoints, 73);
+                                       fontsize, (int *)codepoints, 73);
 
       sfree(items[i].name);
     } else if (strcmp(ext, ".vs") == 0 || strcmp(ext, ".fs") == 0) {
@@ -105,7 +109,8 @@ void loading_screen(w_state *state) {
     case FS_DISPLAY: {
       BeginDrawing();
       ClearBackground(BLACK);
-      DrawText(loading_text, (int)loading_pos.x, (int)loading_pos.y, text_size, WHITE);
+      DrawText(loading_text, (int)loading_pos.x, (int)loading_pos.y, text_size,
+               WHITE);
       EndDrawing();
       state->state = FS_LOAD;
     } break;

@@ -72,6 +72,10 @@ cmake --build out --config <debug|release>
 
 **📱 Building for Android**
 
+> 🚧 Experimental 🚧
+
+The android version is still in development and may not work as expected. For the moment, the camera is laggy and the game is not very optimized for mobile devices.
+
 > Build with Android Studio
 
 Open the project folder with Android Studio and select the build configuration.

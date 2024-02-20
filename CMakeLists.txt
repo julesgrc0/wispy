@@ -21,12 +21,14 @@ if(ANDROID)
   set(PLATFORM "Android" CACHE STRING "" FORCE)
 
   set(RESOURCE_FILE ${CMAKE_SOURCE_DIR}/android/app/src/main/assets/resource.pack)
-
+  
+  # https://developer.android.com/ndk/guides/cpu-arm-neon?hl=fr#cmake
   # https://github.com/raysan5/raylib/issues/3491
+
   if(CMAKE_ANDROID_ARCH_ABI STREQUAL "armeabi-v7a")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mfloat-abi=softfp -mfpu=vfpv3-d16")
   elseif(CMAKE_ANDROID_ARCH_ABI STREQUAL "arm64-v8a")
-      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mfix-cortex-a53-835769")
+      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mfix-cortex-a53-835769 -mfix-cortex-a53-843419")
   endif()
 elseif(UNIX)
   set(RESOURCE_FILE ${CMAKE_SOURCE_DIR}/out/resource.pack)
@@ -66,9 +68,11 @@ if(ANDROID)
 elseif(UNIX)
   add_executable(${PROJECT_NAME} ${SOURCES})
   target_link_libraries(${PROJECT_NAME} PRIVATE raylib zlibstatic pthread)
-else()
+elseif(MSVC)
   add_executable(${PROJECT_NAME} WIN32 ${SOURCES})
   target_link_libraries(${PROJECT_NAME} PRIVATE raylib zlibstatic)
+else()
+  message(FATAL_ERROR "Unsupported platform")
 endif()
 
 if(BUILD_MINSIZE)
