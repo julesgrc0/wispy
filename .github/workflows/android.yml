@@ -6,10 +6,9 @@ on:
     branches: ["main"]
 
 env:
-  BUILD_PATH: ./android/app/build/outputs/apk/release
+  BUILD_PATH: ./app/build/outputs/apk/release
   BUILD_TYPE: release
   BUILD_PLATFORM: android
-
 
 permissions:
   security-events: write
@@ -27,7 +26,7 @@ jobs:
         arch: [x64, x86]
     steps:
       - uses: actions/checkout@v4
-        with:  
+        with:
           submodules: true
 
       - uses: lukka/get-cmake@latest
@@ -35,28 +34,23 @@ jobs:
       - name: Setup Java JDK
         uses: actions/setup-java@v3.13.0
         with:
-          distribution: 'adopt'
-          java-version: '17'
-    
+          distribution: "adopt"
+          java-version: "17"
+
       - name: Setup Android SDK
         uses: android-actions/setup-android@v2
 
       - name: Build Application
         run: |
-            sudo apt-get update -y
-            sudo apt-get install -y cmake
-            cd ./android
-            chmod +x ./gradlew
-            ./gradlew assembleRelease
+          sudo apt-get update -y
+          sudo apt-get install -y cmake
+          cd ./android
+          chmod +x ./gradlew
+          ./gradlew assembleRelease
+          tree
 
-      # - name: Sign Application
-      #   run: |
-      #     keytool -genkey -v -keystore release-key.keystore -alias wispy -keyalg RSA -keysize 2048 -validity 10000 -storepass ${{ secrets.KEYSTORE_PASSWORD }} -keypass ${{ secrets.KEY_PASSWORD }} -dname "CN=julesgrc0, OU=Engineering, O=Wispy, L=France, S=France, C=FR"
-      #     ${ANDROID_HOME}/build-tools/31.0.0/apksigner sign --ks release-key.keystore --ks-key-alias wispy --ks-pass pass:${{ secrets.KEYSTORE_PASSWORD }} --key-pass pass:${{ secrets.KEY_PASSWORD }} --out ${{env.BUILD_PATH}}signed-app-release.apk ${{env.BUILD_PATH}}app-release.apk
-          
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: wipsy-${{env.BUILD_PLATFORM}}-${{matrix.arch}}.apk
           path: ${{env.BUILD_PATH}}/app-release.apk
-

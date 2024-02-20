@@ -53,12 +53,10 @@ void *create_chunk_thread(void *arg)
   LOG("creating chunk");
   w_chunk *chunk = arg;
 
-  Image topLayer = GenImagePerlinNoise(CHUNK_W, BLOCK_TOP_LAYER_H,
-                                       chunk->position * CHUNK_W, 0, 6.f);
+  Image base = GenImagePerlinNoise(CHUNK_W, BLOCK_TOP_LAYER_H,
+                                   chunk->position * CHUNK_W, 0, 6.f);
   Image mineral =
       GenImageCellular(CHUNK_W, CHUNK_MID_H - BLOCK_TOP_LAYER_H, 10);
-
-  // Image caves = GenImageCellular(CHUNK_W, mineralHeight, 10);
 
   for (unsigned int x = 0; x < CHUNK_W; x++) {
     unsigned int level = 0;
@@ -68,7 +66,7 @@ void *create_chunk_thread(void *arg)
       w_blocktype type = BLOCK_AIR;
       if (y >= CHUNK_MID_H) {
         if (y < CHUNK_MID_H + BLOCK_TOP_LAYER_H) {
-          unsigned int value = GetImageColor(topLayer, x, (y - CHUNK_MID_H)).r;
+          unsigned int value = GetImageColor(base, x, (y - CHUNK_MID_H)).r;
 
           if (level == 0) {
             if (y > CHUNK_MID_H + BLOCK_TOP_LAYER_H / 3 || (value < 105)) {
@@ -112,7 +110,7 @@ void *create_chunk_thread(void *arg)
     }
   }
 
-  UnloadImage(topLayer);
+  UnloadImage(base);
   UnloadImage(mineral);
 
 #ifdef _WIN32

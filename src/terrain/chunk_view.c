@@ -133,6 +133,7 @@ void filter_chunkview_blocks(w_chunk *chunk, Rectangle view,
 
   Rectangle block = {.x = 0, .y = 0, .width = CUBE_W, .height = CUBE_H};
 
+#pragma omp parallel for
   for (unsigned int x = 0; x < CHUNK_W; x++) {
 
     bool noclear = false;
@@ -156,12 +157,14 @@ void filter_chunkview_blocks(w_chunk *chunk, Rectangle view,
       block.y = y * CUBE_H;
 
       if (CheckCollisionRecs(block, view)) {
-
-        blocks[*rendercount] = (w_renderblock){.dst = block,
-                                               .src = CUBE_SRC_RECT,
-                                               .light = WHITE,
-                                               .block = chunk->blocks[index]};
-        (*rendercount)++;
+#pragma omp critical
+        {
+          blocks[*rendercount] = (w_renderblock){.dst = block,
+                                                 .src = CUBE_SRC_RECT,
+                                                 .light = WHITE,
+                                                 .block = chunk->blocks[index]};
+          (*rendercount)++;
+        }
       }
     }
   }
@@ -173,6 +176,7 @@ void update_chunkview_lighting(w_chunkview *chunk_view, Vector2 light,
     return;
   }
 
+#pragma omp parallel for
   for (size_t i = 0; i < chunk_view->textures_len; i++) {
     Vector2 block_center = {chunk_view->blocks[i].dst.x + (CUBE_W / 2),
                             chunk_view->blocks[i].dst.y + (CUBE_H / 2)};

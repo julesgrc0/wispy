@@ -14,8 +14,9 @@ typedef struct w_collision {
 #pragma pack(pop)
 
 #define smooth_float(current, target, speed)                                   \
-  current = (current < target) ? fmin(current + speed, target)                 \
-                               : fmax(current - speed, target);
+  current = ((float)current < (float)target)                                   \
+                ? fmin((float)current + (float)speed, (float)target)           \
+                : fmax((float)current - (float)speed, (float)target);
 
 Vector2 center_camera_on_object(Camera2D *camera, Rectangle box);
 Vector2 center_object_on_camera(Rectangle box, Camera2D *camera);

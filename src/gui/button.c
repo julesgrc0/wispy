@@ -37,10 +37,10 @@ void move_button(w_guibutton *button, Vector2 position) {
 }
 
 bool update_button(w_guibutton *button) {
-  bool is_hover =
 #ifdef __ANDROID__
-      has_touch() && check_collision_touch_rect(button->rect);
+  bool is_hover = has_touch() && check_collision_touch_rect(button->rect);
 #else
+  bool is_hover =
       CheckCollisionRecs(button->rect, (Rectangle){
                                            .x = FORMAT_W(GetMouseX()),
                                            .y = FORMAT_H(GetMouseY()),
@@ -53,8 +53,9 @@ bool update_button(w_guibutton *button) {
 
   DrawRectangleRoundedLines(button->rect, button->ctx->border_radius, 1.f,
                             button->ctx->border_size, color);
-  DrawText(button->text, button->position.x, button->position.y,
-           button->ctx->font_size, color);
+  DrawText(button->text, (int)button->position.x, (int)button->position.y,
+           (int)button->ctx->font_size, color);
+
 #ifdef __ANDROID__
   return is_hover;
 #else

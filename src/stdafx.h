@@ -65,26 +65,29 @@
   if (x)                                                                       \
     free(x);
 
-#define PHYSICS_TICK (1.0f / 120.0f)
-
-#define RENDER_W 1280
-#define RENDER_H 720
-
 #define PERCENT_W(x) RENDER_W *x
 #define PERCENT_H(x) RENDER_H *x
 #define PIXELS_W(x) RENDER_W / x
 #define PIXELS_H(x) RENDER_H / x
 
-#define FORMAT_TO(x, size, target) (x / size) * target
-#define FORMAT_W(x) FORMAT_TO(x, GetScreenWidth(), RENDER_W)
-#define FORMAT_H(x) FORMAT_TO(x, GetScreenHeight(), RENDER_H)
+#define FORMAT_TO(x, size, target) (((float)x / (float)size) * (float)target)
+#define FORMAT_W(x) FORMAT_TO(x, GetRenderWidth(), RENDER_W)
+#define FORMAT_H(x) FORMAT_TO(x, GetRenderHeight(), RENDER_H)
+#define FORMAT_VEC(x)                                                          \
+  (Vector2) { FORMAT_W(x.x), FORMAT_H(x.y) }
+
+#define PHYSICS_TICK (1.0f / 120.0f)
+
+#define RENDER_W 1280
+#define RENDER_H 720
 
 #define RENDER_CUBE_COUNT 20
 #define RENDER_CUBE_GAP 2
 
-#define CHUNK_MID_H 128
 #define CHUNK_H 256 // 2^8
 #define CHUNK_W 64  // 2^6
+#define CHUNK_MID_H 128
+
 #define CHUNK_GROUP_LEN 10
 #define CHUNK_GROUP_UPDATE_DIST 2
 #define CHUNK_GROUP_MID_LEN 5
@@ -112,39 +115,5 @@
 #else
 #define LOG(...)
 #endif // _DEBUG
-
-#if defined(_DEBUG) && defined(_WIN32)
-#define measure(name, x)                                                       \
-  do {                                                                         \
-    LARGE_INTEGER start, end, frequency;                                       \
-    long long elapsed_time;                                                    \
-    QueryPerformanceFrequency(&frequency);                                     \
-    QueryPerformanceCounter(&start);                                           \
-                                                                               \
-    x;                                                                         \
-                                                                               \
-    QueryPerformanceCounter(&end);                                             \
-    elapsed_time =                                                             \
-        (end.QuadPart - start.QuadPart) * 100000000 / frequency.QuadPart;      \
-    printf("[%s]: %lld ns\n", #name, elapsed_time);                            \
-  } while (0);
-
-#elif defined(_DEBUG) && (defined(__linux__) || defined(__ANDROID__))
-#define measure(name, x)                                                       \
-  do {                                                                         \
-    struct timespec start, end;                                                \
-    long long elapsed_time;                                                    \
-    clock_gettime(CLOCK_MONOTONIC, &start);                                    \
-                                                                               \
-    x;                                                                         \
-                                                                               \
-    clock_gettime(CLOCK_MONOTONIC, &end);                                      \
-    elapsed_time = (end.tv_sec - start.tv_sec) * 1000000000 +                  \
-                   (end.tv_nsec - start.tv_nsec);                              \
-    printf("[%s]: %lld ns\n", #name, elapsed_time);                            \
-  } while (0);
-#else
-#define measure(name, x)
-#endif // _DEBUG && _WIN32
 
 #endif // _STDAFX_H
