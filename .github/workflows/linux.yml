@@ -10,7 +10,6 @@ env:
   BUILD_TYPE: release
   BUILD_PLATFORM: linux
 
-
 permissions:
   security-events: write
   actions: read
@@ -27,7 +26,7 @@ jobs:
         arch: [x64, x86]
     steps:
       - uses: actions/checkout@v4
-        with:  
+        with:
           submodules: true
 
       - uses: lukka/get-cmake@latest
@@ -36,7 +35,7 @@ jobs:
         run: |
           sudo apt-get update -y
           sudo apt install -y libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev
-       
+
       - name: Configure CMake
         run: cmake -S . -B ${{env.BUILD_PATH}} --preset=${{matrix.arch}}-${{env.BUILD_TYPE}}-${{env.BUILD_PLATFORM}}
 
@@ -47,6 +46,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: wipsy-${{env.BUILD_PLATFORM}}-${{matrix.arch}}
-          path: |
-              ./${{env.BUILD_PATH}}/wispy
-              ./tools/resource.pack
+          path: ./${{env.BUILD_PATH}}/wispy
+          # ./tools/resource.pack

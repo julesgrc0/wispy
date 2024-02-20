@@ -6,7 +6,7 @@ on:
     branches: ["main"]
 
 env:
-  BUILD_PATH: ./app/build/outputs/apk/release
+  BUILD_PATH: ./android/app/build/outputs/apk/release
   BUILD_TYPE: release
   BUILD_PLATFORM: android
 
@@ -47,10 +47,20 @@ jobs:
           cd ./android
           chmod +x ./gradlew
           ./gradlew assembleRelease
-          tree
+
+      - uses: ilharp/sign-android-release@v1
+        name: Sign app APK
+        id: signapp
+        with:
+          releaseDir: ${{env.BUILD_PATH}}
+          signingKey: ${{ secrets.SIGNING_KEY_B64 }}
+          keyAlias: ${{ secrets.KEY_ALIAS }}
+          keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
+          buildToolsVersion: 34.0.0
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: wipsy-${{env.BUILD_PLATFORM}}-${{matrix.arch}}.apk
-          path: ${{env.BUILD_PATH}}/app-release.apk
+          name: wipsy-${{env.BUILD_PLATFORM}}-${{matrix.arch}}
+          path: ${{steps.signapp.outputs.signedFiles}}
