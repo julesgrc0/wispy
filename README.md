@@ -4,15 +4,17 @@
 
 **Concept**: Wipsy is a kind of 2D Minecraft.
 
-<div align="center">
+> Video 🎥
 
-<video src="./preview/demo0.mp4" autoplay loop></video>
+| ![video 0](./preview/game0.gif) | ![video 1](./preview/game1.gif) |
+| ------------------------------- | ------------------------------- |
+| ![video 2](./preview/game2.gif) | ![video 3](./preview/game3.gif) |
 
-</div>
+> Screenshots 📸
 
-| ![Screenshot 1](./preview/menu.png)  | ![Screenshot 2](./preview/game0.png) |
-| ------------------------------------ | ------------------------------------ |
-| ![Screenshot 3](./preview/game1.png) | ![Screenshot 4](./preview/game2.png) |
+| ![image 0](./preview/menu.png)  | ![image 1](./preview/game0.png) |
+| ------------------------------- | ------------------------------- |
+| ![image 2](./preview/game1.png) | ![image 3](./preview/game2.png) |
 
 ## 🚀 Project Insight
 
