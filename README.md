@@ -4,6 +4,13 @@
 
 **Concept**: Wipsy is a kind of 2D Minecraft.
 
+<div align="center">
+    <video width="100%" nocontrols autoplay loop>
+        <source src="./preview/demo0.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+</div>
+
 | ![Screenshot 1](./preview/menu.png)  | ![Screenshot 2](./preview/game0.png) |
 | ------------------------------------ | ------------------------------------ |
 | ![Screenshot 3](./preview/game1.png) | ![Screenshot 4](./preview/game2.png) |
