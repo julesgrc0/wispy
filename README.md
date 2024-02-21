@@ -6,7 +6,7 @@
 
 <div align="center">
 
-![Video 0](./preview/demo0.gif)
+<video src="./preview/demo0.mp4" autoplay loop></video>
 
 </div>
 
