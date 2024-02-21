@@ -68,18 +68,16 @@ void game_screen(w_state *state) {
     destroy_gui(ctx);
     return;
   }
-
 #endif // __ANDROID__
 
+  Vector2 target_player = td->player->position;
+  w_breakstate bstate = BS_NONE;
   while (!WindowShouldClose() && td->is_active) {
 #ifndef __ANDROID__
     update_controls(td->ctrl);
 #endif // !__ANDROID__
 
     float dt = GetFrameTime();
-
-    // TODO: make the player speed move faster if the player is far away from
-    // the camera
     float speed = dt * PLAYER_SPEED;
 
 #ifdef _WIN32
@@ -88,6 +86,7 @@ void game_screen(w_state *state) {
     if (pthread_mutex_trylock(&td->chunk_view->mutex) == 0)
 #endif // _WIN32
     {
+
       BeginTextureMode(state->render);
       ClearBackground(BLACK);
       DrawRectangleGradientV(0, 0, RENDER_W, RENDER_H,
@@ -95,7 +94,15 @@ void game_screen(w_state *state) {
                              (Color){142, 184, 250, 255});
 
       BeginMode2D(*(td->camera));
-      smooth_vec(&td->camera->target, td->camera_target, speed);
+      if (GetFrameTime() < MIN_FRAME_TIME) {
+        smooth_vec(&td->camera->target, td->camera_target, speed);
+        smooth_vec(&target_player, td->player->position,
+                   Vector2Distance(td->player->position, target_player) *
+                       speed);
+      } else {
+        td->camera->target = td->camera_target;
+        target_player = td->player->position;
+      }
 
       for (unsigned int i = 0; i < td->chunk_view->textures_len; i++) {
         DrawTexturePro(block_textures[td->chunk_view->blocks[i].block.type - 1],
@@ -103,7 +110,10 @@ void game_screen(w_state *state) {
                        td->chunk_view->blocks[i].dst, VEC_ZERO, 0,
                        td->chunk_view->blocks[i].light);
       }
-      w_breakstate bstate = update_blockbreaker(bb, td->ctrl, td->player, dt);
+
+#ifndef __ANDROID__
+      bstate = update_blockbreaker(bb, td->ctrl, td->player, dt);
+#endif // !__ANDROID__
 
       if (bstate == BS_BREAKING) {
         draw_blockbreaker(bb);
@@ -112,8 +122,8 @@ void game_screen(w_state *state) {
       }
 
       DrawTexturePro(player_textures[td->player->state], td->player->src,
-                     (Rectangle){.x = td->player->position.x,
-                                 .y = td->player->position.y,
+                     (Rectangle){.x = target_player.x,
+                                 .y = target_player.y,
                                  .width = td->player->dst.width,
                                  .height = td->player->dst.height},
                      VEC_ZERO, 0, WHITE);
@@ -126,8 +136,9 @@ void game_screen(w_state *state) {
       td->ctrl->is_jumping = update_action(jump_button);
 
       update_controls(td->ctrl);
+      bstate = update_blockbreaker(bb, td->ctrl, td->player, dt);
 #endif // __ANDROID__
-
+      DrawText(TextFormat("FPS: %i", GetFPS()), 50, 50, 30, WHITE);
       EndTextureMode();
 
 #ifdef _WIN32
@@ -136,6 +147,7 @@ void game_screen(w_state *state) {
       pthread_mutex_unlock(&td->chunk_view->mutex);
 #endif // _WIN32
     }
+
     BeginDrawing();
     ClearBackground(BLACK);
     DrawTexturePro(state->render.texture, state->src_rnd, state->dest_rnd,

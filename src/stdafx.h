@@ -76,7 +76,8 @@
 #define FORMAT_VEC(x)                                                          \
   (Vector2) { FORMAT_W(x.x), FORMAT_H(x.y) }
 
-#define PHYSICS_TICK (1.0f / 120.0f)
+#define PHYSICS_TICK (1.0f / 240.0f)
+#define MIN_FRAME_TIME (1.0f / 30.0f)
 
 #define RENDER_W 1280
 #define RENDER_H 720

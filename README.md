@@ -10,12 +10,6 @@
 | ------------------------------- | ------------------------------- |
 | ![video 2](./preview/game2.gif) | ![video 3](./preview/game3.gif) |
 
-> Screenshots 📸
-
-| ![image 0](./preview/menu.png)  | ![image 1](./preview/game0.png) |
-| ------------------------------- | ------------------------------- |
-| ![image 2](./preview/game1.png) | ![image 3](./preview/game2.png) |
-
 ## 🚀 Project Insight
 
 ### 📚 Libraries
