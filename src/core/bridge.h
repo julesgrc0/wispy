@@ -34,6 +34,7 @@ typedef struct w_bridge {
 
 w_bridge *create_bridge();
 void destroy_bridge(w_bridge *td);
+void physics_update(w_bridge *td);
 
 #ifdef _WIN32
 int WINAPI update_bridge(PVOID arg);
