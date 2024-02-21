@@ -35,8 +35,8 @@ void game_screen(w_state *state) {
     return;
   }
 
-  w_guijoystick *js =
-      create_joystick(ctx, (Vector2){PERCENT_W(0.2), RENDER_H}, PERCENT_W(0.1));
+  w_guijoystick *js = create_joystick(
+      ctx, (Vector2){PERCENT_W(0.25), PERCENT_H(0.95)}, PERCENT_W(0.1));
   if (js == NULL) {
     destroy_bridge(td);
     destroy_blockbreaker(bb);

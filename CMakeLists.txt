@@ -22,14 +22,14 @@ if(ANDROID)
 
   set(RESOURCE_FILE ${CMAKE_SOURCE_DIR}/android/app/src/main/assets/resource.pack)
   
-  # https://developer.android.com/ndk/guides/cpu-arm-neon?hl=fr#cmake
-  # https://github.com/raysan5/raylib/issues/3491
-
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3  -flto")
   if(CMAKE_ANDROID_ARCH_ABI STREQUAL "armeabi-v7a")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mfloat-abi=softfp -mfpu=vfpv3-d16")
+      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mfloat-abi=hard -mfpu=neon")
   elseif(CMAKE_ANDROID_ARCH_ABI STREQUAL "arm64-v8a")
-      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mfix-cortex-a53-835769")
+      # https://gcc.gnu.org/onlinedocs/gcc-4.8.5/gcc/AArch64-Options.html
+      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mfix-cortex-a53-835769 -mcpu=cortex-a53 -march=armv8-a")
   endif()
+
 elseif(UNIX)
   set(RESOURCE_FILE ${CMAKE_SOURCE_DIR}/out/resource.pack)
 endif()
