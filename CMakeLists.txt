@@ -24,9 +24,8 @@ if(ANDROID)
   
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3  -flto")
   if(CMAKE_ANDROID_ARCH_ABI STREQUAL "armeabi-v7a")
-      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mfloat-abi=hard -mfpu=neon")
+      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}-mfloat-abi=softfp -mfpu=vfpv3-d16")
   elseif(CMAKE_ANDROID_ARCH_ABI STREQUAL "arm64-v8a")
-      # https://gcc.gnu.org/onlinedocs/gcc-4.8.5/gcc/AArch64-Options.html
       set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mfix-cortex-a53-835769 -mcpu=cortex-a53 -march=armv8-a")
   endif()
 
