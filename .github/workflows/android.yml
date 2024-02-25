@@ -60,7 +60,7 @@ jobs:
 
       - name: Rename APK
         run: |
-          rename ${{steps.signapp.outputs.signedFile}} ${{env.BUILD_PATH }}/wipsy-${{env.BUILD_PLATFORM}}-${{matrix.arch}}.apk
+          mv ${{steps.signapp.outputs.signedFile}} ${{env.BUILD_PATH }}/wipsy-${{env.BUILD_PLATFORM}}-${{matrix.arch}}.apk
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
