@@ -3,6 +3,11 @@
 #include "../stdafx.h"
 
 #define MAX_UNCOMPRESSE_TRY 4
+#ifdef _WIN32
+#define RESOURCE_NAME "ASSETS_PACK"
+#else
+#define RESOURCE_NAME "resource.pack"
+#endif
 
 typedef struct w_asset {
   char *name;

@@ -82,11 +82,8 @@ w_breakstate update_blockbreaker(w_blockbreaker *bb, w_controls *ctrl,
 
 void draw_blockbreaker(w_blockbreaker *bb) {
   DrawTexturePro(bb->textures[bb->stage], CUBE_SRC_RECT,
-                 (Rectangle){.x = bb->position.x,
-                             .y = bb->position.y,
-                             .width = CUBE_W,
-                             .height = CUBE_H},
-                 VEC_ZERO, 0, Fade(WHITE, 0.5));
+                 RECT(bb->position.x, bb->position.y, CUBE_W, CUBE_H), VEC_ZERO,
+                 0, Fade(WHITE, 0.5));
 }
 
 void destroy_blockbreaker(w_blockbreaker *bb) {

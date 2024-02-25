@@ -28,7 +28,7 @@ void game_screen(w_state *state) {
   }
 
 #ifdef __ANDROID__
-  w_guicontext *ctx = create_gui((Vector2){RENDER_W, RENDER_H});
+  w_guicontext *ctx = create_gui();
   if (ctx == NULL) {
     destroy_bridge(td);
     destroy_blockbreaker(bb);
@@ -36,7 +36,7 @@ void game_screen(w_state *state) {
   }
 
   w_guijoystick *js = create_joystick(
-      ctx, (Vector2){PERCENT_W(0.25), PERCENT_H(0.95)}, PERCENT_W(0.1));
+      ctx, VEC(PERCENT_W(0.25), PERCENT_H(0.95)), PERCENT_W(0.1));
   if (js == NULL) {
     destroy_bridge(td);
     destroy_blockbreaker(bb);
@@ -44,9 +44,8 @@ void game_screen(w_state *state) {
     return;
   }
 
-  w_guiaction *break_button =
-      create_action(ctx, (Vector2){RENDER_W, PERCENT_H(0.8)}, PERCENT_W(0.05),
-                    block_textures[0]);
+  w_guiaction *break_button = create_action(ctx, VEC(RENDER_W, PERCENT_H(0.8)),
+                                            PERCENT_W(0.05), block_textures[0]);
   if (break_button == NULL) {
     destroy_bridge(td);
     destroy_blockbreaker(bb);
@@ -56,9 +55,8 @@ void game_screen(w_state *state) {
     return;
   }
 
-  w_guiaction *jump_button =
-      create_action(ctx, (Vector2){PERCENT_W(0.95), RENDER_H}, PERCENT_W(0.05),
-                    player_textures[3]);
+  w_guiaction *jump_button = create_action(ctx, VEC(PERCENT_W(0.95), RENDER_H),
+                                           PERCENT_W(0.05), player_textures[3]);
   if (jump_button == NULL) {
     destroy_bridge(td);
     destroy_blockbreaker(bb);
@@ -93,8 +91,7 @@ void game_screen(w_state *state) {
                              (Color){66, 135, 245, 255},
                              (Color){142, 184, 250, 255});
 
-      BeginMode2D(*(td->camera));
-      if (GetFrameTime() < MIN_FRAME_TIME) {
+      if (dt < MIN_FRAME_TIME) {
         smooth_vec(&td->camera->target, td->camera_target, speed);
         smooth_vec(&target_player, td->player->position,
                    Vector2Distance(td->player->position, target_player) *
@@ -103,6 +100,7 @@ void game_screen(w_state *state) {
         td->camera->target = td->camera_target;
         target_player = td->player->position;
       }
+      BeginMode2D(*(td->camera));
 
       for (unsigned int i = 0; i < td->chunk_view->textures_len; i++) {
         DrawTexturePro(block_textures[td->chunk_view->blocks[i].block.type - 1],
@@ -122,10 +120,8 @@ void game_screen(w_state *state) {
       }
 
       DrawTexturePro(player_textures[td->player->state], td->player->src,
-                     (Rectangle){.x = target_player.x,
-                                 .y = target_player.y,
-                                 .width = td->player->dst.width,
-                                 .height = td->player->dst.height},
+                     RECT(target_player.x, target_player.y,
+                          td->player->dst.width, td->player->dst.height),
                      VEC_ZERO, 0, WHITE);
 
       EndMode2D();
@@ -150,8 +146,7 @@ void game_screen(w_state *state) {
 
     BeginDrawing();
     ClearBackground(BLACK);
-    DrawTexturePro(state->render.texture, state->src_rnd, state->dest_rnd,
-                   VEC_ZERO, 0.0f, WHITE);
+    draw_render_texture(state);
     EndDrawing();
   }
 

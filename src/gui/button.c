@@ -10,43 +10,32 @@ w_guibutton *create_button(w_guicontext *ctx, Vector2 position, Color color,
   button->default_color = color;
   button->hover_color = Fade(color, 0.8f);
   button->text = text;
-  button->size = (Vector2){
-      .x = MeasureText(text, ctx->font_size),
-      .y = ctx->font_size,
-  };
+  button->size = VEC(MeasureText(text, ctx->font_size), ctx->font_size);
   move_button(button, position);
   return button;
 }
 
 void move_button(w_guibutton *button, Vector2 position) {
-  button->position = (Vector2){
-      .x = position.x - (button->size.x / 2),
-      .y = position.y - (button->size.y / 2),
-  };
+  button->position =
+      VEC(position.x - (button->size.x / 2), position.y - (button->size.y / 2));
 
-  button->rect = (Rectangle){
-      .x = button->position.x -
-           (button->ctx->margin_width + button->ctx->border_size),
-      .y = button->position.y -
-           (button->ctx->margin_height + button->ctx->border_size),
-      .width = button->size.x +
+  button->rect =
+      RECT(button->position.x -
+               (button->ctx->margin_width + button->ctx->border_size),
+           button->position.y -
+               (button->ctx->margin_height + button->ctx->border_size),
+           button->size.x +
                2 * (button->ctx->margin_width + button->ctx->border_size),
-      .height = button->size.y +
-                2 * (button->ctx->margin_height + button->ctx->border_size),
-  };
+           button->size.y +
+               2 * (button->ctx->margin_height + button->ctx->border_size), );
 }
 
 bool update_button(w_guibutton *button) {
 #ifdef __ANDROID__
   bool is_hover = has_touch() && check_collision_touch_rect(button->rect);
 #else
-  bool is_hover =
-      CheckCollisionRecs(button->rect, (Rectangle){
-                                           .x = FORMAT_W(GetMouseX()),
-                                           .y = FORMAT_H(GetMouseY()),
-                                           .width = 1,
-                                           .height = 1,
-                                       });
+  bool is_hover = CheckCollisionRecs(
+      button->rect, RECT(FORMAT_W(GetMouseX()), FORMAT_H(GetMouseY()), 1, 1));
 #endif
 
   Color color = is_hover ? button->hover_color : button->default_color;

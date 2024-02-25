@@ -3,7 +3,7 @@
 #ifdef _WIN32
 char *load_resource(HINSTANCE hInstance, size_t *size) {
   HRSRC hResInfo = FindResourceA(hInstance, MAKEINTRESOURCE(IDR_ASSETS_PACK1),
-                                 "ASSETS_PACK");
+                                 RESOURCE_NAME);
   if (!hResInfo) {
     return NULL;
   }
@@ -35,7 +35,7 @@ w_asset *unpack_assets(size_t *size)
     return NULL;
   char *in_buffer = load_resource(hInstance, &in_size);
 #else
-  char *in_buffer = LoadFileData("resource.pack", &in_size);
+  char *in_buffer = (char *)LoadFileData(RESOURCE_NAME, &in_size);
 #endif
 
   if (in_buffer == NULL)
@@ -47,7 +47,7 @@ w_asset *unpack_assets(size_t *size)
     return NULL;
 
   size_t try_index = 0;
-  for (try_index; try_index < MAX_UNCOMPRESSE_TRY; try_index++) {
+  for (; try_index < MAX_UNCOMPRESSE_TRY; try_index++) {
     if (uncompress(out_buffer, (uLongf *)&out_size, in_buffer,
                    (uLong)in_size) != Z_OK) {
       out_size *= 2;

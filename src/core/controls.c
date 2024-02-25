@@ -35,7 +35,7 @@ void clear_controls(w_controls *kb) {
 #ifdef __ANDROID__
   kb->is_jumping = false;
   kb->is_breaking = false;
-  kb->joystick = (Vector2){0, 0};
+  kb->joystick = VEC_ZERO;
 #endif
 
   kb->key = 0;

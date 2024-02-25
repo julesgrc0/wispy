@@ -1,6 +1,11 @@
 #include "chunk_group.h"
 
 w_chunkgroup *create_chunkgroup(unsigned int position) {
+  if (position >= (UINT_MAX - CHUNK_GROUP_LEN)) {
+    LOG("max chunk group position reached");
+    return NULL;
+  }
+
   w_chunkgroup *grp = malloc(sizeof(w_chunkgroup));
   if (grp == NULL) {
     LOG("failed to allocate memory for chunk group");
@@ -12,12 +17,17 @@ w_chunkgroup *create_chunkgroup(unsigned int position) {
     grp->chunks[x] = create_chunk(grp->position + x, false);
   }
 
-  LOG("creating chunk group: %d", grp->position);
+  LOG("creating chunk group: %u", grp->position);
   return grp;
 }
 
 void destroy_chunkgroup(w_chunkgroup *grp) {
-  LOG("destroying chunk group: %d", grp->position);
+  if (grp == NULL) {
+    LOG("chunk group (null) already destroyed");
+    return;
+  }
+
+  LOG("destroying chunk group: %u", grp->position);
   for (unsigned int i = 0; i < CHUNK_GROUP_LEN; i++) {
 #ifdef _WIN32
     if (grp->chunks[i]->handle != INVALID_HANDLE_VALUE) {

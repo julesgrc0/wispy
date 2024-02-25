@@ -1,12 +1,8 @@
 #include "loading.h"
 
 void load_assets(w_state *state) {
-  state->render = LoadRenderTexture(RENDER_W, RENDER_H);
-  // LoadRenderTexture(state->config->render_size, state->config->render_size);
-  state->src_rnd = (Rectangle){0.0f, 0.0f, (float)state->render.texture.width,
-                               -(float)state->render.texture.height};
-  state->dest_rnd = (Rectangle){0.0f, 0.0f, (float)GetScreenWidth(),
-                                (float)GetScreenHeight()};
+  state->render = LoadRenderTexture(abs((int)state->rnd_src.width),
+                                    abs((int)state->rnd_src.height));
 
   size_t items_len;
 #ifdef _WIN32
@@ -31,7 +27,8 @@ void load_assets(w_state *state) {
     const char *ext = strrchr(items[i].name, '.');
 
     if (strcmp(ext, ".png") == 0) {
-      Image image = LoadImageFromMemory(".png", items[i].buffer, items[i].size);
+      Image image = LoadImageFromMemory(
+          ".png", (const unsigned char *)items[i].buffer, items[i].size);
       state->textures[state->textures_len] = LoadTextureFromImage(image);
       SetTextureWrap(state->textures[state->textures_len], TEXTURE_WRAP_CLAMP);
 #ifndef __ANDROID__
@@ -47,8 +44,9 @@ void load_assets(w_state *state) {
       char codepoints[73] =
           "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789()?:+-"
           "=*\"'";
-      state->font = LoadFontFromMemory(".ttf", items[i].buffer, items[i].size,
-                                       fontsize, (int *)codepoints, 73);
+      state->font =
+          LoadFontFromMemory(".ttf", (const unsigned char *)items[i].buffer,
+                             items[i].size, fontsize, (int *)codepoints, 73);
 
       sfree(items[i].name);
     } else if (strcmp(ext, ".vs") == 0 || strcmp(ext, ".fs") == 0) {
@@ -117,6 +115,7 @@ void loading_screen(w_state *state) {
     case FS_LOAD:
       load_assets(state);
       break;
+    case FS_EXIT:
     case FS_FAILED: {
       BeginDrawing();
       ClearBackground(BLACK);

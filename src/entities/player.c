@@ -10,13 +10,11 @@ w_player *create_player(unsigned int x) {
   memset(player, 0, sizeof(w_player));
   player->jump = PJ_FALL;
   player->src = PLAYER_SRC_RECT;
-  player->dst = (Rectangle){.x = (RENDER_W - CUBE_W) / 2.f,
-                            .y = (RENDER_H - CUBE_H * 2) / 2.f,
-                            .width = CUBE_W * 0.7f, // adjust player size
-                            .height = CUBE_H * 2};
+  player->dst = RECT((RENDER_W - CUBE_W) / 2.f, (RENDER_H - CUBE_H * 2) / 2.f,
+                     CUBE_W * 0.7f, // TODO: adjust player size
+                     CUBE_H * 2);
   player->position =
-      (Vector2){.x = (x + CHUNK_GROUP_MID_LEN) * CHUNK_W * CUBE_W,
-                .y = CHUNK_MID_H * CUBE_H};
+      VEC((x + CHUNK_GROUP_MID_LEN) * CHUNK_W * CUBE_W, CHUNK_MID_H * CUBE_H);
   return player;
 }
 
@@ -104,17 +102,15 @@ void update_player_velocity(w_player *player) {
 }
 
 Vector2 get_player_center(w_player *player) {
-  return (Vector2){player->position.x + player->dst.width / 2,
-                   player->position.y + player->dst.height / 2};
+  return VEC(player->position.x + player->dst.width / 2,
+             player->position.y + player->dst.height / 2);
 }
 
 Vector2 get_camera_target_player(w_player *player, Camera2D *camera) {
 
   return center_camera_on_object(camera,
-                                 (Rectangle){.x = player->position.x,
-                                             .y = player->position.y,
-                                             .width = player->dst.width,
-                                             .height = player->dst.height});
+                                 RECT(player->position.x, player->position.y,
+                                      player->dst.width, player->dst.height));
 }
 
 void check_player_collision_vel(w_player *player, w_chunkview *view) {

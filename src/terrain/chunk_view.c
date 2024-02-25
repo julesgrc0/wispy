@@ -33,6 +33,10 @@ w_chunkview *create_chunkview(w_chunk *current) {
 }
 
 void destroy_chunkview(w_chunkview *chunk_view) {
+  if (chunk_view == NULL) {
+    LOG("chunk view (null) already destroyed");
+    return;
+  }
   LOG("destroying chunk view");
 #ifdef _WIN32
   DeleteCriticalSection(&chunk_view->csec);
@@ -41,7 +45,9 @@ void destroy_chunkview(w_chunkview *chunk_view) {
     LOG("failed to close mutex (chunk view)");
   }
 #endif // _WIN32
-  free(chunk_view->blocks);
+  if (chunk_view->blocks != NULL && chunk_view->textures_len > 0) {
+    free(chunk_view->blocks);
+  }
   free(chunk_view);
 }
 
@@ -71,6 +77,7 @@ bool update_chunkview(w_chunkview *chunk_view, w_chunkgroup *grp,
     return true;
   }
 
+  // TODO: fix float is not exact for x position
   unsigned int position = floorf(view.x / FULL_CHUNK_W);
   if (position != chunk_view->target->position) {
     int group_move = need_chunkgroup_update(grp, position);

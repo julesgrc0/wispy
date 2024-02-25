@@ -1,7 +1,9 @@
 #include "menu.h"
 
 void menu_screen(w_state *state) {
+#ifndef __ANDROID__
   ShowCursor();
+#endif
 
   bool is_active = true;
 
@@ -16,12 +18,13 @@ void menu_screen(w_state *state) {
   w_chunkgroup *grp = create_chunkgroup(CHUNK_GROUP_MID_LEN);
   w_chunkview *view = create_chunkview(grp->chunks[0]);
 
-  Camera2D camera = {0};
-  camera.zoom = 1.0f;
-  camera.target = (Vector2){.x = CHUNK_GROUP_MID_LEN * CHUNK_W * CUBE_W,
-                            .y = CHUNK_MID_H * CUBE_H};
+  // TODO: fix for laggy android devices
+  float *camera =
+      MatrixToFloat(MatrixTranslate(-0, -CHUNK_MID_H * CUBE_H, 0.0f));
+  float *camera_x = &(camera[12]);
+  float *camera_y = &(camera[13]);
 
-  w_guicontext *ctx = create_gui((Vector2){RENDER_W, RENDER_H});
+  w_guicontext *ctx = create_gui();
 
   ctx->font_size = 25;
   ctx->margin_height = 10;
@@ -48,38 +51,44 @@ void menu_screen(w_state *state) {
   center_text(title_text, true, true);
 
   w_guitext *credit_text = create_text(
-      ctx,
-      Vector2Add(title_text->position,
-                 (Vector2){0, title_text->font_size + 10}),
+      ctx, Vector2Add(title_text->position, VEC(0, title_text->font_size + 10)),
       (char *)TextFormat("made by @julesgrc0 - %s", WISPY_VERSION), 20, WHITE);
 
   float angle = 0.0;
   while (!WindowShouldClose() && is_active) {
 
-    float speed = GetFrameTime() * 0.1;
+    float speed = GetFrameTime() * 0.1f;
     angle += speed;
-    angle = fmodf(angle, 360.0);
+    angle = fmodf(angle, 360.f);
 
-    camera.target.x += (sinf(angle) * 1000.0) * speed;
-    camera.target.y += (cosf(angle) * 1000.0) * speed;
+    *camera_x += -(sinf(angle) * 1000.f * speed);
+    *camera_y += -(cosf(angle) * 1000.f * speed);
 
-    update_chunkview(view, grp, get_camera_view(&camera));
-    update_chunkview_lighting(
-        view, Vector2Add(camera.target, VEC(RENDER_W / 2, RENDER_H / 2)),
-        DEFAULT_LIGHT_RADIUS * 0.75);
+    update_chunkview(view, grp,
+                     RECT(-(*camera_x), -(*camera_y), RENDER_W,
+                          RENDER_H)); // get_camera_view(&camera)
+    update_chunkview_lighting(view,
+                              Vector2Add(VEC(-(*camera_x), -(*camera_y)),
+                                         VEC(RENDER_W / 2, RENDER_H / 2)),
+                              DEFAULT_LIGHT_RADIUS * 0.75);
 
     BeginTextureMode(state->render);
     ClearBackground(BLACK);
     DrawRectangleGradientV(0, 0, RENDER_W, RENDER_H, (Color){66, 135, 245, 255},
                            (Color){142, 184, 250, 255});
 
-    BeginMode2D(camera);
+    rlDrawRenderBatchActive();
+    rlLoadIdentity();
+    rlMultMatrixf(camera);
+
     for (unsigned int i = 0; i < view->textures_len; i++) {
       DrawTexturePro(block_textures[view->blocks[i].block.type - 1],
                      view->blocks[i].src, view->blocks[i].dst, VEC_ZERO, 0,
                      view->blocks[i].light);
     }
-    EndMode2D();
+    rlDrawRenderBatchActive();
+    rlLoadIdentity();
+
     if (update_button(play_button)) {
       is_active = false;
     }
@@ -97,8 +106,7 @@ void menu_screen(w_state *state) {
 
     BeginDrawing();
     ClearBackground(BLACK);
-    DrawTexturePro(state->render.texture, state->src_rnd, state->dest_rnd,
-                   VEC_ZERO, 0.0f, WHITE);
+    draw_render_texture(state);
     EndDrawing();
   }
 

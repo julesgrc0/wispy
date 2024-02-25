@@ -105,6 +105,8 @@
   (Vector2) { 0 }
 #define VEC(...)                                                               \
   (Vector2) { __VA_ARGS__ }
+#define RECT(...)                                                              \
+  (Rectangle) { __VA_ARGS__ }
 
 #if defined(_DEBUG) && (defined(__linux__) || defined(_WIN32))
 #define LOG(...)                                                               \

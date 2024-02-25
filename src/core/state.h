@@ -1,7 +1,6 @@
 #pragma once
 #include "../stdafx.h"
-
-#define CONFIG_NAME "config.dat"
+#include "config.h"
 
 typedef enum w_framestate {
   FS_DISPLAY,
@@ -10,17 +9,6 @@ typedef enum w_framestate {
   FS_FAILED,
   FS_EXIT
 } w_framestate;
-
-typedef struct w_config {
-  unsigned int fullscreen : 1;
-  unsigned int msaa4x : 1;
-  unsigned int vsync : 1;
-
-  unsigned int width : 12;
-  unsigned int height : 12;
-
-  unsigned int max_fps : 10;
-} w_config;
 
 typedef struct w_state {
   w_framestate state;
@@ -36,8 +24,8 @@ typedef struct w_state {
   Font font;
 
   RenderTexture render;
-  Rectangle src_rnd;
-  Rectangle dest_rnd;
+  Rectangle rnd_src;
+  Vector2 rnd_tl, rnd_tr, rnd_bl, rnd_br;
 
   w_config *config;
 
@@ -47,8 +35,9 @@ typedef struct w_state {
 
 } w_state;
 
-w_config *load_config();
-void save_config(w_config *config);
+w_state *create_state();
+void destroy_state(w_state *state);
 
+void draw_render_texture(w_state *state);
 Texture get_texture_by_id(w_state *state, char *id);
 Shader get_shader_by_id(w_state *state, char *id);

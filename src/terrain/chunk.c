@@ -27,12 +27,12 @@ w_chunk *create_chunk(unsigned int position, bool thread) {
       return NULL;
     }
 
-    LOG("creating chunk thread: %d", position);
+    LOG("creating chunk thread: %u", position);
     return chunk;
   }
 
   create_chunk_thread(chunk);
-  LOG("creating chunk: %d", position);
+  LOG("creating chunk: %u", position);
   return chunk;
 }
 
@@ -119,7 +119,7 @@ void *create_chunk_thread(void *arg)
   chunk->handle = 0;
 #endif // _WIN32
 
-  LOG("chunk created: %d", chunk->position);
+  LOG("chunk created: %u", chunk->position);
 
 #ifdef _WIN32
   return EXIT_SUCCESS;

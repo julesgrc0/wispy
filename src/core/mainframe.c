@@ -1,14 +1,9 @@
 #include "mainframe.h"
 
 w_state *init_mainframe() {
-  w_state *state = malloc(sizeof(w_state));
+  w_state *state = create_state();
   if (state == NULL)
     return NULL;
-
-  memset(state, 0, sizeof(w_state));
-
-  state->state = FS_DISPLAY;
-  state->config = load_config();
 
 #ifdef _DEBUG
   SetTraceLogLevel(LOG_ALL);
@@ -38,6 +33,13 @@ w_state *init_mainframe() {
   SetConfigFlags(flags);
   SetTargetFPS(state->config->max_fps);
 
+  state->rnd_src = RECT(0, RENDER_H, RENDER_W, -RENDER_H);
+
+  state->rnd_tl = VEC_ZERO;
+  state->rnd_tr = VEC((float)GetScreenWidth(), 0.f);
+  state->rnd_bl = VEC(0.f, (float)GetScreenHeight());
+  state->rnd_br = VEC((float)GetScreenWidth(), (float)GetScreenHeight());
+
   return state;
 }
 
@@ -64,9 +66,7 @@ void destroy_mainframe(w_state *state) {
   CloseWindow();
 
   save_config(state->config);
-
-  sfree(state->config);
-  sfree(state);
+  destroy_state(state);
 }
 
 void loop_mainframe(w_state *state) {

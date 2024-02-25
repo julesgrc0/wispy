@@ -49,7 +49,7 @@ jobs:
           ./gradlew assembleRelease
 
       - uses: ilharp/sign-android-release@v1
-        name: Sign app APK
+        name: Sign APK
         id: signapp
         with:
           releaseDir: ${{env.BUILD_PATH }}
@@ -58,8 +58,12 @@ jobs:
           keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
 
+      - name: Rename APK
+        run: |
+          rename ${{steps.signapp.outputs.signedFile}} ${{env.BUILD_PATH }}/wipsy-${{env.BUILD_PLATFORM}}-${{matrix.arch}}.apk
+
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: wipsy-${{env.BUILD_PLATFORM}}-${{matrix.arch}}
-          path: ${{steps.signapp.outputs.signedFile}}
+          path: ${{env.BUILD_PATH }}/wipsy-${{env.BUILD_PLATFORM}}-${{matrix.arch}}.apk
