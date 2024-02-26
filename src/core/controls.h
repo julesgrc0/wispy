@@ -33,6 +33,7 @@ void clear_controls(w_controls *kb);
 
 #ifdef __ANDROID__
 bool check_collision_touch(Vector2 position, float size);
+Vector2 get_nearest_touch(Vector2 position);
 Vector2 get_collision_touch(Vector2 position, float size);
 
 bool check_collision_touch_rect(Rectangle rect);

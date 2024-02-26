@@ -46,6 +46,23 @@ bool check_collision_touch(Vector2 position, float size) {
   return !Vector2Equals(get_collision_touch(position, size), VEC_ZERO);
 }
 
+Vector2 get_nearest_touch(Vector2 position)
+{
+    const int touch_count = GetTouchPointCount();
+    Vector2 nearest = VEC_ZERO;
+    float distance = 0;
+    for (int i = 0; i < touch_count; i++) {
+        Vector2 point =
+            VEC(FORMAT_W(GetTouchPosition(i).x), FORMAT_H(GetTouchPosition(i).y));
+        float d = Vector2Distance(point, position);
+        if (d < distance || distance == 0) {
+          distance = d;
+          nearest = point;
+        }
+    }
+    return nearest;
+}
+
 Vector2 get_collision_touch(Vector2 position, float size) {
   const int touch_count = GetTouchPointCount();
   for (int i = 0; i < touch_count; i++) {
