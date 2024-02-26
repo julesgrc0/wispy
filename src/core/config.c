@@ -29,13 +29,26 @@ w_config *load_config() {
       return NULL;
     }
 
-    load_config_uint(root, cfg, fullscreen);
-    load_config_uint(root, cfg, msaa4x);
-    load_config_uint(root, cfg, vsync);
-    load_config_uint(root, cfg, width);
-    load_config_uint(root, cfg, height);
-    load_config_uint(root, cfg, max_fps);
+    json_object *js_fullscreen = json_object_object_get(root, "fullscreen");
+    json_object *js_msaa4x = json_object_object_get(root, "msaa4x");
+    json_object *js_vsync = json_object_object_get(root, "vsync");
+    json_object *js_width = json_object_object_get(root, "width");
+    json_object *js_height = json_object_object_get(root, "height");
+    json_object *js_max_fps = json_object_object_get(root, "max_fps");
 
+    cfg->fullscreen = (unsigned int)json_object_get_uint64(js_fullscreen);
+    cfg->msaa4x = (unsigned int)json_object_get_uint64(js_msaa4x);
+    cfg->vsync = (unsigned int)json_object_get_uint64(js_vsync);
+    cfg->width = (unsigned int)json_object_get_uint64(js_width);
+    cfg->height = (unsigned int)json_object_get_uint64(js_height);
+    cfg->max_fps = (unsigned int)json_object_get_uint64(js_max_fps);
+
+    json_object_put(js_fullscreen);
+    json_object_put(js_msaa4x);
+    json_object_put(js_vsync);
+    json_object_put(js_width);
+    json_object_put(js_height);
+    json_object_put(js_max_fps);
     json_object_put(root);
     free(data);
   } else {
