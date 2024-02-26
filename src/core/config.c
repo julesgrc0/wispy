@@ -15,11 +15,29 @@ w_config *load_config() {
   strcat(config_path, CONFIG_NAME);
 
   if (FileExists(config_path)) {
-    unsigned int size = 0;
-    char *data = LoadFileData(config_path, &size);
-    cfg = (w_config *)memmove(cfg, data, sizeof(w_config));
+    char *data = LoadFileText(config_path);
+    if (data == NULL) {
+      free(config_path);
+      free(cfg);
+      return NULL;
+    }
+    json_object *root = json_tokener_parse(data);
+    if (root == NULL) {
+      free(data);
+      free(config_path);
+      free(cfg);
+      return NULL;
+    }
 
-    sfree(data);
+    load_config_uint(root, cfg, fullscreen);
+    load_config_uint(root, cfg, msaa4x);
+    load_config_uint(root, cfg, vsync);
+    load_config_uint(root, cfg, width);
+    load_config_uint(root, cfg, height);
+    load_config_uint(root, cfg, max_fps);
+
+    json_object_put(root);
+    free(data);
   } else {
 #endif // !__ANDROID__
 
@@ -46,17 +64,41 @@ w_config *load_config() {
 }
 
 void save_config(w_config *config) {
-#if !defined(_DEBUG) && !defined(__ANDROID__)
+// #if !defined(_DEBUG) && !defined(__ANDROID__)
+#if 1
   char *config_path = malloc(MAX_PATH * 2);
   if (config_path == NULL)
     return;
 
   config_path[0] = 0;
-
   strcat(config_path, GetApplicationDirectory());
   strcat(config_path, CONFIG_NAME);
 
-  SaveFileData(config_path, config, sizeof(w_config));
+  json_object *root = json_object_new_object();
+  if (root == NULL) {
+    free(config_path);
+    return;
+  }
+
+  json_object *js_fullscreen = json_object_new_uint64(config->fullscreen);
+  json_object *js_msaa4x = json_object_new_uint64(config->msaa4x);
+  json_object *js_vsync = json_object_new_uint64(config->vsync);
+  json_object *js_width = json_object_new_uint64(config->width);
+  json_object *js_height = json_object_new_uint64(config->height);
+  json_object *js_max_fps = json_object_new_uint64(config->max_fps);
+
+  json_object_object_add(root, "fullscreen", js_fullscreen);
+  json_object_object_add(root, "msaa4x", js_msaa4x);
+  json_object_object_add(root, "vsync", js_vsync);
+  json_object_object_add(root, "width", js_width);
+  json_object_object_add(root, "height", js_height);
+  json_object_object_add(root, "max_fps", js_max_fps);
+
+  const char *data =
+      json_object_to_json_string_ext(root, JSON_C_TO_STRING_PRETTY);
+  SaveFileText(config_path, (char *)data);
+  json_object_put(root);
+
   free(config_path);
 #endif // !_DEBUG
 }

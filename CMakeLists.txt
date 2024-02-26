@@ -42,10 +42,12 @@ add_custom_target(pack_assets
 
 add_subdirectory(lib/raylib)
 add_subdirectory(lib/zlib)
+add_subdirectory(lib/json-c)
 
 include_directories(
     ${CMAKE_SOURCE_DIR}/lib/raylib/src
     ${CMAKE_SOURCE_DIR}/lib/zlib
+    ${CMAKE_SOURCE_DIR}/lib/json-c
 )
 
 file(GLOB_RECURSE SOURCES "src/*.c")
@@ -66,10 +68,10 @@ if(ANDROID)
   target_link_libraries(${PROJECT_NAME} raylib zlibstatic android log)
 elseif(UNIX)
   add_executable(${PROJECT_NAME} ${SOURCES})
-  target_link_libraries(${PROJECT_NAME} PRIVATE raylib zlibstatic pthread)
+  target_link_libraries(${PROJECT_NAME} PRIVATE raylib zlibstatic json-c pthread)
 elseif(MSVC)
   add_executable(${PROJECT_NAME} WIN32 ${SOURCES})
-  target_link_libraries(${PROJECT_NAME} PRIVATE raylib zlibstatic)
+  target_link_libraries(${PROJECT_NAME} PRIVATE raylib zlibstatic json-c)
 else()
   message(FATAL_ERROR "Unsupported platform")
 endif()

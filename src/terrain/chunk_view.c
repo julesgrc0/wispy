@@ -92,7 +92,8 @@ bool update_chunkview(w_chunkview *chunk_view, w_chunkgroup *grp,
   }
 
   unsigned int position = (unsigned int)Clamp(
-      floorf((view.x - (view.width / 2.f)) / (float)FULL_CHUNK_W), 0, UINT_MAX);
+      floorf((view.x - (view.width / 2.f)) / (float)FULL_CHUNK_W), 0,
+      (float)UINT_MAX);
   if (position != chunk_view->target->position) {
     int group_move = need_chunkgroup_update(grp, position);
     if (group_move > 0) {
@@ -108,7 +109,8 @@ bool update_chunkview(w_chunkview *chunk_view, w_chunkgroup *grp,
   }
 
   unsigned int position_next = (unsigned int)Clamp(
-      roundf((view.x + (view.width / 2.f)) / (float)FULL_CHUNK_W), 0, UINT_MAX);
+      roundf((view.x + (view.width / 2.f)) / (float)FULL_CHUNK_W), 0,
+      (float)UINT_MAX);
   if (position_next != position) {
     chunk_view->next = get_chunkgroup_chunk(grp, position_next);
   } else {

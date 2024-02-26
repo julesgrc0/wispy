@@ -10,9 +10,7 @@ w_player *create_player(unsigned int x) {
   memset(player, 0, sizeof(w_player));
   player->jump = PJ_FALL;
   player->src = PLAYER_SRC_RECT;
-  player->dst = RECT((RENDER_W - CUBE_W) / 2.f, (RENDER_H - CUBE_H * 2) / 2.f,
-                     CUBE_W * 0.7f, // TODO: adjust player size
-                     CUBE_H * 2);
+  player->dst = RECT(0, 0, CUBE_W * 0.7f, CUBE_H * 1.8f);
   player->position = VEC((float)((x + CHUNK_GROUP_MID_LEN) * FULL_CHUNK_W),
                          CHUNK_MID_H * CUBE_H);
   return player;
@@ -48,7 +46,7 @@ void update_player_input(w_player *player, w_controls *ctrl) {
   if (player->duration > 0) {
     player->duration--;
     player->jump = player->duration > 0 ? PJ_JUMP : PJ_FALL;
-    player->velocity.y -= (MAX_PLAYER_VELOCITY_Y / 2.F * player->duration);
+    player->velocity.y -= player->duration * MAX_PLAYER_VELOCITY_Y;
     if (player->duration <= 0) {
       player->delay = (1 / PHYSICS_TICK) * 0.15f;
     }
@@ -56,7 +54,7 @@ void update_player_input(w_player *player, w_controls *ctrl) {
 
   if (ctrl->jump && player->jump == PJ_GROUD && player->duration <= 0 &&
       player->delay <= 0) {
-    player->duration = (1 / PHYSICS_TICK) / 4;
+    player->duration = PLAYER_JUMP_DURATION;
     player->jump = PJ_JUMP;
   }
 

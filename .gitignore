@@ -6,6 +6,7 @@
 /Debug
 /wispy
 /.vscode/settings.json
+/.vscode/c_cpp_properties.json
 /out
 /android/keys/*.jks
 /android/keys/*.b64

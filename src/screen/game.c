@@ -77,6 +77,14 @@ void game_screen(w_state *state) {
 
     float dt = GetFrameTime();
     float speed = dt * PLAYER_SPEED;
+    if (dt < MIN_FRAME_TIME) {
+      smooth_camera(td->camera, td->camera_target, speed);
+      smooth_vec(&target_player, td->player->position,
+                 Vector2Distance(td->player->position, target_player) * speed);
+    } else {
+      set_camera_vec(td->camera, td->camera_target);
+      target_player = td->player->position;
+    }
 
 #ifdef _WIN32
     if (TryEnterCriticalSection(&td->chunk_view->csec))
@@ -90,16 +98,6 @@ void game_screen(w_state *state) {
       DrawRectangleGradientV(0, 0, RENDER_W, RENDER_H,
                              (Color){66, 135, 245, 255},
                              (Color){142, 184, 250, 255});
-
-      if (dt < MIN_FRAME_TIME) {
-        smooth_camera(td->camera, td->camera_target, speed);
-        smooth_vec(&target_player, td->player->position,
-                   Vector2Distance(td->player->position, target_player) *
-                       speed);
-      } else {
-        set_camera_vec(td->camera, td->camera_target);
-        target_player = td->player->position;
-      }
 
       begin_camera(td->camera);
       for (unsigned int i = 0; i < td->chunk_view->len; i++) {

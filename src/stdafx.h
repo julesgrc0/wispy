@@ -19,6 +19,12 @@
 #include <zlib.h>
 ///
 
+/// JSON-C
+#ifndef __ANDROID__
+#include <json.h>
+#endif
+///
+
 /// RAYLIB
 #include <raylib.h>
 #include <raymath.h>
