@@ -17,7 +17,7 @@ w_guitext *create_text(w_guicontext *ctx, Vector2 position, char *text,
 
 void center_text(w_guitext *text, bool x, bool y) {
   if (x) {
-    text->position.x -= MeasureText(text->text, text->font_size) / 2;
+    text->position.x -= MeasureText(text->text, (int)text->font_size) / 2;
   }
   if (y) {
     text->position.y -= text->font_size / 2;
@@ -25,8 +25,8 @@ void center_text(w_guitext *text, bool x, bool y) {
 }
 
 void update_text(w_guitext *text) {
-  DrawText(text->text, text->position.x, text->position.y, text->font_size,
-           text->color);
+  DrawText(text->text, (int)text->position.x, (int)text->position.y,
+           (int)text->font_size, text->color);
 }
 
 void destroy_text(w_guitext *text) {

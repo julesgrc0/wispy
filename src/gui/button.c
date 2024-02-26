@@ -10,7 +10,8 @@ w_guibutton *create_button(w_guicontext *ctx, Vector2 position, Color color,
   button->default_color = color;
   button->hover_color = Fade(color, 0.8f);
   button->text = text;
-  button->size = VEC(MeasureText(text, ctx->font_size), ctx->font_size);
+  button->size =
+      VEC((float)MeasureText(text, (int)ctx->font_size), ctx->font_size);
   move_button(button, position);
   return button;
 }
@@ -40,7 +41,7 @@ bool update_button(w_guibutton *button) {
 
   Color color = is_hover ? button->hover_color : button->default_color;
 
-  DrawRectangleRoundedLines(button->rect, button->ctx->border_radius, 1.f,
+  DrawRectangleRoundedLines(button->rect, button->ctx->border_radius, 1,
                             button->ctx->border_size, color);
   DrawText(button->text, (int)button->position.x, (int)button->position.y,
            (int)button->ctx->font_size, color);

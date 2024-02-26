@@ -16,13 +16,13 @@ w_guijoystick *create_joystick(w_guicontext *ctx, Vector2 position,
 }
 
 Vector2 update_joystick(w_guijoystick *js) {
-  DrawCircle(js->position.x, js->position.y, js->size, Fade(WHITE, 0.3f));
-  DrawCircle(js->position.x, js->position.y, js->size * 0.9f,
-             Fade(WHITE, 0.3f));
+  DrawCircleV(js->position, js->size, Fade(WHITE, 0.3f));
+  DrawCircleV(js->position, js->size * 0.9f, Fade(WHITE, 0.3f));
 
 #ifdef __ANDROID__
   if (has_touch()) {
-    Vector2 mouse = get_nearest_touch(Vector2SubtractValue(js->position, js->size/2.f));
+    Vector2 mouse =
+        get_nearest_touch(Vector2SubtractValue(js->position, js->size / 2.f));
     Vector2 touch = get_collision_touch(js->position, js->size);
 #else
   if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
@@ -48,7 +48,7 @@ Vector2 update_joystick(w_guijoystick *js) {
   } else {
     js->cursor = js->position;
   }
-  DrawCircle(js->cursor.x, js->cursor.y, js->size / 4, Fade(BLACK, 0.5f));
+  DrawCircleV(js->cursor, js->size / 4, Fade(BLACK, 0.5f));
 
   Vector2 dir = Vector2Subtract(js->cursor, js->position);
   dir = Vector2Normalize(dir);

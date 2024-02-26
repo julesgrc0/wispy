@@ -64,8 +64,7 @@ w_config *load_config() {
 }
 
 void save_config(w_config *config) {
-// #if !defined(_DEBUG) && !defined(__ANDROID__)
-#if 1
+#if !defined(_DEBUG) && !defined(__ANDROID__)
   char *config_path = malloc(MAX_PATH * 2);
   if (config_path == NULL)
     return;
