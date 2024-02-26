@@ -1,5 +1,4 @@
 #pragma once
-#include "../core/view.h"
 #include "../core/controls.h"
 #include "../stdafx.h"
 #include "gui.h"

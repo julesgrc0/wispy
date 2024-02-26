@@ -26,17 +26,13 @@ w_bridge *create_bridge() {
     return NULL;
   }
 
-  td->camera = malloc(sizeof(Camera2D));
+  td->camera = create_camera(0, 0);
   if (td->camera == NULL) {
-    LOG("failed to allocate memory for camera");
     destroy_bridge(td);
     return NULL;
   }
-  memset(td->camera, 0, sizeof(Camera2D));
-  td->camera->zoom = 1.f;
-
-  td->camera->target = get_camera_target_player(td->player, td->camera);
-  td->camera_target = td->camera->target;
+  set_camera_center(td->camera, get_player_center(td->player));
+  td->camera_target = get_camera_vec(td->camera);
 
   td->ctrl = create_controls();
   if (td->ctrl == NULL) {
@@ -80,8 +76,8 @@ void destroy_bridge(w_bridge *td) {
   destroy_chunkgroup(td->chunk_group);
   destroy_chunkview(td->chunk_view);
   destroy_player(td->player);
+  destroy_camera(td->camera);
 
-  sfree(td->camera);
   sfree(td);
 }
 
@@ -97,7 +93,10 @@ void physics_update(w_bridge *td) {
   td->player->position.x += next_position.x;
   td->player->position.y += next_position.y;
 
-  td->camera_target = get_camera_target_player(td->player, td->camera);
+  Vector2 player_center = get_player_center(td->player);
+  td->camera_target =
+      VEC(player_center.x - RENDER_W / 2, player_center.y - RENDER_H / 2);
+
   animate_player(td->player, td->ctrl->left || td->ctrl->right);
   clear_controls(td->ctrl);
 }
@@ -129,18 +128,17 @@ void *update_bridge(void *arg)
   clock_gettime(CLOCK_MONOTONIC, &time_start);
 #endif // _WIN32
 
-  update_chunkview(td->chunk_view, td->chunk_group,
-                   get_camera_view(td->camera));
+  update_chunkview(td->chunk_view, td->chunk_group, td->camera);
 
   update_chunkview_lighting(td->chunk_view, get_player_center(td->player),
                             RENDER_CUBE_COUNT * CUBE_W);
   do {
 
-    if (td->ctrl->key != 0 || td->camera->target.x != td->camera_target.x ||
-        td->camera->target.y != td->camera_target.y || td->force_update) {
+    if (td->ctrl->key != 0 ||
+        !Vector2Equals(td->camera_target, get_camera_vec(td->camera)) ||
+        td->force_update) {
 
-      if (!update_chunkview(td->chunk_view, td->chunk_group,
-                            get_camera_view(td->camera))) {
+      if (!update_chunkview(td->chunk_view, td->chunk_group, td->camera)) {
         LOG("failed to update chunk view");
         td->is_active = false;
 

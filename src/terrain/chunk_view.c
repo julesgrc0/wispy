@@ -8,7 +8,7 @@ w_chunkview *create_chunkview(w_chunk *current) {
   }
   chunk_view = memset(chunk_view, 0, sizeof(w_chunkview));
 
-  chunk_view->blocks = malloc(chunk_view->textures_len);
+  chunk_view->blocks = malloc(chunk_view->len);
   if (chunk_view->blocks == NULL) {
     LOG("failed to allocate memory for chunk view blocks");
     free(chunk_view);
@@ -45,14 +45,14 @@ void destroy_chunkview(w_chunkview *chunk_view) {
     LOG("failed to close mutex (chunk view)");
   }
 #endif // _WIN32
-  if (chunk_view->blocks != NULL && chunk_view->textures_len > 0) {
+  if (chunk_view->blocks != NULL && chunk_view->len > 0) {
     free(chunk_view->blocks);
   }
   free(chunk_view);
 }
 
 void update_renderblock_async(w_chunkview *chunk_view, w_renderblock *blocks,
-                              size_t textures_len) {
+                              size_t len) {
 #ifdef _WIN32
   EnterCriticalSection(&chunk_view->csec);
 #else
@@ -60,7 +60,7 @@ void update_renderblock_async(w_chunkview *chunk_view, w_renderblock *blocks,
 #endif // _WIN32
 
   sfree(chunk_view->blocks);
-  chunk_view->textures_len = textures_len;
+  chunk_view->len = len;
   chunk_view->blocks = blocks;
 
 #ifdef _WIN32
@@ -71,14 +71,28 @@ void update_renderblock_async(w_chunkview *chunk_view, w_renderblock *blocks,
 }
 
 bool update_chunkview(w_chunkview *chunk_view, w_chunkgroup *grp,
-                      Rectangle view) {
-  if (view.x < 0 || view.y < 0) {
+                      w_camera *camera) {
+  Rectangle view = get_camera_view_with_gap(camera);
+  if (view.x < 0) {
+    view.width += view.x;
+    view.x = 0;
+  } else if (view.x >= UINT_MAX) {
+    view.width = 0;
+  }
+  if (view.y <= 0) {
+    view.height += view.y;
+    view.y = 0;
+  } else if (view.y >= CHUNK_H * CUBE_H) {
+    view.height = 0;
+  }
+
+  if (view.width <= 0 || view.height <= 0) {
     update_renderblock_async(chunk_view, NULL, 0);
     return true;
   }
 
-  // TODO: fix float is not exact for x position
-  unsigned int position = floorf(view.x / FULL_CHUNK_W);
+  unsigned int position = (unsigned int)Clamp(
+      floorf((view.x - (view.width / 2.f)) / (float)FULL_CHUNK_W), 0, UINT_MAX);
   if (position != chunk_view->target->position) {
     int group_move = need_chunkgroup_update(grp, position);
     if (group_move > 0) {
@@ -93,32 +107,32 @@ bool update_chunkview(w_chunkview *chunk_view, w_chunkgroup *grp,
     }
   }
 
-  unsigned int position_next = round((view.x + view.width) / FULL_CHUNK_W);
+  unsigned int position_next = (unsigned int)Clamp(
+      roundf((view.x + (view.width / 2.f)) / (float)FULL_CHUNK_W), 0, UINT_MAX);
   if (position_next != position) {
     chunk_view->next = get_chunkgroup_chunk(grp, position_next);
   } else {
     chunk_view->next = NULL;
   }
 
-  size_t render_count = 0;
-  size_t textures_len =
-      CHUNK_W * CHUNK_H * ((chunk_view->next == NULL) ? 1 : 2);
-  w_renderblock *blocks = malloc(textures_len * sizeof(w_renderblock));
+  size_t blocks_count = 0;
+  size_t blocks_len = CHUNK_W * CHUNK_H * ((chunk_view->next == NULL) ? 1 : 2);
+  w_renderblock *blocks = malloc(blocks_len * sizeof(w_renderblock));
   if (blocks == NULL) {
     return false;
   }
-  memset(blocks, 0, textures_len * sizeof(w_renderblock));
-  filter_chunkview_blocks(chunk_view->target, view, blocks, &render_count);
+  memset(blocks, 0, blocks_len * sizeof(w_renderblock));
+  filter_chunkview_blocks(chunk_view->target, view, blocks, &blocks_count);
   if (chunk_view->next != NULL) {
-    filter_chunkview_blocks(chunk_view->next, view, blocks, &render_count);
+    filter_chunkview_blocks(chunk_view->next, view, blocks, &blocks_count);
   }
 
-  if (render_count == 0) {
+  if (blocks_count == 0) {
     free(blocks);
     update_renderblock_async(chunk_view, NULL, 0);
     return true;
-  } else if (render_count != textures_len) {
-    w_renderblock *tmp = realloc(blocks, sizeof(w_renderblock) * render_count);
+  } else if (blocks_count != blocks_len) {
+    w_renderblock *tmp = realloc(blocks, sizeof(w_renderblock) * blocks_count);
     if (tmp == NULL) {
       free(blocks);
       return false;
@@ -126,17 +140,12 @@ bool update_chunkview(w_chunkview *chunk_view, w_chunkgroup *grp,
     blocks = tmp;
   }
 
-  update_renderblock_async(chunk_view, blocks, render_count);
+  update_renderblock_async(chunk_view, blocks, blocks_count);
   return true;
 }
 
 void filter_chunkview_blocks(w_chunk *chunk, Rectangle view,
                              w_renderblock *blocks, size_t *rendercount) {
-
-  view.x -= RENDER_CUBE_GAP * CUBE_W;
-  view.y -= RENDER_CUBE_GAP * CUBE_H;
-  view.width += RENDER_CUBE_GAP * CUBE_W * 2;
-  view.height += RENDER_CUBE_GAP * CUBE_H * 2;
 
   Rectangle block = {.x = 0, .y = 0, .width = CUBE_W, .height = CUBE_H};
 
@@ -160,8 +169,8 @@ void filter_chunkview_blocks(w_chunk *chunk, Rectangle view,
         noclear = true;
       }
 
-      block.x = (chunk->position * FULL_CHUNK_W) + (x * CUBE_W);
-      block.y = y * CUBE_H;
+      block.x = (float)((chunk->position * FULL_CHUNK_W) + (x * CUBE_W));
+      block.y = (float)(y * CUBE_H);
 
       if (CheckCollisionRecs(block, view)) {
 #pragma omp critical
@@ -184,13 +193,13 @@ void update_chunkview_lighting(w_chunkview *chunk_view, Vector2 light,
   }
 
 #pragma omp parallel for
-  for (size_t i = 0; i < chunk_view->textures_len; i++) {
+  for (size_t i = 0; i < chunk_view->len; i++) {
     Vector2 block_center = {chunk_view->blocks[i].dst.x + (CUBE_W / 2),
                             chunk_view->blocks[i].dst.y + (CUBE_H / 2)};
 
     float percent = 1.f - Vector2Distance(light, block_center) / radius;
     if (chunk_view->blocks[i].block.is_background) {
-      percent -= 0.7;
+      percent -= 0.7f;
     }
     percent = Clamp(percent, 0.f, 1.f);
     chunk_view->blocks[i].light = (Color){.r = (unsigned char)(255 * percent),
@@ -201,7 +210,7 @@ void update_chunkview_lighting(w_chunkview *chunk_view, Vector2 light,
 }
 
 w_block *get_chunkview_block(w_chunkview *chunk_view, Vector2 position) {
-  unsigned int chunk_x = position.x / FULL_CHUNK_W;
+  unsigned int chunk_x = (unsigned int)(position.x / FULL_CHUNK_W);
 
   if (!(chunk_view->target->position == chunk_x ||
         (chunk_view->next != NULL && chunk_view->next->position == chunk_x))) {

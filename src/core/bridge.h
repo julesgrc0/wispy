@@ -8,6 +8,7 @@
 #include "../terrain/chunk_group.h"
 #include "../terrain/chunk_view.h"
 
+#include "./utils/camera.h"
 #include "controls.h"
 #include "state.h"
 
@@ -21,7 +22,7 @@ typedef struct w_bridge {
 
   w_player *player;
 
-  Camera2D *camera;
+  w_camera *camera;
   Vector2 camera_target;
 
 #ifdef _WIN32

@@ -1,6 +1,8 @@
 #pragma once
 #include "../core/controls.h"
 #include "../core/state.h"
+#include "../core/utils/camera.h"
+#include "../core/utils/smooth.h"
 #include "../entities/player.h"
 #include "../stdafx.h"
 #include "chunk_view.h"
@@ -21,13 +23,15 @@ typedef struct w_blockbreaker {
   Vector2 position;
 
   w_chunkview *chunk_view;
-  Camera2D *camera;
+  w_camera *camera;
 
   Texture *textures;
 } w_blockbreaker;
 
+Vector2 get_mouse_block(w_camera *camera);
+
 w_blockbreaker *create_blockbreaker(w_state *state, w_chunkview *chunk_view,
-                                    Camera2D *camera);
+                                    w_camera *camera);
 
 w_breakstate update_blockbreaker(w_blockbreaker *bb, w_controls *ctrl,
                                  w_player *player, float dt);

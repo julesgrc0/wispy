@@ -1,7 +1,6 @@
 #pragma once
 #include "../core/controls.h"
 #include "../core/state.h"
-#include "../core/view.h"
 #include "../stdafx.h"
 #include "../terrain/chunk_view.h"
 
@@ -62,5 +61,4 @@ void update_player_input(w_player *player, w_controls *ctrl);
 void update_player_velocity(w_player *player);
 
 Vector2 get_player_center(w_player *player);
-Vector2 get_camera_target_player(w_player *player, Camera2D *camera);
 void check_player_collision_vel(w_player *player, w_chunkview *view);

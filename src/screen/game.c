@@ -92,17 +92,17 @@ void game_screen(w_state *state) {
                              (Color){142, 184, 250, 255});
 
       if (dt < MIN_FRAME_TIME) {
-        smooth_vec(&td->camera->target, td->camera_target, speed);
+        smooth_camera(td->camera, td->camera_target, speed);
         smooth_vec(&target_player, td->player->position,
                    Vector2Distance(td->player->position, target_player) *
                        speed);
       } else {
-        td->camera->target = td->camera_target;
+        set_camera_vec(td->camera, td->camera_target);
         target_player = td->player->position;
       }
-      BeginMode2D(*(td->camera));
 
-      for (unsigned int i = 0; i < td->chunk_view->textures_len; i++) {
+      begin_camera(td->camera);
+      for (unsigned int i = 0; i < td->chunk_view->len; i++) {
         DrawTexturePro(block_textures[td->chunk_view->blocks[i].block.type - 1],
                        td->chunk_view->blocks[i].src,
                        td->chunk_view->blocks[i].dst, VEC_ZERO, 0,
@@ -124,7 +124,7 @@ void game_screen(w_state *state) {
                           td->player->dst.width, td->player->dst.height),
                      VEC_ZERO, 0, WHITE);
 
-      EndMode2D();
+      end_camera();
 
 #ifdef __ANDROID__
       td->ctrl->joystick = update_joystick(js);

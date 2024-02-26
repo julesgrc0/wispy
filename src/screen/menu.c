@@ -17,15 +17,9 @@ void menu_screen(w_state *state) {
 
   w_chunkgroup *grp = create_chunkgroup(CHUNK_GROUP_MID_LEN);
   w_chunkview *view = create_chunkview(grp->chunks[0]);
-
-  // TODO: fix for laggy android devices
-  float *camera =
-      MatrixToFloat(MatrixTranslate(-0, -CHUNK_MID_H * CUBE_H, 0.0f));
-  float *camera_x = &(camera[12]);
-  float *camera_y = &(camera[13]);
+  w_camera *camera = create_camera(0, CHUNK_MID_H * CUBE_H);
 
   w_guicontext *ctx = create_gui();
-
   ctx->font_size = 25;
   ctx->margin_height = 10;
   ctx->margin_width = 40;
@@ -61,15 +55,11 @@ void menu_screen(w_state *state) {
     angle += speed;
     angle = fmodf(angle, 360.f);
 
-    *camera_x += -(sinf(angle) * 1000.f * speed);
-    *camera_y += -(cosf(angle) * 1000.f * speed);
+    add_camera_vec(camera, VEC(sinf(angle) * 1000.f * speed,
+                               cosf(angle) * 1000.f * speed));
 
-    update_chunkview(view, grp,
-                     RECT(-(*camera_x), -(*camera_y), RENDER_W,
-                          RENDER_H)); // get_camera_view(&camera)
-    update_chunkview_lighting(view,
-                              Vector2Add(VEC(-(*camera_x), -(*camera_y)),
-                                         VEC(RENDER_W / 2, RENDER_H / 2)),
+    update_chunkview(view, grp, camera);
+    update_chunkview_lighting(view, get_camera_center(camera),
                               DEFAULT_LIGHT_RADIUS * 0.75);
 
     BeginTextureMode(state->render);
@@ -77,17 +67,13 @@ void menu_screen(w_state *state) {
     DrawRectangleGradientV(0, 0, RENDER_W, RENDER_H, (Color){66, 135, 245, 255},
                            (Color){142, 184, 250, 255});
 
-    rlDrawRenderBatchActive();
-    rlLoadIdentity();
-    rlMultMatrixf(camera);
-
-    for (unsigned int i = 0; i < view->textures_len; i++) {
+    begin_camera(camera);
+    for (unsigned int i = 0; i < view->len; i++) {
       DrawTexturePro(block_textures[view->blocks[i].block.type - 1],
                      view->blocks[i].src, view->blocks[i].dst, VEC_ZERO, 0,
                      view->blocks[i].light);
     }
-    rlDrawRenderBatchActive();
-    rlLoadIdentity();
+    end_camera();
 
     if (update_button(play_button)) {
       is_active = false;
@@ -119,6 +105,8 @@ void menu_screen(w_state *state) {
   destroy_button(setting_button);
   destroy_button(exit_button);
   destroy_gui(ctx);
+
+  destroy_camera(camera);
 
   if (is_active) {
     state->state = FS_EXIT;

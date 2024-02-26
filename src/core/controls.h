@@ -1,7 +1,6 @@
 #pragma once
 #include "../gui/gui.h"
 #include "../stdafx.h"
-#include "view.h"
 
 #pragma pack(push, 1)
 typedef struct w_controls {

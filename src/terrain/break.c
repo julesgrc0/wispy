@@ -1,7 +1,7 @@
 #include "break.h"
 
 w_blockbreaker *create_blockbreaker(w_state *state, w_chunkview *chunk_view,
-                                    Camera2D *camera) {
+                                    w_camera *camera) {
   w_blockbreaker *bb = malloc(sizeof(w_blockbreaker));
   if (bb == NULL) {
     return NULL;
@@ -23,6 +23,12 @@ w_blockbreaker *create_blockbreaker(w_state *state, w_chunkview *chunk_view,
   return bb;
 }
 
+Vector2 get_mouse_block(w_camera *camera) {
+  Vector2 mouse = Vector2Add(VEC(FORMAT_W(GetMouseX()), FORMAT_H(GetMouseY())),
+                             get_camera_vec(camera));
+  return Vector2Subtract(mouse, VEC((CUBE_W / 2), (CUBE_H / 2)));
+}
+
 w_breakstate update_blockbreaker(w_blockbreaker *bb, w_controls *ctrl,
                                  w_player *player, float dt) {
 #ifdef __ANDROID__
@@ -33,7 +39,7 @@ w_breakstate update_blockbreaker(w_blockbreaker *bb, w_controls *ctrl,
     return BS_NONE;
   }
 #else
-  Vector2 mouse = vec_block_round(get_mouse_block_center(bb->camera));
+  Vector2 mouse = vec_block_round(get_mouse_block(bb->camera));
   if (Vector2Distance(mouse, get_player_center(player)) >= BREAKER_DISTANCE ||
       !IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
     bb->time = 0;
@@ -60,8 +66,8 @@ w_breakstate update_blockbreaker(w_blockbreaker *bb, w_controls *ctrl,
     }
 
     bb->time -= dt;
-    bb->stage =
-        (BREAKER_STAGES - 1) - ((bb->time) / (BREAKER_TIME / BREAKER_STAGES));
+    bb->stage = (int)((BREAKER_STAGES - 1) -
+                      ((bb->time) / (BREAKER_TIME / BREAKER_STAGES)));
 
     if (bb->stage >= BREAKER_STAGES - 1 || bb->time <= 0) {
       bb->time = 0;

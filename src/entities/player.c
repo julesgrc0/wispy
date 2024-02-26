@@ -13,8 +13,8 @@ w_player *create_player(unsigned int x) {
   player->dst = RECT((RENDER_W - CUBE_W) / 2.f, (RENDER_H - CUBE_H * 2) / 2.f,
                      CUBE_W * 0.7f, // TODO: adjust player size
                      CUBE_H * 2);
-  player->position =
-      VEC((x + CHUNK_GROUP_MID_LEN) * CHUNK_W * CUBE_W, CHUNK_MID_H * CUBE_H);
+  player->position = VEC((float)((x + CHUNK_GROUP_MID_LEN) * FULL_CHUNK_W),
+                         CHUNK_MID_H * CUBE_H);
   return player;
 }
 
@@ -106,13 +106,6 @@ Vector2 get_player_center(w_player *player) {
              player->position.y + player->dst.height / 2);
 }
 
-Vector2 get_camera_target_player(w_player *player, Camera2D *camera) {
-
-  return center_camera_on_object(camera,
-                                 RECT(player->position.x, player->position.y,
-                                      player->dst.width, player->dst.height));
-}
-
 void check_player_collision_vel(w_player *player, w_chunkview *view) {
   Rectangle next_velx = {.x = player->position.x +
                               player->velocity.x * PLAYER_SPEED * PHYSICS_TICK,
@@ -126,7 +119,7 @@ void check_player_collision_vel(w_player *player, w_chunkview *view) {
                          .height = player->dst.height};
 
   bool col_x = false;
-  for (size_t i = 0; i < view->textures_len; i++) {
+  for (size_t i = 0; i < view->len; i++) {
     if (view->blocks[i].block.is_background)
       continue;
 
