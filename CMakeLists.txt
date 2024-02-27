@@ -5,23 +5,34 @@ set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS ON)
 
+# disable raylib examples and tests
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(BUILD_TESTS OFF CACHE BOOL "" FORCE)
 
+# disable zlib examples and tests
 set(ZLIB_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(SKIP_INSTALL_ALL ON CACHE BOOL "" FORCE)
 
+# disable json-c examples and tests
+set(DOXYGEN_FOUND OFF CACHE BOOL "" FORCE)
+set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
+
+
 if(ANDROID)
+  # change project name to main for libmain
   set(PROJECT_NAME main)
 
+  # set android abi
   string(REGEX MATCH "android-([0-9]+)" _ ${ANDROID_PLATFORM} FORCE)
   set(ANDROID_API_VERSION ${CMAKE_MATCH_1} CACHE STRING "" FORCE)
   set(ANDROID_ARCH ${CMAKE_ANDROID_ARCH} CACHE STRING "" FORCE)
   set(PLATFORM "Android" CACHE STRING "" FORCE)
 
+  # change resource output path
   set(RESOURCE_FILE ${CMAKE_SOURCE_DIR}/android/app/src/main/assets/resource.pack)
   
+  # set android flags
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3  -flto")
   if(CMAKE_ANDROID_ARCH_ABI STREQUAL "armeabi-v7a")
       set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mfloat-abi=softfp -mfpu=vfpv3-d16")
@@ -30,37 +41,48 @@ if(ANDROID)
   endif()
 
 elseif(UNIX)
+  # change resource output path
   set(RESOURCE_FILE ${CMAKE_SOURCE_DIR}/out/resource.pack)
 endif()
 
-option(BUILD_MINSIZE "Build a smaller executable" OFF)
+option(W_BUILD_MINSIZE "Build a smaller executable (Wispy)" OFF)
+option(W_BUILD_ASSETS "Build assets (Wispy)" ON)
 
-add_custom_target(pack_assets
-    COMMAND python ${CMAKE_SOURCE_DIR}/tools/pack_assets.py
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-  )
+# add dependencies
+add_subdirectory(libs/raylib)
+add_subdirectory(libs/zlib)
+add_subdirectory(libs/json-c)
 
-add_subdirectory(lib/raylib)
-add_subdirectory(lib/zlib)
-add_subdirectory(lib/json-c)
-
+# add include directories
 include_directories(
-    ${CMAKE_SOURCE_DIR}/lib/raylib/src
-    ${CMAKE_SOURCE_DIR}/lib/zlib
-    ${CMAKE_SOURCE_DIR}/lib/json-c
+    ${CMAKE_SOURCE_DIR}/libs/raylib/src
+    ${CMAKE_SOURCE_DIR}/libs/zlib
+    ${CMAKE_SOURCE_DIR}/libs/json-c
 )
 
-file(GLOB_RECURSE SOURCES "src/*.c")
-if(MSVC)
-  list(APPEND SOURCES "src/ressource.rc")
+# pack assets to resource.pack
+if(W_BUILD_ASSETS)
+  add_custom_target(pack_assets
+      COMMAND python ${CMAKE_SOURCE_DIR}/tools/pack_assets.py
+      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    )
 endif()
 
+# add sources
+file(GLOB_RECURSE SOURCES "src/*.c")
+if(MSVC)
+    list(APPEND SOURCES "src/ressource.rc")
+endif()
+
+# add definitions
 add_definitions(-DWISPY_VERSION="version ${PROJECT_VERSION}")
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   add_definitions(-D_DEBUG)
 endif()
 
+
 if(ANDROID)
+  # set android flags
   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
   add_definitions(-D__ANDROID__)
   
@@ -76,7 +98,8 @@ else()
   message(FATAL_ERROR "Unsupported platform")
 endif()
 
-if(BUILD_MINSIZE)
+# compress executable with upx
+if(W_BUILD_MINSIZE)
   find_program(UPX upx)
   if(UPX)
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
@@ -87,7 +110,7 @@ if(BUILD_MINSIZE)
   endif()
 endif()
 
-
+# copy resource.pack to output directory
 if(UNIX OR ANDROID)
   if(EXISTS ${CMAKE_SOURCE_DIR}/tools/resource.pack)
       add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD

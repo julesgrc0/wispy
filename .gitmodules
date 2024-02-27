@@ -1,11 +1,11 @@
-[submodule "lib/raylib"]
-	path = lib/raylib
+[submodule "libs/raylib"]
+	path = libs/raylib
 	url = https://github.com/raysan5/raylib.git
 	ignore = dirty
-[submodule "lib/zlib"]
-	path = lib/zlib
+[submodule "libs/zlib"]
+	path = libs/zlib
 	url = https://github.com/madler/zlib.git
 	ignore = dirty
-[submodule "lib/json-c"]
-	path = lib/json-c
+[submodule "libs/json-c"]
+	path = libs/json-c
 	url = https://github.com/json-c/json-c
