@@ -1,0 +1,9 @@
+[submodule "libs/raylib"]
+	path = libs/raylib
+	url = https://github.com/raysan5/raylib.git
+[submodule "libs/zlib"]
+	path = libs/zlib
+	url = https://github.com/madler/zlib.git
+[submodule "libs/json-c"]
+	path = libs/json-c
+	url = https://github.com/json-c/json-c.git
