@@ -3,28 +3,37 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        create("release") {
+        }
+    }
     namespace = "com.julesgrc0.wispy"
     compileSdk = 34
 
     defaultConfig {
         applicationId = "com.julesgrc0.wispy"
-        minSdk = 19
-        targetSdk = 34
+        minSdk = 34
         versionCode = 1
         versionName = "alpha-0.0.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        signingConfig = signingConfigs.getByName("debug")
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = false
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             isJniDebuggable = false
+            isMinifyEnabled = true
+            //isShrinkResources = true
+            //multiDexEnabled = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+
+            signingConfig = signingConfigs.getByName("release")
 
         }
         getByName("debug") {
             isJniDebuggable = true
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {
@@ -39,12 +48,12 @@ android {
     buildFeatures {
         viewBinding = true
     }
-    ndkVersion = "26.1.10909125"
+    ndkVersion = "26.2.11394342"
     dependenciesInfo {
         includeInApk = false
         includeInBundle = false
     }
-    buildToolsVersion = "34.0.0"
+    buildToolsVersion = "35.0.0 rc1"
 }
 
 dependencies {
