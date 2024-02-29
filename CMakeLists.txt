@@ -48,17 +48,13 @@ endif()
 option(W_BUILD_MINSIZE "Build a smaller executable (Wispy)" OFF)
 option(W_BUILD_ASSETS "Build assets (Wispy)" ON)
 
-# add dependencies
-add_subdirectory(libs/raylib)
-add_subdirectory(libs/zlib)
-add_subdirectory(libs/json-c)
-
-# add include directories
-include_directories(
-    ${CMAKE_SOURCE_DIR}/libs/raylib/src
-    ${CMAKE_SOURCE_DIR}/libs/zlib
-    ${CMAKE_SOURCE_DIR}/libs/json-c
-)
+# add dependencies and include directories
+file(GLOB SUBDIRS "libs/*")
+foreach(DIR ${SUBDIRS})
+  if(IS_DIRECTORY ${DIR})
+    add_subdirectory(${DIR})
+  endif()
+endforeach()
 
 # pack assets to resource.pack
 if(W_BUILD_ASSETS)
