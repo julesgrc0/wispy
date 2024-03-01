@@ -3,11 +3,11 @@
 #include "../stdafx.h"
 
 #define MAX_UNCOMPRESSE_TRY 4
-#ifdef _WIN32
+#if defined(_WIN32)
 #define RESOURCE_NAME "ASSETS_PACK"
-#elif __linux__
-extern char _binary_resource_pack_start;
-extern char _binary_resource_pack_end;
+#elif defined(__linux__) && !defined(__ANDROID__)
+extern char w_binary___tools_resource_pack_start;
+extern char w_binary___tools_resource_pack_end;
 #else
 #define RESOURCE_NAME "resource.pack"
 #endif

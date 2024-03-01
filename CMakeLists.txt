@@ -17,8 +17,10 @@ set(SKIP_INSTALL_ALL ON CACHE BOOL "" FORCE)
 # disable json-c examples and tests
 set(DOXYGEN_FOUND OFF CACHE BOOL "" FORCE)
 set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
+set(HAVE_ARC4RANDOM OFF CACHE BOOL "" FORCE)
 
-set(RESOURCE_PACK ${CMAKE_SOURCE_DIR}/tools/resource.pack)
+
+set(RESOURCE_PACK ./tools/resource.pack)
 
 if(ANDROID)
   # change project name to main for libmain
@@ -63,16 +65,6 @@ endif()
 
 # add sources
 file(GLOB_RECURSE SOURCES "src/*.c")
-if(MSVC)
-  list(APPEND SOURCES "src/resource.rc")
-elseif(UNIX)
-  add_custom_target(link_resource
-  COMMAND  objcopy --input binary --output elf32-i386 --binary-architecture i386 ${RESOURCE_PACK} ${CMAKE_SOURCE_DIR}/src/resource.o
-  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-  )
-  add_dependencies(${PROJECT_NAME} link_resource)
-  list(APPEND SOURCES "src/resource.o")
-endif()
 
 # add definitions
 add_definitions(-DWISPY_VERSION="version ${PROJECT_VERSION}")
@@ -88,10 +80,22 @@ if(ANDROID)
   
   add_library(${PROJECT_NAME} SHARED ${SOURCES})
   target_link_libraries(${PROJECT_NAME} raylib zlibstatic android log)
-elseif(UNIX)
+elseif(UNIX AND NOT ANDROID)
   add_executable(${PROJECT_NAME} ${SOURCES})
-  target_link_libraries(${PROJECT_NAME} PRIVATE raylib zlibstatic json-c pthread)
+  if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    set(OBJCOPY_ARCH "elf64-x86-64")
+  else()
+    set(OBJCOPY_ARCH "elf32-i386")
+  endif()
+
+  add_custom_target(link_resource
+  COMMAND  objcopy --prefix-symbol=w --localize-hidden --rename-section .data=.rdata,CONTENTS,ALLOC,LOAD,READONLY,DATA --input-target binary --binary-architecture i386 --output-target ${OBJCOPY_ARCH} ${RESOURCE_PACK} ${CMAKE_BINARY_DIR}/resource.o --verbose
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  )
+  add_dependencies(${PROJECT_NAME} link_resource)
+  target_link_libraries(${PROJECT_NAME} PRIVATE raylib zlibstatic json-c pthread ${CMAKE_BINARY_DIR}/resource.o)
 elseif(MSVC)
+  list(APPEND SOURCES "src/resource.rc")
   add_executable(${PROJECT_NAME} WIN32 ${SOURCES})
   target_link_libraries(${PROJECT_NAME} PRIVATE raylib zlibstatic json-c)
 else()
@@ -115,6 +119,7 @@ if(ANDROID)
   if(EXISTS ${RESOURCE_PACK})
       add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy ${RESOURCE_PACK} ${RESOURCE_FILE}
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
       )
   else()
     message(WARNING "resource.pack file not found. Skipping copying.")

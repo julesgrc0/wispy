@@ -161,6 +161,27 @@
       "name": "x86-release-linux",
       "configurePreset": "x86-release-linux",
       "inherits": ["base-build"]
+    },
+
+    {
+      "name": "x64-debug-windows",
+      "configurePreset": "x64-debug-windows",
+      "inherits": ["base-build"]
+    },
+    {
+      "name": "x86-debug-windows",
+      "configurePreset": "x86-debug-windows",
+      "inherits": ["base-build"]
+    },
+    {
+      "name": "x64-debug-linux",
+      "configurePreset": "x64-debug-linux",
+      "inherits": ["base-build"]
+    },
+    {
+      "name": "x86-debug-linux",
+      "configurePreset": "x86-debug-linux",
+      "inherits": ["base-build"]
     }
   ]
 }
