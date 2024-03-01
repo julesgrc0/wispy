@@ -1,0 +1,3 @@
+#include "resource.h"
+
+IDR_ASSETS_PACK1 RCDATA "..\\tools\\resource.pack"

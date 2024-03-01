@@ -18,6 +18,7 @@ set(SKIP_INSTALL_ALL ON CACHE BOOL "" FORCE)
 set(DOXYGEN_FOUND OFF CACHE BOOL "" FORCE)
 set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
 
+set(RESOURCE_PACK ${CMAKE_SOURCE_DIR}/tools/resource.pack)
 
 if(ANDROID)
   # change project name to main for libmain
@@ -39,10 +40,6 @@ if(ANDROID)
   elseif(CMAKE_ANDROID_ARCH_ABI STREQUAL "arm64-v8a")
       set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mfix-cortex-a53-835769")
   endif()
-
-elseif(UNIX)
-  # change resource output path
-  set(RESOURCE_FILE ${CMAKE_SOURCE_DIR}/out/resource.pack)
 endif()
 
 option(W_BUILD_MINSIZE "Build a smaller executable (Wispy)" OFF)
@@ -67,7 +64,14 @@ endif()
 # add sources
 file(GLOB_RECURSE SOURCES "src/*.c")
 if(MSVC)
-    list(APPEND SOURCES "src/ressource.rc")
+  list(APPEND SOURCES "src/resource.rc")
+elseif(UNIX)
+  add_custom_target(link_resource
+  COMMAND  objcopy --input binary --output elf32-i386 --binary-architecture i386 ${RESOURCE_PACK} ${CMAKE_SOURCE_DIR}/src/resource.o
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  )
+  add_dependencies(${PROJECT_NAME} link_resource)
+  list(APPEND SOURCES "src/resource.o")
 endif()
 
 # add definitions
@@ -107,10 +111,10 @@ if(W_BUILD_MINSIZE)
 endif()
 
 # copy resource.pack to output directory
-if(UNIX OR ANDROID)
-  if(EXISTS ${CMAKE_SOURCE_DIR}/tools/resource.pack)
+if(ANDROID)
+  if(EXISTS ${RESOURCE_PACK})
       add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/tools/resource.pack ${RESOURCE_FILE}
+        COMMAND ${CMAKE_COMMAND} -E copy ${RESOURCE_PACK} ${RESOURCE_FILE}
       )
   else()
     message(WARNING "resource.pack file not found. Skipping copying.")

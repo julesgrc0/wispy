@@ -34,6 +34,9 @@ w_asset *unpack_assets(size_t *size)
   if (hInstance == NULL)
     return NULL;
   char *in_buffer = load_resource(hInstance, &in_size);
+#elif __linux__
+  char *in_buffer = &_binary_resource_pack_start;
+  in_size = &_binary_resource_pack_end - &_binary_resource_pack_start;
 #else
   char *in_buffer = (char *)LoadFileData(RESOURCE_NAME, &in_size);
 #endif
