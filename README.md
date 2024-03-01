@@ -5,7 +5,7 @@
 
 **Concept**: Wipsy is a kind of 2D Minecraft.
 
-![Wispy Icon](./android\app\src\main\res\mipmap-xxhdpi\ic_launcher.webp)
+![Wispy Icon](./android/app/src/main/res/mipmap-xxhdpi/ic_launcher.webp)
 
 > Preview 🎥
 
