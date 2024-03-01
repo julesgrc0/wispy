@@ -17,7 +17,6 @@ android {
         versionName = "alpha-0.0.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        signingConfig = signingConfigs.getByName("debug")
     }
 
     buildTypes {
@@ -27,13 +26,9 @@ android {
             //isShrinkResources = true
             //multiDexEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-
-            signingConfig = signingConfigs.getByName("release")
-
         }
         getByName("debug") {
             isJniDebuggable = true
-            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {
