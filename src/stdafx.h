@@ -30,8 +30,8 @@
 ///
 
 #if defined(_WIN32)
-#ifndef PLATFORM_WINDOWS
-#define PLATFORM_WINDOWS
+#ifndef WISPY_WINDOWS
+#define WISPY_WINDOWS
 #endif
 
 #define NOGDI
@@ -51,8 +51,8 @@
 #define MAKEINTRESOURCE(i) ((LPSTR)((ULONG_PTR)((WORD)(i))))
 
 #elif defined(__linux__) && !defined(__ANDROID__)
-#ifndef PLATFORM_LINUX
-#define PLATFORM_LINUX
+#ifndef WISPY_LINUX
+#define WISPY_LINUX
 #endif
 
 #define MAX_PATH 260
@@ -60,8 +60,8 @@
 #include <unistd.h>
 
 #elif defined(__ANDROID__)
-#ifndef PLATFORM_ANDROID
-#define PLATFORM_ANDROID
+#ifndef WISPY_ANDROID
+#define WISPY_ANDROID
 #endif
 
 #define MAX_PATH 260
@@ -94,7 +94,7 @@
 #define PHYSICS_TICK (1.0f / 240.0f)
 #define MIN_FRAME_TIME (1.0f / 30.0f)
 
-#if defined(PLATFORM_ANDROID)
+#if defined(WISPY_ANDROID)
 #undef PHYSICS_TICK
 #define PHYSICS_TICK (0.015f)
 #endif
@@ -128,12 +128,12 @@
 #define RECT(...)                                                              \
   (Rectangle) { __VA_ARGS__ }
 
-#if defined(_DEBUG) && (defined(PLATFORM_LINUX) || defined(PLATFORM_WINDOWS))
+#if defined(_DEBUG) && (defined(WISPY_LINUX) || defined(WISPY_WINDOWS))
 #define LOG(...)                                                               \
   printf("INFO: ");                                                            \
   printf(__VA_ARGS__);                                                         \
   printf("\n");
-#elif defined(_DEBUG) && defined(PLATFORM_ANDROID)
+#elif defined(_DEBUG) && defined(WISPY_ANDROID)
 #define LOG(...) __android_log_print(ANDROID_LOG_INFO, "WISPY", __VA_ARGS__);
 #else
 #define LOG(...)

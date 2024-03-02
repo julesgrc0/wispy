@@ -29,7 +29,7 @@ typedef struct w_state {
 
   w_config *config;
 
-#if defined(PLATFORM_WINDOWS)
+#if defined(WISPY_WINDOWS)
   HINSTANCE hInstance;
 #endif
 

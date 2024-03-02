@@ -1,7 +1,7 @@
 #include "menu.h"
 
 void menu_screen(w_state *state) {
-#if defined(PLATFORM_WINDOWS) || defined(PLATFORM_LINUX)
+#if defined(WISPY_WINDOWS) || defined(WISPY_LINUX)
   ShowCursor();
 #endif
 

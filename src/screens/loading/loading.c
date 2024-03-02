@@ -5,7 +5,7 @@ void load_assets(w_state *state) {
                                     abs((int)state->rnd_src.height));
 
   size_t items_len;
-#if defined(PLATFORM_WINDOWS)
+#if defined(WISPY_WINDOWS)
   w_asset *items = unpack_assets(state->hInstance, &items_len);
 #else
   w_asset *items = unpack_assets(&items_len);
@@ -31,7 +31,7 @@ void load_assets(w_state *state) {
           ".png", (const unsigned char *)items[i].buffer, items[i].size);
       state->textures[state->textures_len] = LoadTextureFromImage(image);
       SetTextureWrap(state->textures[state->textures_len], TEXTURE_WRAP_CLAMP);
-#if defined(PLATFORM_WINDOWS) || defined(PLATFORM_LINUX)
+#if defined(WISPY_WINDOWS) || defined(WISPY_LINUX)
       SetTextureFilter(state->textures[state->textures_len],
                        TEXTURE_FILTER_ANISOTROPIC_16X);
 #endif

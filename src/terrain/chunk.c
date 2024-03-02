@@ -8,14 +8,14 @@ w_chunk *create_chunk(unsigned int position, bool thread) {
   }
   chunk->position = position;
 
-#if defined(PLATFORM_WINDOWS)
+#if defined(WISPY_WINDOWS)
   chunk->handle = INVALID_HANDLE_VALUE;
 #else
   chunk->handle = 0;
 #endif
 
   if (thread) {
-#if defined(PLATFORM_WINDOWS)
+#if defined(WISPY_WINDOWS)
     chunk->handle = CreateThread(NULL, 0, &create_chunk_thread, chunk, 0, 0);
     if (chunk->handle == INVALID_HANDLE_VALUE)
 #else
@@ -36,14 +36,14 @@ w_chunk *create_chunk(unsigned int position, bool thread) {
   return chunk;
 }
 
-#if defined(PLATFORM_WINDOWS)
+#if defined(WISPY_WINDOWS)
 DWORD WINAPI create_chunk_thread(PVOID arg)
 #else
 void *create_chunk_thread(void *arg)
 #endif
 {
   if (!arg) {
-#if defined(PLATFORM_WINDOWS)
+#if defined(WISPY_WINDOWS)
     return EXIT_FAILURE;
 #else
     return NULL;
@@ -113,7 +113,7 @@ void *create_chunk_thread(void *arg)
   UnloadImage(base);
   UnloadImage(mineral);
 
-#if defined(PLATFORM_WINDOWS)
+#if defined(WISPY_WINDOWS)
   chunk->handle = INVALID_HANDLE_VALUE;
 #else
   chunk->handle = 0;
@@ -121,7 +121,7 @@ void *create_chunk_thread(void *arg)
 
   LOG("chunk created: %u", chunk->position);
 
-#if defined(PLATFORM_WINDOWS)
+#if defined(WISPY_WINDOWS)
   return EXIT_SUCCESS;
 #else
   return NULL;

@@ -19,7 +19,7 @@ Vector2 update_joystick(w_guijoystick *js) {
   DrawCircleV(js->position, js->size, Fade(WHITE, 0.3f));
   DrawCircleV(js->position, js->size * 0.9f, Fade(WHITE, 0.3f));
 
-#if defined(PLATFORM_ANDROID)
+#if defined(WISPY_ANDROID)
   if (has_touch()) {
     Vector2 mouse =
         get_nearest_touch(Vector2SubtractValue(js->position, js->size / 2.f));
@@ -32,7 +32,7 @@ Vector2 update_joystick(w_guijoystick *js) {
     else if(js->touch_count != GetTouchPointCount())
     {
         js->cursor = js->position;
-#if defined(PLATFORM_ANDROID)
+#if defined(WISPY_ANDROID)
         js->touch_count = 0;
 #endif
     }else
@@ -61,7 +61,7 @@ Vector2 update_joystick(w_guijoystick *js) {
     }
   } else {
     js->cursor = js->position;
-#if defined(PLATFORM_ANDROID)
+#if defined(WISPY_ANDROID)
     js->touch_count = 0;
 #endif
   }

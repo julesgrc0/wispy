@@ -1,4 +1,5 @@
 #define IDR_ASSETS_PACK1                101
+#define IDI_WISPY_ICON1                 102
 
 #if defined(APSTUDIO_INVOKED)
 #ifndef APSTUDIO_READONLY_SYMBOLS

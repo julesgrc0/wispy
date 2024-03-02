@@ -17,7 +17,7 @@ typedef struct w_controls {
     uint8_t key;
   };
 
-#if defined(PLATFORM_ANDROID)
+#if defined(WISPY_ANDROID)
   Vector2 joystick;
   bool is_jumping;
   bool is_breaking;
@@ -31,7 +31,7 @@ void destroy_controls(w_controls *kb);
 void update_controls(w_controls *kb);
 void clear_controls(w_controls *kb);
 
-#if defined(PLATFORM_ANDROID)
+#if defined(WISPY_ANDROID)
 bool check_collision_touch(Vector2 position, float size);
 Vector2 get_nearest_touch(Vector2 position);
 Vector2 get_collision_touch(Vector2 position, float size);

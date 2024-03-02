@@ -1,6 +1,6 @@
 #include "unpack.h"
 
-#if defined(PLATFORM_WINDOWS)
+#if defined(WISPY_WINDOWS)
 char *load_resource(HINSTANCE hInstance, size_t *size) {
   HRSRC hResInfo = FindResourceA(hInstance, MAKEINTRESOURCE(IDR_ASSETS_PACK1),
                                  RESOURCE_NAME);
@@ -22,7 +22,7 @@ char *load_resource(HINSTANCE hInstance, size_t *size) {
 }
 #endif
 
-#if defined(PLATFORM_WINDOWS)
+#if defined(WISPY_WINDOWS)
 w_asset *unpack_assets(HINSTANCE hInstance, size_t *size)
 #else
 w_asset *unpack_assets(size_t *size)
@@ -31,14 +31,14 @@ w_asset *unpack_assets(size_t *size)
   *size = 0;
   size_t in_size = 0;
   
-#if defined(PLATFORM_WINDOWS)
+#if defined(WISPY_WINDOWS)
   if (hInstance == NULL)
     return NULL;
   char *in_buffer = load_resource(hInstance, &in_size);
-#elif defined(PLATFORM_LINUX)
+#elif defined(WISPY_LINUX)
   char *in_buffer = &w_binary___tools_resource_pack_start;
   in_size = &w_binary___tools_resource_pack_end - &w_binary___tools_resource_pack_start;
-#elif defined(PLATFORM_ANDROID)
+#elif defined(WISPY_ANDROID)
   char *in_buffer = (char *)LoadFileData(RESOURCE_NAME, (int*)&in_size);
 #endif
 

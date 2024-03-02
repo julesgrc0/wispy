@@ -41,8 +41,8 @@ w_bridge *create_bridge() {
   }
 
   td->is_active = true;
-#if defined(PLATFORM_WINDOWS) || defined(PLATFORM_LINUX)
-#if defined(PLATFORM_WINDOWS)
+#if defined(WISPY_WINDOWS) || defined(WISPY_LINUX)
+#if defined(WISPY_WINDOWS)
   QueryPerformanceFrequency(&td->time_frequency);
   QueryPerformanceCounter(&td->time_start);
 
@@ -69,11 +69,11 @@ void destroy_bridge(w_bridge *td) {
   LOG("destroying bridge thread");
 
   td->is_active = false;
-#if defined(PLATFORM_WINDOWS)
+#if defined(WISPY_WINDOWS)
   if (td->handle != INVALID_HANDLE_VALUE && td->handle != NULL) {
     WaitForSingleObject(td->handle, INFINITE);
   }
-#elif defined(PLATFORM_LINUX)
+#elif defined(WISPY_LINUX)
   if (td->handle != 0) {
     pthread_join(td->handle, NULL);
   }
@@ -123,13 +123,13 @@ void update_bridge(w_bridge *td) {
     td->force_update = false;
   }
 
-#if defined(PLATFORM_WINDOWS)
+#if defined(WISPY_WINDOWS)
   QueryPerformanceCounter(&td->time_end);
   if (td->time_end.QuadPart - td->time_start.QuadPart >=
       td->time_frequency.QuadPart * PHYSICS_TICK) 
   {
     QueryPerformanceCounter(&td->time_start);
-#elif defined(PLATFORM_LINUX)
+#elif defined(WISPY_LINUX)
   clock_gettime(CLOCK_MONOTONIC, &td->time_end);
   if ((td->time_end.tv_sec - td->time_start.tv_sec) +
           (td->time_end.tv_nsec - td->time_start.tv_nsec) / 1000000000.0 >=
@@ -143,7 +143,7 @@ void update_bridge(w_bridge *td) {
   }
 }
 
-#if defined(PLATFORM_WINDOWS)
+#if defined(WISPY_WINDOWS)
 int WINAPI thread_bridge(PVOID arg)
 #else
 void *thread_bridge(void *arg)
@@ -151,7 +151,7 @@ void *thread_bridge(void *arg)
 {
   LOG("starting bridge thread");
   if (!arg) {
-#if defined(PLATFORM_WINDOWS)
+#if defined(WISPY_WINDOWS)
     return EXIT_FAILURE;
 #else
     return NULL;
@@ -164,7 +164,7 @@ void *thread_bridge(void *arg)
   } while (td->is_active);
 
   LOG("exiting bridge thread");
-#if defined(PLATFORM_WINDOWS)
+#if defined(WISPY_WINDOWS)
   return EXIT_SUCCESS;
 #else
   return NULL;

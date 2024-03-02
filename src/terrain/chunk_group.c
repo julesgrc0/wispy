@@ -29,11 +29,11 @@ void destroy_chunkgroup(w_chunkgroup *grp) {
 
   LOG("destroying chunk group: %u", grp->position);
   for (unsigned int i = 0; i < CHUNK_GROUP_LEN; i++) {
-#if defined(PLATFORM_WINDOWS)
+#if defined(WISPY_WINDOWS)
     if (grp->chunks[i]->handle != INVALID_HANDLE_VALUE) {
       WaitForSingleObject(grp->chunks[i]->handle, INFINITE);
     }
-#elif defined(PLATFORM_LINUX)
+#elif defined(WISPY_LINUX)
     if (grp->chunks[i]->handle != 0) {
       pthread_join(grp->chunks[i]->handle, NULL);
     }

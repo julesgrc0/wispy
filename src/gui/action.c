@@ -15,7 +15,7 @@ w_guiaction *create_action(w_guicontext *ctx, Vector2 position, float size,
 }
 
 bool update_action(w_guiaction *act) {
-#if defined(PLATFORM_ANDROID)
+#if defined(WISPY_ANDROID)
   bool clicked = check_collision_touch(act->position, act->size);
 #else
   bool clicked =

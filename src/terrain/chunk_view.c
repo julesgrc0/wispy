@@ -16,9 +16,9 @@ w_chunkview *create_chunkview(w_chunk *current) {
   }
   chunk_view->target = current;
 
-#if defined(PLATFORM_WINDOWS)
+#if defined(WISPY_WINDOWS)
   InitializeCriticalSection(&chunk_view->csec);
-#elif defined(PLATFORM_LINUX)
+#elif defined(WISPY_LINUX)
   if (pthread_mutex_init(&chunk_view->mutex, NULL) != 0) {
     free(chunk_view->blocks);
     free(chunk_view);
@@ -38,9 +38,9 @@ void destroy_chunkview(w_chunkview *chunk_view) {
     return;
   }
   LOG("destroying chunk view");
-#if defined(PLATFORM_WINDOWS)
+#if defined(WISPY_WINDOWS)
   DeleteCriticalSection(&chunk_view->csec);
-#elif defined(PLATFORM_LINUX)
+#elif defined(WISPY_LINUX)
   if (pthread_mutex_destroy(&chunk_view->mutex) != 0) {
     LOG("failed to close mutex (chunk view)");
   }
@@ -53,9 +53,9 @@ void destroy_chunkview(w_chunkview *chunk_view) {
 
 void update_renderblock_async(w_chunkview *chunk_view, w_renderblock *blocks,
                               size_t len) {
-#if defined(PLATFORM_WINDOWS)
+#if defined(WISPY_WINDOWS)
   EnterCriticalSection(&chunk_view->csec);
-#elif defined(PLATFORM_LINUX)
+#elif defined(WISPY_LINUX)
   pthread_mutex_lock(&chunk_view->mutex);
 #endif
 
@@ -63,9 +63,9 @@ void update_renderblock_async(w_chunkview *chunk_view, w_renderblock *blocks,
   chunk_view->len = len;
   chunk_view->blocks = blocks;
 
-#if defined(PLATFORM_WINDOWS)
+#if defined(WISPY_WINDOWS)
   LeaveCriticalSection(&chunk_view->csec);
-#elif defined(PLATFORM_LINUX)
+#elif defined(WISPY_LINUX)
   pthread_mutex_unlock(&chunk_view->mutex);
 #endif
 }

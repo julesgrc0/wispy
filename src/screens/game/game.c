@@ -27,7 +27,7 @@ void game_screen(w_state *state) {
     return;
   }
 
-#if defined(PLATFORM_ANDROID)
+#if defined(WISPY_ANDROID)
   w_guicontext *ctx = create_gui();
   if (ctx == NULL) {
     destroy_bridge(td);
@@ -72,7 +72,7 @@ void game_screen(w_state *state) {
 
   w_breakstate bstate = BS_NONE;
   while (!WindowShouldClose() && td->is_active) {
-#if defined(PLATFORM_ANDROID)
+#if defined(WISPY_ANDROID)
     update_controls(td->ctrl);
     set_camera_vec(td->camera, VEC(roundf(td->camera->target_position.x),
                                    roundf(td->camera->target_position.y)));
@@ -87,9 +87,9 @@ void game_screen(w_state *state) {
                Vector2Distance(td->player->position, player_position) * speed);
 #endif
 
-#if defined(PLATFORM_WINDOWS)
+#if defined(WISPY_WINDOWS)
     if (TryEnterCriticalSection(&td->chunk_view->csec))
-#elif defined(PLATFORM_LINUX)
+#elif defined(WISPY_LINUX)
     if (pthread_mutex_trylock(&td->chunk_view->mutex) == 0)
 #endif
     {
@@ -108,7 +108,7 @@ void game_screen(w_state *state) {
                        td->chunk_view->blocks[i].light);
       }
 
-#if defined(PLATFORM_WINDOWS) || defined(PLATFORM_LINUX)
+#if defined(WISPY_WINDOWS) || defined(WISPY_LINUX)
       bstate = update_blockbreaker(bb, td->ctrl, td->player, GetFrameTime());
 #endif
       if (bstate == BS_BREAKING) {
@@ -117,7 +117,7 @@ void game_screen(w_state *state) {
         td->force_update = true;
       }
 
-#if defined(PLATFORM_WINDOWS) || defined(PLATFORM_LINUX)
+#if defined(WISPY_WINDOWS) || defined(WISPY_LINUX)
       DrawTexturePro(player_textures[td->player->state], td->player->src,
                      RECT(player_position.x, player_position.y,
                           td->player->dst.width, td->player->dst.height),
@@ -126,7 +126,7 @@ void game_screen(w_state *state) {
 
       end_camera();
 
-#if defined(PLATFORM_ANDROID)
+#if defined(WISPY_ANDROID)
       DrawTexturePro(player_textures[td->player->state], td->player->src,
                      RECT((RENDER_W - td->player->dst.width) / 2,
                           (RENDER_H - td->player->dst.height) / 2,
@@ -141,9 +141,9 @@ void game_screen(w_state *state) {
       DrawText(TextFormat("FPS: %i", GetFPS()), 50, 50, 30, WHITE);
       EndTextureMode();
 
-#if defined(PLATFORM_WINDOWS)
+#if defined(WISPY_WINDOWS)
       LeaveCriticalSection(&td->chunk_view->csec);
-#elif defined(PLATFORM_LINUX)
+#elif defined(WISPY_LINUX)
       pthread_mutex_unlock(&td->chunk_view->mutex);
 #endif
     }
@@ -154,7 +154,7 @@ void game_screen(w_state *state) {
     EndDrawing();
   }
 
-#if defined(PLATFORM_ANDROID)
+#if defined(WISPY_ANDROID)
   destroy_joystick(js);
   destroy_action(break_button);
   destroy_action(jump_button);

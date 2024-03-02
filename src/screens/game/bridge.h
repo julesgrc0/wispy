@@ -22,10 +22,10 @@ typedef struct w_bridge {
   w_player *player;
   w_camera *camera;
 
-#if defined(PLATFORM_WINDOWS)
+#if defined(WISPY_WINDOWS)
   HANDLE handle;
   LARGE_INTEGER time_start, time_end, time_frequency;
-#elif defined(PLATFORM_LINUX)
+#elif defined(WISPY_LINUX)
   struct timespec time_start, time_end;
   pthread_t handle;
 #endif
@@ -38,8 +38,8 @@ void destroy_bridge(w_bridge *td);
 void physics_update_bridge(w_bridge *td);
 void update_bridge(w_bridge *td);
 
-#if defined(PLATFORM_WINDOWS)
+#if defined(WISPY_WINDOWS)
 int WINAPI thread_bridge(PVOID arg);
-#elif defined(PLATFORM_LINUX)
+#elif defined(WISPY_LINUX)
 void *thread_bridge(void *arg);
 #endif

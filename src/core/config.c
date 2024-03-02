@@ -55,7 +55,11 @@ w_config *load_config() {
     cfg->fullscreen = 1;
     cfg->msaa4x = 1;
 
-#if defined(_DEBUG) && !defined(PLATFORM_ANDROID)
+#if defined(WISPY_ANDROID)
+    cfg->vsync = 1;
+#endif
+
+#if defined(_DEBUG) && !defined(WISPY_ANDROID)
     cfg->width = RENDER_W;
     cfg->height = RENDER_H;
     cfg->fullscreen = 0;
