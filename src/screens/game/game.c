@@ -27,7 +27,7 @@ void game_screen(w_state *state) {
     return;
   }
 
-#ifdef __ANDROID__
+#if defined(PLATFORM_ANDROID)
   w_guicontext *ctx = create_gui();
   if (ctx == NULL) {
     destroy_bridge(td);
@@ -58,39 +58,40 @@ void game_screen(w_state *state) {
   w_guiaction *jump_button = create_action(ctx, VEC(PERCENT_W(0.95), RENDER_H),
                                            PERCENT_W(0.05), player_textures[3]);
   if (jump_button == NULL) {
-    destroy_bridge(td);
-    destroy_blockbreaker(bb);
+      destroy_bridge(td);
+      destroy_blockbreaker(bb);
 
-    destroy_action(break_button);
-    destroy_joystick(js);
-    destroy_gui(ctx);
-    return;
+      destroy_action(break_button);
+      destroy_joystick(js);
+      destroy_gui(ctx);
+      return;
   }
-#endif // __ANDROID__
+#else
+  Vector2 player_position = td->player->position;
+#endif
 
-  Vector2 target_player = td->player->position;
   w_breakstate bstate = BS_NONE;
   while (!WindowShouldClose() && td->is_active) {
-#ifndef __ANDROID__
+#if defined(PLATFORM_ANDROID)
     update_controls(td->ctrl);
-#endif // !__ANDROID__
+    set_camera_vec(td->camera, VEC(roundf(td->camera->target_position.x),
+                                   roundf(td->camera->target_position.y)));
 
-    float dt = GetFrameTime();
-    float speed = dt * PLAYER_SPEED;
-    if (dt < MIN_FRAME_TIME) {
-      smooth_camera(td->camera, td->camera_target, speed);
-      smooth_vec(&target_player, td->player->position,
-                 Vector2Distance(td->player->position, target_player) * speed);
-    } else {
-      set_camera_vec(td->camera, td->camera_target);
-      target_player = td->player->position;
-    }
-
-#ifdef _WIN32
-    if (TryEnterCriticalSection(&td->chunk_view->csec))
+    bstate = update_blockbreaker(bb, td->ctrl, td->player, PHYSICS_TICK);
+    update_bridge(td);
 #else
+    update_controls(td->ctrl);
+    float speed = GetFrameTime() * PLAYER_SPEED;
+    smooth_camera(td->camera, td->camera->target_position, speed);
+    smooth_vec(&player_position, td->player->position,
+               Vector2Distance(td->player->position, player_position) * speed);
+#endif
+
+#if defined(PLATFORM_WINDOWS)
+    if (TryEnterCriticalSection(&td->chunk_view->csec))
+#elif defined(PLATFORM_LINUX)
     if (pthread_mutex_trylock(&td->chunk_view->mutex) == 0)
-#endif // _WIN32
+#endif
     {
 
       BeginTextureMode(state->render);
@@ -107,39 +108,44 @@ void game_screen(w_state *state) {
                        td->chunk_view->blocks[i].light);
       }
 
-#ifndef __ANDROID__
-      bstate = update_blockbreaker(bb, td->ctrl, td->player, dt);
-#endif // !__ANDROID__
-
+#if defined(PLATFORM_WINDOWS) || defined(PLATFORM_LINUX)
+      bstate = update_blockbreaker(bb, td->ctrl, td->player, GetFrameTime());
+#endif
       if (bstate == BS_BREAKING) {
         draw_blockbreaker(bb);
       } else if (bstate == BS_BROKEN) {
         td->force_update = true;
       }
 
+#if defined(PLATFORM_WINDOWS) || defined(PLATFORM_LINUX)
       DrawTexturePro(player_textures[td->player->state], td->player->src,
-                     RECT(target_player.x, target_player.y,
+                     RECT(player_position.x, player_position.y,
                           td->player->dst.width, td->player->dst.height),
                      VEC_ZERO, 0, WHITE);
+#endif
 
       end_camera();
 
-#ifdef __ANDROID__
+#if defined(PLATFORM_ANDROID)
+      DrawTexturePro(player_textures[td->player->state], td->player->src,
+                     RECT((RENDER_W - td->player->dst.width) / 2,
+                          (RENDER_H - td->player->dst.height) / 2,
+                          td->player->dst.width, td->player->dst.height),
+                     VEC_ZERO, 0, WHITE);
+
       td->ctrl->joystick = update_joystick(js);
       td->ctrl->is_breaking = update_action(break_button);
       td->ctrl->is_jumping = update_action(jump_button);
+#endif
 
-      update_controls(td->ctrl);
-      bstate = update_blockbreaker(bb, td->ctrl, td->player, dt);
-#endif // __ANDROID__
       DrawText(TextFormat("FPS: %i", GetFPS()), 50, 50, 30, WHITE);
       EndTextureMode();
 
-#ifdef _WIN32
+#if defined(PLATFORM_WINDOWS)
       LeaveCriticalSection(&td->chunk_view->csec);
-#else
+#elif defined(PLATFORM_LINUX)
       pthread_mutex_unlock(&td->chunk_view->mutex);
-#endif // _WIN32
+#endif
     }
 
     BeginDrawing();
@@ -148,12 +154,12 @@ void game_screen(w_state *state) {
     EndDrawing();
   }
 
-#ifdef __ANDROID__
+#if defined(PLATFORM_ANDROID)
   destroy_joystick(js);
   destroy_action(break_button);
   destroy_action(jump_button);
   destroy_gui(ctx);
-#endif // __ANDROID__
+#endif
 
   destroy_blockbreaker(bb);
   destroy_bridge(td);

@@ -13,11 +13,11 @@ typedef struct w_chunkview {
   w_renderblock *blocks;
   size_t len; // : 15; // 2^15 = 2^14 * 2
 
-#ifdef _WIN32
+#if defined(PLATFORM_WINDOWS)
   CRITICAL_SECTION csec;
-#else
+#elif defined(PLATFORM_LINUX)
   pthread_mutex_t mutex;
-#endif // _WIN32
+#endif
 
 } w_chunkview;
 

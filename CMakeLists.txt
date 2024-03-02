@@ -79,7 +79,7 @@ if(ANDROID)
   add_definitions(-D__ANDROID__)
   
   add_library(${PROJECT_NAME} SHARED ${SOURCES})
-  target_link_libraries(${PROJECT_NAME} raylib zlibstatic android log)
+  target_link_libraries(${PROJECT_NAME} raylib zlibstatic json-c android log)
 elseif(UNIX AND NOT ANDROID)
   add_executable(${PROJECT_NAME} ${SOURCES})
   if(CMAKE_SIZEOF_VOID_P EQUAL 8)

@@ -1,7 +1,7 @@
 #pragma once
-#include "../screen/game.h"
-#include "../screen/loading.h"
-#include "../screen/menu.h"
+#include "../screens/game/game.h"
+#include "../screens/loading/loading.h"
+#include "../screens/menu/menu.h"
 #include "../stdafx.h"
 #include "state.h"
 

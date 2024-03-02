@@ -1,6 +1,6 @@
 #include "unpack.h"
 
-#ifdef _WIN32
+#if defined(PLATFORM_WINDOWS)
 char *load_resource(HINSTANCE hInstance, size_t *size) {
   HRSRC hResInfo = FindResourceA(hInstance, MAKEINTRESOURCE(IDR_ASSETS_PACK1),
                                  RESOURCE_NAME);
@@ -22,7 +22,7 @@ char *load_resource(HINSTANCE hInstance, size_t *size) {
 }
 #endif
 
-#ifdef _WIN32
+#if defined(PLATFORM_WINDOWS)
 w_asset *unpack_assets(HINSTANCE hInstance, size_t *size)
 #else
 w_asset *unpack_assets(size_t *size)
@@ -30,15 +30,16 @@ w_asset *unpack_assets(size_t *size)
 {
   *size = 0;
   size_t in_size = 0;
-#if defined(_WIN32)
+  
+#if defined(PLATFORM_WINDOWS)
   if (hInstance == NULL)
     return NULL;
   char *in_buffer = load_resource(hInstance, &in_size);
-#elif defined(__linux__) && !defined(__ANDROID__)
+#elif defined(PLATFORM_LINUX)
   char *in_buffer = &w_binary___tools_resource_pack_start;
   in_size = &w_binary___tools_resource_pack_end - &w_binary___tools_resource_pack_start;
-#else
-  char *in_buffer = (char *)LoadFileData(RESOURCE_NAME, &in_size);
+#elif defined(PLATFORM_ANDROID)
+  char *in_buffer = (char *)LoadFileData(RESOURCE_NAME, (int*)&in_size);
 #endif
 
   if (in_buffer == NULL)
@@ -51,7 +52,7 @@ w_asset *unpack_assets(size_t *size)
 
   size_t try_index = 0;
   for (; try_index < MAX_UNCOMPRESSE_TRY; try_index++) {
-    if (uncompress(out_buffer, (uLongf *)&out_size, in_buffer,
+    if (uncompress((Bytef*)out_buffer, (uLongf *)&out_size, (const Bytef*)in_buffer,
                    (uLong)in_size) != Z_OK) {
       out_size *= 2;
       void *new_outbuff = realloc(out_buffer, out_size);

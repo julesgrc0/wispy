@@ -32,7 +32,7 @@ void move_button(w_guibutton *button, Vector2 position) {
 }
 
 bool update_button(w_guibutton *button) {
-#ifdef __ANDROID__
+#if defined(PLATFORM_ANDROID)
   bool is_hover = has_touch() && check_collision_touch_rect(button->rect);
 #else
   bool is_hover = CheckCollisionRecs(
@@ -46,7 +46,7 @@ bool update_button(w_guibutton *button) {
   DrawText(button->text, (int)button->position.x, (int)button->position.y,
            (int)button->ctx->font_size, color);
 
-#ifdef __ANDROID__
+#if defined(PLATFORM_ANDROID)
   return is_hover;
 #else
   return IsMouseButtonDown(MOUSE_LEFT_BUTTON) && is_hover;

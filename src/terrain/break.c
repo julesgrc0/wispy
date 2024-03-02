@@ -31,7 +31,7 @@ Vector2 get_mouse_block(w_camera *camera) {
 
 w_breakstate update_blockbreaker(w_blockbreaker *bb, w_controls *ctrl,
                                  w_player *player, float dt) {
-#ifdef __ANDROID__
+#if defined(PLATFORM_ANDROID)
   Vector2 mouse = vec_block_round(
       Vector2Add(player->position, Vector2Scale(ctrl->joystick, CUBE_W)));
   if (!ctrl->is_breaking) {

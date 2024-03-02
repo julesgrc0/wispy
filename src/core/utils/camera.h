@@ -6,6 +6,7 @@
 
 typedef struct w_camera {
   float *matrix;
+  Vector2 target_position;
 } w_camera;
 
 w_camera *create_camera(float x, float y);

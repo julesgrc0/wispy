@@ -5,7 +5,7 @@ w_state *init_mainframe() {
   if (state == NULL)
     return NULL;
 
-#ifdef _DEBUG
+#if defined(_DEBUG)
   SetTraceLogLevel(LOG_ALL);
   SetRandomSeed(0);
   srand(0);

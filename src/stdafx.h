@@ -20,9 +20,7 @@
 ///
 
 /// JSON-C
-#ifndef __ANDROID__
 #include <json.h>
-#endif
 ///
 
 /// RAYLIB
@@ -31,7 +29,10 @@
 #include <rlgl.h>
 ///
 
-#ifdef _WIN32
+#if defined(_WIN32)
+#ifndef PLATFORM_WINDOWS
+#define PLATFORM_WINDOWS
+#endif
 
 #define NOGDI
 #define NOUSER
@@ -49,17 +50,25 @@
 
 #define MAKEINTRESOURCE(i) ((LPSTR)((ULONG_PTR)((WORD)(i))))
 
-#elif __linux__
-#define MAX_PATH 260
+#elif defined(__linux__) && !defined(__ANDROID__)
+#ifndef PLATFORM_LINUX
+#define PLATFORM_LINUX
+#endif
 
+#define MAX_PATH 260
 #include <pthread.h>
 #include <unistd.h>
 
-#elif __ANDROID__
+#elif defined(__ANDROID__)
+#ifndef PLATFORM_ANDROID
+#define PLATFORM_ANDROID
+#endif
 
-#include <android/log.h>
-#include <jni.h>
+#define MAX_PATH 260
 #include <pthread.h>
+#include <unistd.h>
+#include <jni.h>
+#include <android/log.h>
 
 #endif
 
@@ -84,6 +93,11 @@
 
 #define PHYSICS_TICK (1.0f / 240.0f)
 #define MIN_FRAME_TIME (1.0f / 30.0f)
+
+#if defined(PLATFORM_ANDROID)
+#undef PHYSICS_TICK
+#define PHYSICS_TICK (0.015f)
+#endif
 
 #define RENDER_W 1280
 #define RENDER_H 720
@@ -114,12 +128,12 @@
 #define RECT(...)                                                              \
   (Rectangle) { __VA_ARGS__ }
 
-#if defined(_DEBUG) && (defined(__linux__) || defined(_WIN32))
+#if defined(_DEBUG) && (defined(PLATFORM_LINUX) || defined(PLATFORM_WINDOWS))
 #define LOG(...)                                                               \
   printf("INFO: ");                                                            \
   printf(__VA_ARGS__);                                                         \
   printf("\n");
-#elif defined(_DEBUG) && defined(__ANDROID__)
+#elif defined(_DEBUG) && defined(PLATFORM_ANDROID)
 #define LOG(...) __android_log_print(ANDROID_LOG_INFO, "WISPY", __VA_ARGS__);
 #else
 #define LOG(...)

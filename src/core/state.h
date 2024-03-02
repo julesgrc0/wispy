@@ -29,9 +29,9 @@ typedef struct w_state {
 
   w_config *config;
 
-#ifdef _WIN32
+#if defined(PLATFORM_WINDOWS)
   HINSTANCE hInstance;
-#endif // _WIN32
+#endif
 
 } w_state;
 

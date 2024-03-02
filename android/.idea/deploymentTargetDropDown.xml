@@ -2,7 +2,7 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
-      <entry key="app">
+      <entry key="wispy">
         <State>
           <targetSelectedWithDropDown>
             <Target>
@@ -10,12 +10,12 @@
               <deviceKey>
                 <Key>
                   <type value="VIRTUAL_DEVICE_PATH" />
-                  <value value="C:\Users\jules\.android\avd\Pixel_7a_API_24.avd" />
+                  <value value="C:\Users\jules\.android\avd\Pixel_8_API_33.avd" />
                 </Key>
               </deviceKey>
             </Target>
           </targetSelectedWithDropDown>
-          <timeTargetWasSelectedWithDropDown value="2024-02-29T22:57:40.115488400Z" />
+          <timeTargetWasSelectedWithDropDown value="2024-03-02T12:51:53.640050500Z" />
         </State>
       </entry>
     </value>

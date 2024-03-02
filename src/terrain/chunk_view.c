@@ -16,9 +16,9 @@ w_chunkview *create_chunkview(w_chunk *current) {
   }
   chunk_view->target = current;
 
-#ifdef _WIN32
+#if defined(PLATFORM_WINDOWS)
   InitializeCriticalSection(&chunk_view->csec);
-#else
+#elif defined(PLATFORM_LINUX)
   if (pthread_mutex_init(&chunk_view->mutex, NULL) != 0) {
     free(chunk_view->blocks);
     free(chunk_view);
@@ -26,7 +26,7 @@ w_chunkview *create_chunkview(w_chunk *current) {
     LOG("failed to create mutex for chunk view");
     return NULL;
   }
-#endif // _WIN32
+#endif
 
   LOG("creating chunk view");
   return chunk_view;
@@ -38,13 +38,13 @@ void destroy_chunkview(w_chunkview *chunk_view) {
     return;
   }
   LOG("destroying chunk view");
-#ifdef _WIN32
+#if defined(PLATFORM_WINDOWS)
   DeleteCriticalSection(&chunk_view->csec);
-#else
+#elif defined(PLATFORM_LINUX)
   if (pthread_mutex_destroy(&chunk_view->mutex) != 0) {
     LOG("failed to close mutex (chunk view)");
   }
-#endif // _WIN32
+#endif
   if (chunk_view->blocks != NULL && chunk_view->len > 0) {
     free(chunk_view->blocks);
   }
@@ -53,21 +53,21 @@ void destroy_chunkview(w_chunkview *chunk_view) {
 
 void update_renderblock_async(w_chunkview *chunk_view, w_renderblock *blocks,
                               size_t len) {
-#ifdef _WIN32
+#if defined(PLATFORM_WINDOWS)
   EnterCriticalSection(&chunk_view->csec);
-#else
+#elif defined(PLATFORM_LINUX)
   pthread_mutex_lock(&chunk_view->mutex);
-#endif // _WIN32
+#endif
 
   sfree(chunk_view->blocks);
   chunk_view->len = len;
   chunk_view->blocks = blocks;
 
-#ifdef _WIN32
+#if defined(PLATFORM_WINDOWS)
   LeaveCriticalSection(&chunk_view->csec);
-#else
+#elif defined(PLATFORM_LINUX)
   pthread_mutex_unlock(&chunk_view->mutex);
-#endif // _WIN32
+#endif
 }
 
 bool update_chunkview(w_chunkview *chunk_view, w_chunkgroup *grp,
@@ -76,7 +76,7 @@ bool update_chunkview(w_chunkview *chunk_view, w_chunkgroup *grp,
   if (view.x < 0) {
     view.width += view.x;
     view.x = 0;
-  } else if (view.x >= UINT_MAX) {
+  } else if (view.x >= (float)UINT_MAX) {
     view.width = 0;
   }
   if (view.y <= 0) {

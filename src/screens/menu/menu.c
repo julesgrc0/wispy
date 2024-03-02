@@ -1,7 +1,7 @@
 #include "menu.h"
 
 void menu_screen(w_state *state) {
-#ifndef __ANDROID__
+#if defined(PLATFORM_WINDOWS) || defined(PLATFORM_LINUX)
   ShowCursor();
 #endif
 

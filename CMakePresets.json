@@ -144,42 +144,49 @@
     },
     {
       "name": "x64-release-windows",
+      "displayName": "x64 Release Windows",
       "configurePreset": "x64-release-windows",
       "inherits": ["base-build"]
     },
     {
       "name": "x86-release-windows",
+      "displayName": "x86 Release Windows",
       "configurePreset": "x86-release-windows",
       "inherits": ["base-build"]
     },
     {
       "name": "x64-release-linux",
+      "displayName": "x64 Release Linux",
       "configurePreset": "x64-release-linux",
       "inherits": ["base-build"]
     },
     {
       "name": "x86-release-linux",
+      "displayName": "x86 Release Linux",
       "configurePreset": "x86-release-linux",
       "inherits": ["base-build"]
     },
-
     {
       "name": "x64-debug-windows",
+      "displayName": "x64 Debug Windows",
       "configurePreset": "x64-debug-windows",
       "inherits": ["base-build"]
     },
     {
       "name": "x86-debug-windows",
+      "displayName": "x86 Debug Windows",
       "configurePreset": "x86-debug-windows",
       "inherits": ["base-build"]
     },
     {
       "name": "x64-debug-linux",
+      "displayName": "x64 Debug Linux",
       "configurePreset": "x64-debug-linux",
       "inherits": ["base-build"]
     },
     {
       "name": "x86-debug-linux",
+      "displayName": "x86 Debug Linux",
       "configurePreset": "x86-debug-linux",
       "inherits": ["base-build"]
     }

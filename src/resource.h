@@ -1,6 +1,6 @@
 #define IDR_ASSETS_PACK1                101
 
-#ifdef APSTUDIO_INVOKED
+#if defined(APSTUDIO_INVOKED)
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        102
 #define _APS_NEXT_COMMAND_VALUE         40001

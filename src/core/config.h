@@ -12,6 +12,7 @@ typedef struct w_config {
   unsigned int height : 12;
 
   unsigned int max_fps : 10;
+
 } w_config;
 
 w_config *load_config();

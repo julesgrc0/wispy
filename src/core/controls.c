@@ -14,7 +14,7 @@ void destroy_controls(w_controls *kb) {
 }
 
 void update_controls(w_controls *kb) {
-#ifdef __ANDROID__
+#if defined(PLATFORM_ANDROID)
   kb->jump = kb->is_jumping;
   if (!kb->is_breaking) {
     kb->left = kb->joystick.x < -0.5;
@@ -28,11 +28,11 @@ void update_controls(w_controls *kb) {
   kb->jump = IsKeyDown(KEY_SPACE);
   kb->inventory = IsKeyDown(KEY_RIGHT_ALT) || IsKeyDown(KEY_LEFT_SHIFT);
   kb->shift = IsKeyDown(KEY_RIGHT_SHIFT) || IsKeyDown(KEY_LEFT_SHIFT);
-#endif // __ANDROID__
+#endif
 }
 
 void clear_controls(w_controls *kb) {
-#ifdef __ANDROID__
+#if defined(PLATFORM_ANDROID)
   kb->is_jumping = false;
   kb->is_breaking = false;
   kb->joystick = VEC_ZERO;
@@ -41,7 +41,7 @@ void clear_controls(w_controls *kb) {
   kb->key = 0;
 }
 
-#ifdef __ANDROID__
+#if defined(PLATFORM_ANDROID)
 bool check_collision_touch(Vector2 position, float size) {
   return !Vector2Equals(get_collision_touch(position, size), VEC_ZERO);
 }

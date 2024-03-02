@@ -1,14 +1,14 @@
 #include "core/mainframe.h"
 #include "stdafx.h"
 
-#ifdef _WIN32
+#if defined(PLATFORM_WINDOWS)
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
                    _In_ char *pCmdLine, _In_ int nCmdShow)
 #else
 int main(int argc, const char **argv)
 #endif
 {
-#if defined(_DEBUG) && defined(_WIN32)
+#if defined(_DEBUG) && defined(PLATFORM_WINDOWS)
   _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
   _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_DEBUG);
 
@@ -24,11 +24,10 @@ int main(int argc, const char **argv)
   fflush(stdout);
   fflush(stderr);
   fflush(stdin);
-#endif // _DEBUG && _WIN32
+#endif
 
   w_state *state = init_mainframe();
-
-#ifdef _WIN32
+#if defined(PLATFORM_WINDOWS)
   state->hInstance = hInstance;
 #endif
 
@@ -38,10 +37,10 @@ int main(int argc, const char **argv)
   loop_mainframe(state);
   destroy_mainframe(state);
 
-#if defined(_DEBUG) && defined(_WIN32)
+#if defined(_DEBUG) && defined(PLATFORM_WINDOWS)
   FreeConsole();
   _CrtDumpMemoryLeaks();
-#endif // _DEBUG && _WIN32
+#endif
 
   return EXIT_SUCCESS;
 }

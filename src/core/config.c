@@ -5,7 +5,6 @@ w_config *load_config() {
   if (cfg == NULL)
     return NULL;
 
-#ifndef __ANDROID__
   char *config_path = malloc(MAX_PATH * 2);
   if (config_path == NULL)
     return NULL;
@@ -52,32 +51,21 @@ w_config *load_config() {
     json_object_put(root);
     free(data);
   } else {
-#endif // !__ANDROID__
-
+    memset(cfg, 0, sizeof(w_config));
     cfg->fullscreen = 1;
-    cfg->vsync = 0;
     cfg->msaa4x = 1;
 
-    cfg->max_fps = 0;
-    cfg->height = 0;
-    cfg->width = 0;
-
-#if defined(_DEBUG) && !defined(__ANDROID__)
-    cfg->fullscreen = 0;
-    cfg->height = RENDER_H;
+#if defined(_DEBUG) && !defined(PLATFORM_ANDROID)
     cfg->width = RENDER_W;
-#endif // _DEBUG
-
-#ifndef __ANDROID__
+    cfg->height = RENDER_H;
+    cfg->fullscreen = 0;
+#endif
   }
   free(config_path);
-#endif // !__ANDROID__
-
   return cfg;
 }
 
 void save_config(w_config *config) {
-#if !defined(_DEBUG) && !defined(__ANDROID__)
   char *config_path = malloc(MAX_PATH * 2);
   if (config_path == NULL)
     return;
@@ -112,5 +100,4 @@ void save_config(w_config *config) {
   json_object_put(root);
 
   free(config_path);
-#endif // !_DEBUG
 }
