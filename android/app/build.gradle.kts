@@ -12,7 +12,7 @@ android {
 
 
         versionCode = 1
-        versionName = "alpha-0.0.5"
+        versionName = "alpha-0.0.6"
     }
 
     buildTypes {

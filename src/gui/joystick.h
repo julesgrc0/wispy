@@ -9,9 +9,8 @@ typedef struct w_guijoystick {
 
   Vector2 cursor;
   w_guicontext *ctx;
-
 #if defined(WISPY_ANDROID)
-  int touch_count;
+  Vector2 last_position;
 #endif
 } w_guijoystick;
 

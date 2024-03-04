@@ -58,13 +58,13 @@ void game_screen(w_state *state) {
   w_guiaction *jump_button = create_action(ctx, VEC(PERCENT_W(0.95), RENDER_H),
                                            PERCENT_W(0.05), player_textures[3]);
   if (jump_button == NULL) {
-      destroy_bridge(td);
-      destroy_blockbreaker(bb);
+    destroy_bridge(td);
+    destroy_blockbreaker(bb);
 
-      destroy_action(break_button);
-      destroy_joystick(js);
-      destroy_gui(ctx);
-      return;
+    destroy_action(break_button);
+    destroy_joystick(js);
+    destroy_gui(ctx);
+    return;
   }
 #else
   Vector2 player_position = td->player->position;
@@ -137,10 +137,8 @@ void game_screen(w_state *state) {
       td->ctrl->is_breaking = update_action(break_button);
       td->ctrl->is_jumping = update_action(jump_button);
 #endif
-
       DrawText(TextFormat("FPS: %i", GetFPS()), 50, 50, 30, WHITE);
       EndTextureMode();
-
 #if defined(WISPY_WINDOWS)
       LeaveCriticalSection(&td->chunk_view->csec);
 #elif defined(WISPY_LINUX)

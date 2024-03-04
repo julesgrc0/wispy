@@ -28,11 +28,10 @@ w_state *init_mainframe() {
     flags |= FLAG_FULLSCREEN_MODE;
   }
 
-  InitWindow(state->config->width, state->config->height, "Wispy");
-
   SetConfigFlags(flags);
+  InitWindow(state->config->width, state->config->height, "Wispy");
   SetTargetFPS(state->config->max_fps);
-
+  
   state->rnd_src = RECT(0, RENDER_H, RENDER_W, -RENDER_H);
 
   state->rnd_tl = VEC_ZERO;

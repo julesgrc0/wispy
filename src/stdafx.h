@@ -82,8 +82,6 @@
 
 #define PERCENT_W(x) RENDER_W *x
 #define PERCENT_H(x) RENDER_H *x
-#define PIXELS_W(x) RENDER_W / x
-#define PIXELS_H(x) RENDER_H / x
 
 #define FORMAT_TO(x, size, target) (((float)x / (float)size) * (float)target)
 #define FORMAT_W(x) FORMAT_TO(x, GetRenderWidth(), RENDER_W)

@@ -3,7 +3,6 @@
 void load_assets(w_state *state) {
   state->render = LoadRenderTexture(abs((int)state->rnd_src.width),
                                     abs((int)state->rnd_src.height));
-
   size_t items_len;
 #if defined(WISPY_WINDOWS)
   w_asset *items = unpack_assets(state->hInstance, &items_len);
