@@ -7,6 +7,7 @@ w_bridge *create_bridge() {
     return NULL;
   }
   memset(td, 0, sizeof(w_bridge));
+  td->force_update = true;
 
   td->chunk_group = create_chunkgroup(CHUNK_GROUP_MID_LEN);
   if (td->chunk_group == NULL) {
@@ -32,7 +33,11 @@ w_bridge *create_bridge() {
     return NULL;
   }
   set_camera_center(td->camera, get_player_center(td->player));
+#if defined(WISPY_ANDROID)
+  td->camera->target_position = td->camera->position;
+#else
   td->camera->target_position = get_camera_vec(td->camera);
+#endif
 
   td->ctrl = create_controls();
   if (td->ctrl == NULL) {
@@ -42,6 +47,9 @@ w_bridge *create_bridge() {
 
   td->is_active = true;
 #if defined(WISPY_WINDOWS) || defined(WISPY_LINUX)
+
+  update_bridge(td);
+
 #if defined(WISPY_WINDOWS)
   QueryPerformanceFrequency(&td->time_frequency);
   QueryPerformanceCounter(&td->time_start);
@@ -110,7 +118,11 @@ void physics_update_bridge(w_bridge *td) {
 
 void update_bridge(w_bridge *td) {
   if (td->ctrl->key != 0 ||
+  #if defined(WISPY_ANDROID)
+      !Vector2Equals(td->camera->target_position, td->camera->position) ||
+  #else
       !Vector2Equals(td->camera->target_position, get_camera_vec(td->camera)) ||
+  #endif
       td->force_update) {
 
     if (!update_chunkview(td->chunk_view, td->chunk_group, td->camera)) {
@@ -126,15 +138,13 @@ void update_bridge(w_bridge *td) {
 #if defined(WISPY_WINDOWS)
   QueryPerformanceCounter(&td->time_end);
   if (td->time_end.QuadPart - td->time_start.QuadPart >=
-      td->time_frequency.QuadPart * PHYSICS_TICK) 
-  {
+      td->time_frequency.QuadPart * PHYSICS_TICK) {
     QueryPerformanceCounter(&td->time_start);
 #elif defined(WISPY_LINUX)
   clock_gettime(CLOCK_MONOTONIC, &td->time_end);
   if ((td->time_end.tv_sec - td->time_start.tv_sec) +
           (td->time_end.tv_nsec - td->time_start.tv_nsec) / 1000000000.0 >=
-      PHYSICS_TICK)
-  {
+      PHYSICS_TICK) {
     clock_gettime(CLOCK_MONOTONIC, &td->time_start);
 #else
   {

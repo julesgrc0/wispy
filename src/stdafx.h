@@ -132,7 +132,7 @@
   printf(__VA_ARGS__);                                                         \
   printf("\n");
 #elif defined(_DEBUG) && defined(WISPY_ANDROID)
-#define LOG(...) __android_log_print(ANDROID_LOG_INFO, "WISPY", __VA_ARGS__);
+#define LOG(...) __android_log_print(ANDROID_LOG_INFO, "WISPY_INFO", __VA_ARGS__);
 #else
 #define LOG(...)
 #endif // _DEBUG

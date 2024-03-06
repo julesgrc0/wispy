@@ -74,15 +74,13 @@ void game_screen(w_state *state) {
   while (!WindowShouldClose() && td->is_active) {
 #if defined(WISPY_ANDROID)
     update_controls(td->ctrl);
-    set_camera_vec(td->camera, VEC(roundf(td->camera->target_position.x),
-                                   roundf(td->camera->target_position.y)));
-
+    td->camera->position = td->camera->target_position;
     bstate = update_blockbreaker(bb, td->ctrl, td->player, PHYSICS_TICK);
     update_bridge(td);
 #else
     update_controls(td->ctrl);
     float speed = GetFrameTime() * PLAYER_SPEED;
-    smooth_camera(td->camera, td->camera->target_position, speed);
+    smooth_camera(td->camera, speed);
     smooth_vec(&player_position, td->player->position,
                Vector2Distance(td->player->position, player_position) * speed);
 #endif
@@ -100,19 +98,26 @@ void game_screen(w_state *state) {
                              (Color){66, 135, 245, 255},
                              (Color){142, 184, 250, 255});
 
+#if defined(WISPY_WINDOWS) || defined(WISPY_LINUX)
       begin_camera(td->camera);
-      for (unsigned int i = 0; i < td->chunk_view->len; i++) {
-        DrawTexturePro(block_textures[td->chunk_view->blocks[i].block.type - 1],
-                       td->chunk_view->blocks[i].src,
-                       td->chunk_view->blocks[i].dst, VEC_ZERO, 0,
-                       td->chunk_view->blocks[i].light);
-      }
+#endif
 
+      for (unsigned int i = 0; i < td->chunk_view->len; i++) {
+        DrawTexturePro(
+            block_textures[td->chunk_view->blocks[i].block.type - 1],
+            td->chunk_view->blocks[i].src,
+#if defined(WISPY_ANDROID)
+            get_rectangle_camera(td->chunk_view->blocks[i].dst, td->camera),
+#else
+            td->chunk_view->blocks[i].dst,
+#endif
+            VEC_ZERO, 0, td->chunk_view->blocks[i].light);
+      }
 #if defined(WISPY_WINDOWS) || defined(WISPY_LINUX)
       bstate = update_blockbreaker(bb, td->ctrl, td->player, GetFrameTime());
 #endif
       if (bstate == BS_BREAKING) {
-        draw_blockbreaker(bb);
+        draw_blockbreaker(bb, td->camera);
       } else if (bstate == BS_BROKEN) {
         td->force_update = true;
       }
@@ -124,7 +129,9 @@ void game_screen(w_state *state) {
                      VEC_ZERO, 0, WHITE);
 #endif
 
+#if defined(WISPY_WINDOWS) || defined(WISPY_LINUX)
       end_camera();
+#endif
 
 #if defined(WISPY_ANDROID)
       DrawTexturePro(player_textures[td->player->state], td->player->src,

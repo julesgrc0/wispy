@@ -25,7 +25,12 @@ w_blockbreaker *create_blockbreaker(w_state *state, w_chunkview *chunk_view,
 
 Vector2 get_mouse_block(w_camera *camera) {
   Vector2 mouse = Vector2Add(VEC(FORMAT_W(GetMouseX()), FORMAT_H(GetMouseY())),
+#if defined(WISPY_ANDROID)
+                             camera->position);
+#else
                              get_camera_vec(camera));
+#endif
+
   return Vector2Subtract(mouse, VEC((CUBE_W / 2), (CUBE_H / 2)));
 }
 
@@ -86,10 +91,15 @@ w_breakstate update_blockbreaker(w_blockbreaker *bb, w_controls *ctrl,
   return BS_NONE;
 }
 
-void draw_blockbreaker(w_blockbreaker *bb) {
+void draw_blockbreaker(w_blockbreaker *bb, w_camera *camera) {
   DrawTexturePro(bb->textures[bb->stage], CUBE_SRC_RECT,
-                 RECT(bb->position.x, bb->position.y, CUBE_W, CUBE_H), VEC_ZERO,
-                 0, Fade(WHITE, 0.5));
+#if defined(WISPY_ANDROID)
+                 RECT(bb->position.x - camera->position.x,
+                      bb->position.y - camera->position.y, CUBE_W, CUBE_H),
+#else
+                 RECT(bb->position.x, bb->position.y, CUBE_W, CUBE_H),
+#endif
+                 VEC_ZERO, 0, Fade(WHITE, 0.5));
 }
 
 void destroy_blockbreaker(w_blockbreaker *bb) {

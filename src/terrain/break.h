@@ -36,6 +36,6 @@ w_blockbreaker *create_blockbreaker(w_state *state, w_chunkview *chunk_view,
 w_breakstate update_blockbreaker(w_blockbreaker *bb, w_controls *ctrl,
                                  w_player *player, float dt);
 
-void draw_blockbreaker(w_blockbreaker *bb);
+void draw_blockbreaker(w_blockbreaker *bb, w_camera* camera);
 
 void destroy_blockbreaker(w_blockbreaker *bb);

@@ -9,6 +9,6 @@
 
 void smooth_vec(Vector2 *position, Vector2 target, float move);
 void smooth_rect(Rectangle *box, Rectangle target, float move);
-void smooth_camera(w_camera *camera, Vector2 target, float move);
+void smooth_camera(w_camera *camera, float move);
 
 Vector2 vec_block_round(Vector2 vec);

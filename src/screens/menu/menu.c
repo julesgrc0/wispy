@@ -55,8 +55,13 @@ void menu_screen(w_state *state) {
     angle += speed;
     angle = fmodf(angle, 360.f);
 
+#if defined(WISPY_ANDROID)
+    camera->position.x += sinf(angle) * 1000.f * speed;
+    camera->position.y += cosf(angle) * 1000.f * speed;
+#else
     add_camera_vec(camera, VEC(sinf(angle) * 1000.f * speed,
                                cosf(angle) * 1000.f * speed));
+#endif
 
     update_chunkview(view, grp, camera);
     update_chunkview_lighting(view, get_camera_center(camera),
@@ -67,13 +72,24 @@ void menu_screen(w_state *state) {
     DrawRectangleGradientV(0, 0, RENDER_W, RENDER_H, (Color){66, 135, 245, 255},
                            (Color){142, 184, 250, 255});
 
+#if defined(WISPY_WINDOWS) || defined(WISPY_LINUX)
     begin_camera(camera);
+#endif
+
     for (unsigned int i = 0; i < view->len; i++) {
       DrawTexturePro(block_textures[view->blocks[i].block.type - 1],
-                     view->blocks[i].src, view->blocks[i].dst, VEC_ZERO, 0,
-                     view->blocks[i].light);
+                     view->blocks[i].src,
+#if defined(WISPY_ANDROID)
+                     get_rectangle_camera(view->blocks[i].dst, camera),
+#else
+                     view->blocks[i].dst,
+#endif
+                     VEC_ZERO, 0, view->blocks[i].light);
     }
+
+#if defined(WISPY_WINDOWS) || defined(WISPY_LINUX)
     end_camera();
+#endif
 
     if (update_button(play_button)) {
       is_active = false;
