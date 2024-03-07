@@ -80,7 +80,7 @@ void menu_screen(w_state *state) {
       DrawTexturePro(block_textures[view->blocks[i].block.type - 1],
                      view->blocks[i].src,
 #if defined(WISPY_ANDROID)
-                     get_rectangle_camera(view->blocks[i].dst, camera),
+                     get_rect_to_camera(view->blocks[i].dst, camera),
 #else
                      view->blocks[i].dst,
 #endif

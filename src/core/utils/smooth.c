@@ -14,8 +14,8 @@ void smooth_camera(w_camera *camera, float move) {
   smooth_float(camera->position.x, camera->target_position.x, move);
   smooth_float(camera->position.y, camera->target_position.y, move);
 #else
-  smooth_float(camera_x(camera), camera->target_position.x, move);
-  smooth_float(camera_y(camera), camera->target_position.y, move);
+  smooth_float(camera_x(camera), -camera->target_position.x, move);
+  smooth_float(camera_y(camera), -camera->target_position.y, move);
 #endif
 }
 Vector2 vec_block_round(Vector2 vec) {

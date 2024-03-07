@@ -66,11 +66,10 @@ void game_screen(w_state *state) {
     destroy_gui(ctx);
     return;
   }
-#else
-  Vector2 player_position = td->player->position;
 #endif
 
   w_breakstate bstate = BS_NONE;
+  float dt = 0.f;
   while (!WindowShouldClose() && td->is_active) {
 #if defined(WISPY_ANDROID)
     update_controls(td->ctrl);
@@ -79,10 +78,12 @@ void game_screen(w_state *state) {
     update_bridge(td);
 #else
     update_controls(td->ctrl);
-    float speed = GetFrameTime() * PLAYER_SPEED;
-    smooth_camera(td->camera, speed);
-    smooth_vec(&player_position, td->player->position,
-               Vector2Distance(td->player->position, player_position) * speed);
+    dt = GetFrameTime();
+    if (dt <= MIN_FRAME_TIME) {
+      set_camera_vec(td->camera, td->camera->target_position);
+    } else {
+      smooth_camera(td->camera, dt * PLAYER_SPEED);
+    }
 #endif
 
 #if defined(WISPY_WINDOWS)
@@ -107,14 +108,14 @@ void game_screen(w_state *state) {
             block_textures[td->chunk_view->blocks[i].block.type - 1],
             td->chunk_view->blocks[i].src,
 #if defined(WISPY_ANDROID)
-            get_rectangle_camera(td->chunk_view->blocks[i].dst, td->camera),
+            get_rect_to_camera(td->chunk_view->blocks[i].dst, td->camera),
 #else
             td->chunk_view->blocks[i].dst,
 #endif
             VEC_ZERO, 0, td->chunk_view->blocks[i].light);
       }
 #if defined(WISPY_WINDOWS) || defined(WISPY_LINUX)
-      bstate = update_blockbreaker(bb, td->ctrl, td->player, GetFrameTime());
+      bstate = update_blockbreaker(bb, td->ctrl, td->player, dt);
 #endif
       if (bstate == BS_BREAKING) {
         draw_blockbreaker(bb, td->camera);
@@ -123,23 +124,14 @@ void game_screen(w_state *state) {
       }
 
 #if defined(WISPY_WINDOWS) || defined(WISPY_LINUX)
-      DrawTexturePro(player_textures[td->player->state], td->player->src,
-                     RECT(player_position.x, player_position.y,
-                          td->player->dst.width, td->player->dst.height),
-                     VEC_ZERO, 0, WHITE);
-#endif
-
-#if defined(WISPY_WINDOWS) || defined(WISPY_LINUX)
       end_camera();
 #endif
-
-#if defined(WISPY_ANDROID)
       DrawTexturePro(player_textures[td->player->state], td->player->src,
                      RECT((RENDER_W - td->player->dst.width) / 2,
                           (RENDER_H - td->player->dst.height) / 2,
                           td->player->dst.width, td->player->dst.height),
                      VEC_ZERO, 0, WHITE);
-
+#if defined(WISPY_ANDROID)
       td->ctrl->joystick = update_joystick(js);
       td->ctrl->is_breaking = update_action(break_button);
       td->ctrl->is_jumping = update_action(jump_button);

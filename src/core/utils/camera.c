@@ -35,6 +35,8 @@ w_camera *create_camera(float x, float y) {
   camera->matrix[13] = m.m13;
   camera->matrix[14] = m.m14;
   camera->matrix[15] = m.m15;
+
+  camera->target_position = VEC(x, y);
 #endif
   return camera;
 }
@@ -95,12 +97,9 @@ Rectangle get_camera_view_with_gap(w_camera *camera) {
 }
 
 #if defined(WISPY_ANDROID)
-Rectangle get_rectangle_camera(Rectangle rect, w_camera *camera) {
+Rectangle get_rect_to_camera(Rectangle rect, w_camera *camera) {
   return RECT(rect.x - camera->position.x, rect.y - camera->position.y,
               rect.width, rect.height);
-}
-Vector2 get_vector_camera(Vector2 vec, w_camera *camera) {
-  return VEC(vec.x - camera->position.x, vec.y - camera->position.y);
 }
 #else
 void add_camera_vec(w_camera *camera, Vector2 vec) {
@@ -112,7 +111,7 @@ void set_camera_vec(w_camera *camera, Vector2 vec) {
   camera_y(camera) = -vec.y;
 }
 Vector2 get_camera_vec(w_camera *camera) {
-  return VEC(camera_x(camera), camera_y(camera));
+  return VEC(-camera_x(camera), -camera_y(camera));
 }
 
 void begin_camera(w_camera *camera) {
@@ -121,7 +120,6 @@ void begin_camera(w_camera *camera) {
   rlMultMatrixf(camera->matrix);
 }
 void end_camera() {
-  rlDrawRenderBatchActive();
-  rlLoadIdentity();
+  EndMode2D();
 }
 #endif

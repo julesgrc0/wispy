@@ -27,8 +27,7 @@ Rectangle get_camera_view_with_gap(w_camera *camera);
 
 
 #if defined(WISPY_ANDROID)
-Rectangle get_rectangle_camera(Rectangle rect, w_camera *camera);
-Vector2 get_vector_camera(Vector2 vec, w_camera *camera);
+Rectangle get_rect_to_camera(Rectangle rect, w_camera *camera);
 #else
 void add_camera_vec(w_camera *camera, Vector2 vec);
 void set_camera_vec(w_camera *camera, Vector2 vec);
