@@ -9,5 +9,7 @@
 /.vscode/c_cpp_properties.json
 /out
 /android/keys/*.jks
+/android/keys/*.pem
+/android/keys/*.der
 /android/keys/*.b64
 RELEASE.md
