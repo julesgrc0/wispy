@@ -16,7 +16,7 @@
         android:supportsRtl="true"
 
         android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
-        tools:targetApi="30">
+        tools:targetApi="21">
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"

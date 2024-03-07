@@ -7,7 +7,6 @@ w_bridge *create_bridge() {
     return NULL;
   }
   memset(td, 0, sizeof(w_bridge));
-  td->force_update = true;
 
   td->chunk_group = create_chunkgroup(CHUNK_GROUP_MID_LEN);
   if (td->chunk_group == NULL) {
@@ -46,6 +45,8 @@ w_bridge *create_bridge() {
   }
 
   td->is_active = true;
+  td->force_update = true;
+
 #if defined(WISPY_WINDOWS) || defined(WISPY_LINUX)
 
   update_bridge(td);

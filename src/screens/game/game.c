@@ -66,16 +66,17 @@ void game_screen(w_state *state) {
     destroy_gui(ctx);
     return;
   }
+#else
+    float dt = 0.f;
 #endif
-
   w_breakstate bstate = BS_NONE;
-  float dt = 0.f;
+
   while (!WindowShouldClose() && td->is_active) {
 #if defined(WISPY_ANDROID)
     update_controls(td->ctrl);
-    td->camera->position = td->camera->target_position;
     bstate = update_blockbreaker(bb, td->ctrl, td->player, PHYSICS_TICK);
     update_bridge(td);
+    smooth_camera(td->camera, PHYSICS_TICK * PLAYER_SPEED * 4.f);
 #else
     update_controls(td->ctrl);
     dt = GetFrameTime();
