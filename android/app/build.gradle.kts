@@ -10,8 +10,7 @@ android {
         minSdk = 21
         targetSdk = 34
 
-
-        versionCode = 1
+        versionCode = 2
         versionName = "alpha-0.0.6"
     }
 

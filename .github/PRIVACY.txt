@@ -1,0 +1,33 @@
+[Politique de Confidentialité]
+
+- Wispy est un jeu en développé par @julesgrc0. 
+    Cette politique de confidentialité vise à vous informer sur la manière dont nous traitons les données dans le cadre de l'utilisation de notre application.
+
+1. Collecte et Utilisation des Informations
+
+    1.1 Aucune Connexion ni Compte Requis : L'application ne requiert aucune connexion ni création d'un compte utilisateur. Vous pouvez jouer au jeu de manière autonome sans avoir à fournir de données personnelles.
+
+    1.2 Pas de Collecte de Données Personnelles : Nous ne collectons aucune donnée personnelle ou sensible des utilisateurs pendant l'utilisation de l'application.
+
+    1.3 Stockage Local des Paramètres : Wispy sauvegarde localement les paramètres du jeu sur votre appareil, afin d'améliorer votre expérience de jeu. Ces informations sont strictement limitées aux préférences de jeu et ne sont pas partagées avec des tiers.
+
+    1.4 Contenu Adapté à Tous les Âges : Wispy est un jeu conçu pour être accessible à tous les âges et ne contient aucun contenu sensible ou inapproprié pour les personnes de moins de 13 ans.
+
+2. Sécurité et Confidentialité
+    
+    2.1 Nous accordons une grande importance à la sécurité et à la confidentialité des données de nos utilisateurs. Les informations stockées localement sur votre appareil sont sécurisées et ne sont accessibles qu'à l'application.
+
+3. Partage de Données
+
+    3.1 Nous ne partageons aucune donnée utilisateur avec des tiers à des fins commerciales ou de marketing. Toutes les informations collectées restent strictement confidentielles et sont utilisées uniquement pour améliorer l'expérience de jeu.
+
+4. Consentement
+    
+    4.1 En utilisant notre application, vous consentez à la collecte et à l'utilisation des informations comme décrit dans cette politique de confidentialité.
+
+5. Modifications de la Politique de Confidentialité
+
+    5.1 Nous nous réservons le droit de modifier cette politique de confidentialité à tout moment. Toute modification sera publiée sur cette page et entrera en vigueur dès sa publication. Nous vous encourageons à consulter régulièrement cette page pour rester informé des éventuelles mises à jour.
+
+- Contactez-nous
+    Si vous avez des questions ou des préoccupations concernant notre politique de confidentialité ou la manière dont nous traitons les données des utilisateurs, veuillez nous contacter à l'adresse suivante : julesgrc0@gmail.com.
