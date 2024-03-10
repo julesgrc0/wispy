@@ -91,8 +91,6 @@ See the workflow file [android.yml](.github/workflows/android.yml) for more deta
 
 Wellcome to the community ! We are happy to see you here. If you want to [contribute](CONTRIBUTING.md) to the project, you can start by forking the repository and then submit a pull request 🔥. 
 
-[![](https://dcbadge.vercel.app/api/server/5KjGkDGpUp)](https://discord.gg/5KjGkDGpUp)
-
 ## 📃 License
 
 This project is licensed under the terms of the [MIT license](LICENSE).
