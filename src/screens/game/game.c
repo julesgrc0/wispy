@@ -28,6 +28,8 @@ void game_screen(w_state *state) {
   }
 
 #if defined(WISPY_ANDROID)
+  Texture break_icon = get_texture_by_id(state, "blocks\\break_icon.png");
+
   w_guicontext *ctx = create_gui();
   if (ctx == NULL) {
     destroy_bridge(td);
@@ -44,8 +46,8 @@ void game_screen(w_state *state) {
     return;
   }
 
-  w_guiaction *break_button = create_action(ctx, VEC(RENDER_W, PERCENT_H(0.8)),
-                                            PERCENT_W(0.05), block_textures[0]);
+  w_guiaction *break_button = create_action(ctx, VEC(RENDER_W - PERCENT_W(0.05), PERCENT_H(0.75)),
+                                            PERCENT_W(0.05), break_icon);
   if (break_button == NULL) {
     destroy_bridge(td);
     destroy_blockbreaker(bb);
@@ -55,7 +57,7 @@ void game_screen(w_state *state) {
     return;
   }
 
-  w_guiaction *jump_button = create_action(ctx, VEC(PERCENT_W(0.95), RENDER_H),
+  w_guiaction *jump_button = create_action(ctx, VEC(PERCENT_W(0.85), RENDER_H - PERCENT_H(0.05)),
                                            PERCENT_W(0.05), player_textures[3]);
   if (jump_button == NULL) {
     destroy_bridge(td);

@@ -30,10 +30,7 @@
 ///
 
 #if defined(_WIN32)
-#ifndef WISPY_WINDOWS
 #define WISPY_WINDOWS
-#endif
-
 #define NOGDI
 #define NOUSER
 
@@ -51,20 +48,16 @@
 #define MAKEINTRESOURCE(i) ((LPSTR)((ULONG_PTR)((WORD)(i))))
 
 #elif defined(__linux__) && !defined(__ANDROID__)
-#ifndef WISPY_LINUX
 #define WISPY_LINUX
-#endif
-
 #define MAX_PATH 260
+
 #include <pthread.h>
 #include <unistd.h>
 
 #elif defined(__ANDROID__)
-#ifndef WISPY_ANDROID
 #define WISPY_ANDROID
-#endif
-
 #define MAX_PATH 260
+
 #include <pthread.h>
 #include <unistd.h>
 #include <jni.h>
@@ -80,8 +73,8 @@
   if (x)                                                                       \
     free(x);
 
-#define PERCENT_W(x) RENDER_W *x
-#define PERCENT_H(x) RENDER_H *x
+#define PERCENT_W(x) RENDER_W * x
+#define PERCENT_H(x) RENDER_H * x
 
 #define FORMAT_TO(x, size, target) (((float)x / (float)size) * (float)target)
 #define FORMAT_W(x) FORMAT_TO(x, GetRenderWidth(), RENDER_W)
@@ -132,7 +125,7 @@
   printf(__VA_ARGS__);                                                         \
   printf("\n");
 #elif defined(_DEBUG) && defined(WISPY_ANDROID)
-#define LOG(...) __android_log_print(ANDROID_LOG_INFO, "WISPY_INFO", __VA_ARGS__);
+#define LOG(...) __android_log_print(ANDROID_LOG_INFO, "wispy_log", __VA_ARGS__);
 #else
 #define LOG(...)
 #endif // _DEBUG

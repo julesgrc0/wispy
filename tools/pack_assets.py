@@ -48,13 +48,14 @@ def write_to_pack(out_file: TextIOWrapper, folder_path: str, redirect_files: dic
 
 
 def main(args: list[str]) -> int:
-    redirect_files = json.load(open(args[0], "r")) if len(args) > 0 else {}
+    redirect_files = {} if len(args) < 1 else json.load(open(args[0]))
 
     base_dir = os.path.dirname(os.path.abspath(__file__))
+    out_dir = base_dir if len(args) < 2 else args[1]
     assets_dir = os.path.join(os.path.dirname(base_dir), "assets")
 
     out_tmp = os.path.join(base_dir, "resource.tmp")
-    out_gz = os.path.join(base_dir, "resource.pack")
+    out_gz = os.path.join(out_dir, "resource.pack")
 
     print("[PACK]: Start packing...")
     print(f"[I] {'filename':100}size{' '*10}id\n")

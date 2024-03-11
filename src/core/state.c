@@ -55,7 +55,7 @@ Texture get_texture_by_id(w_state *state, char *id) {
       return state->textures[i];
     }
   }
-
+  LOG("Texture not found: %s", id);
   return (Texture){0};
 }
 
@@ -66,6 +66,6 @@ Shader get_shader_by_id(w_state *state, char *id) {
       return state->shaders[i];
     }
   }
-
+  LOG("Shader not found: %s", id);
   return (Shader){0};
 }

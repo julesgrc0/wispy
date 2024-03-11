@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project("wispy" VERSION 0.0.6 LANGUAGES C)
+project("wispy" VERSION 0.0.8 LANGUAGES C)
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -20,8 +20,7 @@ set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
 set(HAVE_ARC4RANDOM OFF CACHE BOOL "" FORCE)
 
 
-set(RESOURCE_PACK ./tools/resource.pack)
-
+set(RESOURCE_PACK_DIR ${CMAKE_SOURCE_DIR}/tools/)
 if(ANDROID)
   # change project name to main for libmain
   set(PROJECT_NAME main)
@@ -33,7 +32,7 @@ if(ANDROID)
   set(PLATFORM "Android" CACHE STRING "" FORCE)
 
   # change resource output path
-  set(RESOURCE_FILE ${CMAKE_SOURCE_DIR}/android/app/src/main/assets/resource.pack)
+  set(RESOURCE_PACK_DIR ${CMAKE_SOURCE_DIR}/android/app/src/main/assets/)
   
   # set android flags
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3  -flto")
@@ -45,7 +44,6 @@ if(ANDROID)
 endif()
 
 option(W_BUILD_MINSIZE "Build a smaller executable (Wispy)" OFF)
-option(W_BUILD_ASSETS "Build assets (Wispy)" ON)
 
 # add dependencies and include directories
 file(GLOB SUBDIRS "libs/*")
@@ -56,12 +54,18 @@ foreach(DIR ${SUBDIRS})
 endforeach()
 
 # pack assets to resource.pack
-if(W_BUILD_ASSETS)
-  add_custom_target(pack_assets
-      COMMAND python ${CMAKE_SOURCE_DIR}/tools/pack_assets.py
-      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+if(ANDROID)
+    execute_process(
+            COMMAND python ${CMAKE_SOURCE_DIR}/tools/pack_assets.py ${CMAKE_SOURCE_DIR}/tools/mobile.json ${RESOURCE_PACK_DIR}
+            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    )
+else()
+    execute_process(
+            COMMAND python ${CMAKE_SOURCE_DIR}/tools/pack_assets.py ${CMAKE_SOURCE_DIR}/tools/desktop.json ${RESOURCE_PACK_DIR}
+            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     )
 endif()
+
 
 # add sources
 file(GLOB_RECURSE SOURCES "src/*.c")
@@ -112,17 +116,5 @@ if(W_BUILD_MINSIZE)
     )
   else()
     message(WARNING "UPX not found. Skipping executable compression.")
-  endif()
-endif()
-
-# copy resource.pack to output directory
-if(ANDROID)
-  if(EXISTS ${RESOURCE_PACK})
-      add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy ${RESOURCE_PACK} ${RESOURCE_FILE}
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-      )
-  else()
-    message(WARNING "resource.pack file not found. Skipping copying.")
   endif()
 endif()
