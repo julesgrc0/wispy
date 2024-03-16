@@ -45,9 +45,13 @@ void destroy_camera(w_camera *camera) {
     LOG("camera (null) already destroyed");
     return;
   }
+
+#if defined(WISPY_LINUX) || defined(WISPY_WINDOWS)
   if (camera->matrix != NULL) {
     free(camera->matrix);
   }
+#endif
+
   free(camera);
 }
 

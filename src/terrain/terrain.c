@@ -10,10 +10,10 @@ w_terrain *create_terrain(unsigned int start_position) {
 
   char *terrain_path = get_terrain_path_folder();
   if (!DirectoryExists(terrain_path)) {
-#ifdef WISPY_WINDOWS
+#if defined(WISPY_WINDOWS)
     if (!CreateDirectoryA(terrain_path, NULL))
-#elif WISPY_LINUX || WISPY_ANDROID
-    if (mkdir(map_path, 0777) == -1)
+#elif defined(WISPY_LINUX) || defined(WISPY_ANDROID)
+    if (mkdir(terrain_path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == 0)
 #endif
     {
       free(terrain_path);

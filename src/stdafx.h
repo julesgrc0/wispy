@@ -58,9 +58,15 @@
 #define WISPY_ANDROID
 
 #include <pthread.h>
+#include <sys/stat.h>
 #include <unistd.h>
-#include <jni.h>
+
 #include <android/log.h>
+#include <android/window.h>
+#include <android_native_app_glue.h>
+#include <jni.h>
+
+extern struct android_app *GetAndroidApp(void);
 
 #endif
 
@@ -72,8 +78,8 @@
   if (x)                                                                       \
     free(x);
 
-#define PERCENT_W(x) RENDER_W * x
-#define PERCENT_H(x) RENDER_H * x
+#define PERCENT_W(x) RENDER_W *x
+#define PERCENT_H(x) RENDER_H *x
 
 #define FORMAT_TO(x, size, target) (((float)x / (float)size) * (float)target)
 #define FORMAT_W(x) FORMAT_TO(x, GetRenderWidth(), RENDER_W)
@@ -124,7 +130,8 @@
   printf(__VA_ARGS__);                                                         \
   printf("\n");
 #elif defined(_DEBUG) && defined(WISPY_ANDROID)
-#define LOG(...) __android_log_print(ANDROID_LOG_INFO, "wispy_log", __VA_ARGS__);
+#define LOG(...)                                                               \
+  __android_log_print(ANDROID_LOG_INFO, "wispy_log", __VA_ARGS__);
 #else
 #define LOG(...)
 #endif // _DEBUG

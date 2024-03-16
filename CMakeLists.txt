@@ -82,6 +82,9 @@ if(ANDROID)
   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
   add_definitions(-D__ANDROID__)
   
+  list(APPEND raylib_sources ${ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c)
+  include_directories(${ANDROID_NDK}/sources/android/native_app_glue)
+
   add_library(${PROJECT_NAME} SHARED ${SOURCES})
   target_link_libraries(${PROJECT_NAME} raylib zlibstatic json-c android log)
 elseif(UNIX AND NOT ANDROID)

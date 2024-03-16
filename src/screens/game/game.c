@@ -46,7 +46,7 @@ void game_screen(w_state *state) {
     return;
   }
 
-  w_guiaction *break_button = create_action(ctx, VEC(RENDER_W - PERCENT_W(0.05), PERCENT_H(0.75)),
+  w_guiiconbutton *break_button = create_iconbutton(ctx, VEC(RENDER_W - PERCENT_W(0.05), PERCENT_H(0.75)),
                                             PERCENT_W(0.05), break_icon);
   if (break_button == NULL) {
     destroy_bridge(td);
@@ -57,13 +57,13 @@ void game_screen(w_state *state) {
     return;
   }
 
-  w_guiaction *jump_button = create_action(ctx, VEC(PERCENT_W(0.85), RENDER_H - PERCENT_H(0.05)),
+  w_guiiconbutton *jump_button = create_iconbutton(ctx, VEC(PERCENT_W(0.85), RENDER_H - PERCENT_H(0.05)),
                                            PERCENT_W(0.05), player_textures[3]);
   if (jump_button == NULL) {
     destroy_bridge(td);
     destroy_blockbreaker(bb);
 
-    destroy_action(break_button);
+    destroy_iconbutton(break_button);
     destroy_joystick(js);
     destroy_gui(ctx);
     return;
@@ -136,8 +136,8 @@ void game_screen(w_state *state) {
                      VEC_ZERO, 0, WHITE);
 #if defined(WISPY_ANDROID)
       td->ctrl->joystick = update_joystick(js);
-      td->ctrl->is_breaking = update_action(break_button);
-      td->ctrl->is_jumping = update_action(jump_button);
+      td->ctrl->is_breaking = update_iconbutton(break_button);
+      td->ctrl->is_jumping = update_iconbutton(jump_button);
 #endif
       DrawText(TextFormat("FPS: %i", GetFPS()), 50, 50, 30, WHITE);
       EndTextureMode();
@@ -156,8 +156,8 @@ void game_screen(w_state *state) {
 
 #if defined(WISPY_ANDROID)
   destroy_joystick(js);
-  destroy_action(break_button);
-  destroy_action(jump_button);
+  destroy_iconbutton(break_button);
+  destroy_iconbutton(jump_button);
   destroy_gui(ctx);
 #endif
 

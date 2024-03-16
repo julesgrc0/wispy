@@ -9,7 +9,12 @@ w_config *load_config() {
   if (config_path == NULL)
     return NULL;
   config_path[0] = 0;
+#if defined(WISPY_ANDROID)
+  strcat(config_path, GetAndroidApp()->activity->internalDataPath);
+  strcat(config_path, "/");
+#else
   strcat(config_path, GetApplicationDirectory());
+#endif
   strcat(config_path, CONFIG_NAME);
 
   if (FileExists(config_path)) {
@@ -80,6 +85,7 @@ void save_config(w_config *config) {
     return;
 
   config_path[0] = 0;
+
   strcat(config_path, GetApplicationDirectory());
   strcat(config_path, CONFIG_NAME);
 
@@ -111,12 +117,6 @@ void save_config(w_config *config) {
       json_object_to_json_string_ext(root, JSON_C_TO_STRING_PRETTY_TAB);
   SaveFileText(config_path, (char *)data);
 
-  json_object_put(js_fullscreen);
-  json_object_put(js_msaa4x);
-  json_object_put(js_vsync);
-  json_object_put(js_width);
-  json_object_put(js_height);
-  json_object_put(js_max_fps);
   json_object_put(root);
   free(config_path);
 }
