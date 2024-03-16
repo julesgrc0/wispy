@@ -11,7 +11,7 @@ char *get_terrain_path_folder() {
     strcat(path, GetAndroidApp()->activity->internalDataPath);
     strcat(path, "/");
 #else
-    strcat(config_path, GetApplicationDirectory());
+    strcat(path, GetApplicationDirectory());
 #endif
   strcat(path, TERRAIN_FOLDER);
   return path;

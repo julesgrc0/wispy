@@ -96,7 +96,7 @@ elseif(UNIX AND NOT ANDROID)
   endif()
 
   add_custom_target(link_resource
-  COMMAND  objcopy --prefix-symbol=w --localize-hidden --rename-section .data=.rdata,CONTENTS,ALLOC,LOAD,READONLY,DATA --input-target binary --binary-architecture i386 --output-target ${OBJCOPY_ARCH} ${RESOURCE_PACK} ${CMAKE_BINARY_DIR}/resource.o --verbose
+  COMMAND  objcopy --prefix-symbol=w --localize-hidden --rename-section .data=.rdata,CONTENTS,ALLOC,LOAD,READONLY,DATA --input-target binary --binary-architecture i386 --output-target ${OBJCOPY_ARCH} ${RESOURCE_PACK_DIR}/resource.pack ${CMAKE_BINARY_DIR}/resource.o --verbose
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
   )
   add_dependencies(${PROJECT_NAME} link_resource)
