@@ -12,7 +12,9 @@ w_terrain *create_terrain(unsigned int start_position) {
   if (!DirectoryExists(terrain_path)) {
 #if defined(WISPY_WINDOWS)
     if (!CreateDirectoryA(terrain_path, NULL))
-#elif defined(WISPY_LINUX) || defined(WISPY_ANDROID)
+#elif defined(WISPY_LINUX)
+    if (mkdir(terrain_path, 0777) == -1)
+#elif defined(WISPY_ANDROID)
     if (mkdir(terrain_path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == 0)
 #endif
     {
