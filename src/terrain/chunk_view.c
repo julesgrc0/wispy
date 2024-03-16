@@ -51,17 +51,15 @@ void destroy_chunkview(w_chunkview *chunk_view) {
   free(chunk_view);
 }
 
-void update_renderblock_async(w_chunkview *chunk_view, w_renderblock *blocks,
-                              size_t len) {
+void update_renderblock_threadsafe(w_chunkview *chunk_view,
+                                   w_renderblock *blocks, size_t len) {
 #if defined(WISPY_WINDOWS)
   EnterCriticalSection(&chunk_view->csec);
 #elif defined(WISPY_LINUX)
   pthread_mutex_lock(&chunk_view->mutex);
 #endif
 
-  sfree(chunk_view->blocks);
-  chunk_view->len = len;
-  chunk_view->blocks = blocks;
+  update_renderblock(chunk_view, blocks, len);
 
 #if defined(WISPY_WINDOWS)
   LeaveCriticalSection(&chunk_view->csec);
@@ -70,8 +68,18 @@ void update_renderblock_async(w_chunkview *chunk_view, w_renderblock *blocks,
 #endif
 }
 
+void update_renderblock(w_chunkview *chunk_view, w_renderblock *blocks,
+                        size_t len) {
+  sfree(chunk_view->blocks);
+  chunk_view->len = len;
+  chunk_view->blocks = blocks;
+}
+
 bool update_chunkview(w_chunkview *chunk_view, w_chunkgroup *grp,
-                      w_camera *camera) {
+                      w_camera *camera,
+                      void (*update_renderblock_callback)(w_chunkview *,
+                                                 w_renderblock *,
+                                                 size_t)){
   Rectangle view = get_camera_view_with_gap(camera);
   if (view.x < 0) {
     view.width += view.x;
@@ -87,7 +95,7 @@ bool update_chunkview(w_chunkview *chunk_view, w_chunkgroup *grp,
   }
 
   if (view.width <= 0 || view.height <= 0) {
-    update_renderblock_async(chunk_view, NULL, 0);
+    update_renderblock_callback(chunk_view, NULL, 0);
     return true;
   }
 
@@ -131,7 +139,7 @@ bool update_chunkview(w_chunkview *chunk_view, w_chunkgroup *grp,
 
   if (blocks_count == 0) {
     free(blocks);
-    update_renderblock_async(chunk_view, NULL, 0);
+    update_renderblock_callback(chunk_view, NULL, 0);
     return true;
   } else if (blocks_count != blocks_len) {
     w_renderblock *tmp = realloc(blocks, sizeof(w_renderblock) * blocks_count);
@@ -142,7 +150,7 @@ bool update_chunkview(w_chunkview *chunk_view, w_chunkgroup *grp,
     blocks = tmp;
   }
 
-  update_renderblock_async(chunk_view, blocks, blocks_count);
+  update_renderblock_callback(chunk_view, blocks, blocks_count);
   return true;
 }
 

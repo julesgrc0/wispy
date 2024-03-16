@@ -1,11 +1,11 @@
 #pragma once
-#include "../core/controls.h"
-#include "../core/state.h"
-#include "../core/utils/camera.h"
-#include "../core/utils/smooth.h"
-#include "../entities/player.h"
-#include "../stdafx.h"
-#include "chunk_view.h"
+#include "../../core/controls.h"
+#include "../../core/state.h"
+#include "../../core/utils/camera.h"
+#include "../../core/utils/smooth.h"
+#include "../../entities/player.h"
+#include "../../stdafx.h"
+#include "../chunk_view.h"
 
 #define BREAKER_TIME .8f
 #define BREAKER_STAGES 6
@@ -36,6 +36,6 @@ w_blockbreaker *create_blockbreaker(w_state *state, w_chunkview *chunk_view,
 w_breakstate update_blockbreaker(w_blockbreaker *bb, w_controls *ctrl,
                                  w_player *player, float dt);
 
-void draw_blockbreaker(w_blockbreaker *bb, w_camera* camera);
+void draw_blockbreaker(w_blockbreaker *bb, w_camera *camera);
 
 void destroy_blockbreaker(w_blockbreaker *bb);

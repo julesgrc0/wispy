@@ -12,6 +12,7 @@ void destroy_chunkgroup(w_chunkgroup *grp);
 
 void next_chunkgroup(w_chunkgroup *grp);
 void prev_chunkgroup(w_chunkgroup *grp);
-
 int need_chunkgroup_update(w_chunkgroup *grp, unsigned int position);
+
 w_chunk *get_chunkgroup_chunk(w_chunkgroup *grp, unsigned int position);
+w_block *get_chunkgroup_block(w_chunkgroup *grp, Vector2 position);

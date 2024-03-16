@@ -1,20 +1,20 @@
-#include "action.h"
+#include "iconbutton.h"
 
-w_guiaction *create_action(w_guicontext *ctx, Vector2 position, float size,
+w_guiiconbutton *create_iconbutton(w_guicontext *ctx, Vector2 position, float size,
                            Texture texture) {
-  w_guiaction *action = malloc(sizeof(w_guiaction));
-  if (action == NULL)
+  w_guiiconbutton *iconbutton = malloc(sizeof(w_guiiconbutton));
+  if (iconbutton == NULL)
     return NULL;
-  memset(action, 0, sizeof(w_guiaction));
-  action->ctx = ctx;
-  action->position = Vector2SubtractValue(position, size);
-  action->size = size;
-  action->icon = texture;
+  memset(iconbutton, 0, sizeof(w_guiiconbutton));
+  iconbutton->ctx = ctx;
+  iconbutton->position = Vector2SubtractValue(position, size);
+  iconbutton->size = size;
+  iconbutton->icon = texture;
 
-  return action;
+  return iconbutton;
 }
 
-bool update_action(w_guiaction *act) {
+bool update_iconbutton(w_guiiconbutton *act) {
 #if defined(WISPY_ANDROID)
   bool clicked = check_collision_touch(act->position, act->size);
 #else
@@ -36,7 +36,7 @@ bool update_action(w_guiaction *act) {
   return clicked;
 }
 
-void destroy_action(w_guiaction *act) {
+void destroy_iconbutton(w_guiiconbutton *act) {
   if (act) {
     free(act);
   }

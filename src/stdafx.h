@@ -4,6 +4,7 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 #define _CRTDBG_MAP_ALLOC
+#define PATH_LENGTH 520
 
 #include <math.h>
 #include <memory.h>
@@ -49,14 +50,12 @@
 
 #elif defined(__linux__) && !defined(__ANDROID__)
 #define WISPY_LINUX
-#define MAX_PATH 260
 
 #include <pthread.h>
 #include <unistd.h>
 
 #elif defined(__ANDROID__)
 #define WISPY_ANDROID
-#define MAX_PATH 260
 
 #include <pthread.h>
 #include <unistd.h>

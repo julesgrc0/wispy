@@ -1,6 +1,23 @@
 #include "chunk.h"
 
-w_chunk *create_chunk(unsigned int position, bool thread) {
+w_chunk *load_chunk(unsigned int position) {
+  w_chunk *chunk = malloc(sizeof(w_chunk));
+  if (chunk == NULL) {
+    LOG("failed to allocate chunk");
+    return NULL;
+  }
+  chunk->position = position;
+  if (!load_chunk_blocks(chunk)) {
+    LOG("failed to load chunk blocks");
+    free(chunk);
+    return NULL;
+  }
+
+  LOG("loading chunk: %u", position);
+  return chunk;
+}
+
+w_chunk *load_chunk_async(unsigned int position) {
   w_chunk *chunk = malloc(sizeof(w_chunk));
   if (chunk == NULL) {
     LOG("failed to allocate chunk");
@@ -8,38 +25,60 @@ w_chunk *create_chunk(unsigned int position, bool thread) {
   }
   chunk->position = position;
 
+  w_chunkthread ct = {.chunk = chunk, .state = CHUNKTHREAD_LOAD};
 #if defined(WISPY_WINDOWS)
-  chunk->handle = INVALID_HANDLE_VALUE;
-#else
-  chunk->handle = 0;
+  chunk->handle = CreateThread(NULL, 0, chunk_thread, &ct, 0, NULL);
+  if (chunk->handle == NULL || chunk->handle == INVALID_HANDLE_VALUE)
+#elif defined(WISPY_LINUX) || defined(WISPY_ANDROID)
+  if (pthread_create(&chunk->handle, NULL, chunk_thread, &ct) != 0)
 #endif
-
-  if (thread) {
-#if defined(WISPY_WINDOWS)
-    chunk->handle = CreateThread(NULL, 0, &create_chunk_thread, chunk, 0, 0);
-    if (chunk->handle == INVALID_HANDLE_VALUE)
-#else
-    if (pthread_create(&chunk->handle, NULL, &create_chunk_thread, chunk) != 0)
-#endif
-    {
-      LOG("failed to create chunk thread");
-      free(chunk);
-      return NULL;
-    }
-
-    LOG("creating chunk thread: %u", position);
-    return chunk;
+  {
+    LOG("failed to create chunk thread (load)");
+    free(chunk);
+    return NULL;
   }
 
-  create_chunk_thread(chunk);
-  LOG("creating chunk: %u", position);
+  LOG("loading chunk: %u", position);
   return chunk;
 }
 
+void unload_chunk(w_chunk *chunk) {
+  if (chunk == NULL) {
+    LOG("chunk (null) already unloaded");
+    return;
+  }
+
+  if (!write_chunk_file(chunk->position, chunk->blocks)) {
+    LOG("failed save chunk blocks %u", chunk->position);
+  }
+  LOG("unloading chunk: %u", chunk->position);
+  free(chunk);
+}
+
+void unload_chunk_async(w_chunk *chunk) {
+  if (chunk == NULL) {
+    LOG("chunk (null) already unloaded");
+    return;
+  }
+
+  w_chunkthread ct = {.chunk = chunk, .state = CHUNKTHREAD_UNLOAD};
 #if defined(WISPY_WINDOWS)
-DWORD WINAPI create_chunk_thread(PVOID arg)
+  chunk->handle = CreateThread(NULL, 0, chunk_thread, &ct, 0, NULL);
+  if (chunk->handle == NULL || chunk->handle == INVALID_HANDLE_VALUE)
+#elif defined(WISPY_LINUX) || defined(WISPY_ANDROID)
+  if (pthread_create(&chunk->handle, NULL, chunk_thread, &ct) != 0)
+#endif
+  {
+    LOG("failed to create chunk thread (unload)");
+    free(chunk);
+    return;
+  }
+}
+
+#if defined(WISPY_WINDOWS)
+DWORD chunk_thread(PVOID arg)
 #else
-void *create_chunk_thread(void *arg)
+void *chunk_thread(void *arg)
 #endif
 {
   if (!arg) {
@@ -50,9 +89,38 @@ void *create_chunk_thread(void *arg)
 #endif
   }
 
-  LOG("creating chunk");
-  w_chunk *chunk = arg;
+  w_chunkthread *ct = arg;
+  switch (ct->state) {
+  case CHUNKTHREAD_LOAD:
+    if (!load_chunk_blocks(ct->chunk)) {
+      memset(ct->chunk->blocks, 0, CHUNK_W * CHUNK_H * sizeof(w_block));
+      LOG("failed to load chunk blocks: %u", ct->chunk->position);
+    }
+    break;
+  case CHUNKTHREAD_UNLOAD:
+    unload_chunk(ct->chunk);
+    break;
+  }
 
+#if defined(WISPY_WINDOWS)
+  return EXIT_SUCCESS;
+#else
+  return NULL;
+#endif
+}
+
+bool load_chunk_blocks(w_chunk *chunk) {
+  char *chunk_path = get_terrain_path_chunk(chunk->position);
+  if (chunk_path == NULL) {
+    return false;
+  }
+  bool exists = FileExists(chunk_path);
+  free(chunk_path);
+  return  exists ? read_chunk_file(chunk->position, chunk->blocks)
+                : create_chunk_blocks(chunk);
+}
+
+bool create_chunk_blocks(w_chunk *chunk) {
   Image base = GenImagePerlinNoise(CHUNK_W, BLOCK_TOP_LAYER_H,
                                    chunk->position * CHUNK_W, 0, 6.f);
   Image mineral =
@@ -113,17 +181,5 @@ void *create_chunk_thread(void *arg)
   UnloadImage(base);
   UnloadImage(mineral);
 
-#if defined(WISPY_WINDOWS)
-  chunk->handle = INVALID_HANDLE_VALUE;
-#else
-  chunk->handle = 0;
-#endif
-
-  LOG("chunk created: %u", chunk->position);
-
-#if defined(WISPY_WINDOWS)
-  return EXIT_SUCCESS;
-#else
-  return NULL;
-#endif
+  return write_chunk_file(chunk->position, chunk->blocks);
 }

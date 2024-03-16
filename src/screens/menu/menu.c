@@ -63,7 +63,7 @@ void menu_screen(w_state *state) {
                                cosf(angle) * 1000.f * speed));
 #endif
 
-    update_chunkview(view, grp, camera);
+    update_chunkview(view, grp, camera, update_renderblock);
     update_chunkview_lighting(view, get_camera_center(camera),
                               DEFAULT_LIGHT_RADIUS * 0.75);
 

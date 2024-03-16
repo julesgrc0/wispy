@@ -24,10 +24,17 @@ typedef struct w_chunkview {
 w_chunkview *create_chunkview(w_chunk *current);
 void destroy_chunkview(w_chunkview *chunk_view);
 
-void update_renderblock_async(w_chunkview *chunk_view, w_renderblock *blocks,
-                              size_t len);
+void update_renderblock_threadsafe(w_chunkview *chunk_view,
+                                   w_renderblock *blocks, size_t len);
+void update_renderblock(w_chunkview *chunk_view, w_renderblock *blocks,
+                        size_t len);
+
 bool update_chunkview(w_chunkview *chunk_view, w_chunkgroup *grp,
-                      w_camera *camera);
+                      w_camera *camera,
+                      void (*update_renderblock_callback)(w_chunkview *,
+                                                 w_renderblock *,
+                                                 size_t));
+
 void filter_chunkview_blocks(w_chunk *chunk, Rectangle view,
                              w_renderblock *blocks, size_t *rendercount);
 

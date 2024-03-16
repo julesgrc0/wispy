@@ -1,13 +1,16 @@
 #pragma once
-#include "../../stdafx.h"
 #include "../../core/state.h"
 #include "../../entities/player.h"
-#include "../../terrain/break.h"
+#include "../../stdafx.h"
+#include "../../terrain/actions/break.h"
 #include "../../terrain/chunk.h"
-#include "../../gui/action.h"
-#include "../../gui/gui.h"
-#include "../../gui/joystick.h"
-
 #include "bridge.h"
+
+#include "../../gui/gui.h"
+
+#if defined(WISPY_ANDROID)
+#include "../../gui/iconbutton.h"
+#include "../../gui/joystick.h"
+#endif
 
 void game_screen(w_state *state);

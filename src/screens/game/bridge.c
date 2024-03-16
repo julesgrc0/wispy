@@ -8,19 +8,13 @@ w_bridge *create_bridge() {
   }
   memset(td, 0, sizeof(w_bridge));
 
-  td->chunk_group = create_chunkgroup(CHUNK_GROUP_MID_LEN);
-  if (td->chunk_group == NULL) {
+  td->terrain = create_terrain(CHUNK_GROUP_MID_LEN);
+  if (td->terrain == NULL) {
     destroy_bridge(td);
     return NULL;
   }
 
-  td->chunk_view = create_chunkview(td->chunk_group->chunks[0]);
-  if (td->chunk_view == NULL) {
-    destroy_bridge(td);
-    return NULL;
-  }
-
-  td->player = create_player(td->chunk_group->position);
+  td->player = create_player(td->terrain->group->position);
   if (td->player == NULL) {
     destroy_bridge(td);
     return NULL;
@@ -89,8 +83,7 @@ void destroy_bridge(w_bridge *td) {
 #endif
 
   destroy_controls(td->ctrl);
-  destroy_chunkgroup(td->chunk_group);
-  destroy_chunkview(td->chunk_view);
+  destroy_terrain(td->terrain);
   destroy_player(td->player);
   destroy_camera(td->camera);
 
@@ -99,7 +92,7 @@ void destroy_bridge(w_bridge *td) {
 
 void physics_update_bridge(w_bridge *td) {
 
-  check_player_collision_vel(td->player, td->chunk_view);
+  check_player_collision_vel(td->player, td->terrain->view);
   Vector2 next_position =
       Vector2Scale(td->player->velocity, PHYSICS_TICK * PLAYER_SPEED);
 
@@ -119,19 +112,25 @@ void physics_update_bridge(w_bridge *td) {
 
 void update_bridge(w_bridge *td) {
   if (td->ctrl->key != 0 ||
-  #if defined(WISPY_ANDROID)
+#if defined(WISPY_ANDROID)
       !Vector2Equals(td->camera->target_position, td->camera->position) ||
-  #else
+#else
       !Vector2Equals(td->camera->target_position, get_camera_vec(td->camera)) ||
-  #endif
+#endif
       td->force_update) {
 
-    if (!update_chunkview(td->chunk_view, td->chunk_group, td->camera)) {
+    if (!update_chunkview(td->terrain->view, td->terrain->group, td->camera,
+#if defined(WISPY_ANDROID)
+                          update_renderblock
+#else
+                          update_renderblock_threadsafe
+#endif
+                          )) {
       LOG("failed to update chunk view");
       td->is_active = false;
       return;
     }
-    update_chunkview_lighting(td->chunk_view, get_player_center(td->player),
+    update_chunkview_lighting(td->terrain->view, get_player_center(td->player),
                               RENDER_CUBE_COUNT * CUBE_W);
     td->force_update = false;
   }

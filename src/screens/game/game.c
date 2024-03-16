@@ -21,7 +21,7 @@ void game_screen(w_state *state) {
   if (td == NULL)
     return;
 
-  w_blockbreaker *bb = create_blockbreaker(state, td->chunk_view, td->camera);
+  w_blockbreaker *bb = create_blockbreaker(state, td->terrain->view, td->camera);
   if (bb == NULL) {
     destroy_bridge(td);
     return;
@@ -90,9 +90,9 @@ void game_screen(w_state *state) {
 #endif
 
 #if defined(WISPY_WINDOWS)
-    if (TryEnterCriticalSection(&td->chunk_view->csec))
+    if (TryEnterCriticalSection(&td->terrain->view->csec))
 #elif defined(WISPY_LINUX)
-    if (pthread_mutex_trylock(&td->chunk_view->mutex) == 0)
+    if (pthread_mutex_trylock(&td->terrain->view->mutex) == 0)
 #endif
     {
 
@@ -106,16 +106,16 @@ void game_screen(w_state *state) {
       begin_camera(td->camera);
 #endif
 
-      for (unsigned int i = 0; i < td->chunk_view->len; i++) {
+      for (unsigned int i = 0; i < td->terrain->view->len; i++) {
         DrawTexturePro(
-            block_textures[td->chunk_view->blocks[i].block.type - 1],
-            td->chunk_view->blocks[i].src,
+            block_textures[td->terrain->view->blocks[i].block.type - 1],
+            td->terrain->view->blocks[i].src,
 #if defined(WISPY_ANDROID)
-            get_rect_to_camera(td->chunk_view->blocks[i].dst, td->camera),
+            get_rect_to_camera(td->terrain->view->blocks[i].dst, td->camera),
 #else
-            td->chunk_view->blocks[i].dst,
+            td->terrain->view->blocks[i].dst,
 #endif
-            VEC_ZERO, 0, td->chunk_view->blocks[i].light);
+            VEC_ZERO, 0, td->terrain->view->blocks[i].light);
       }
 #if defined(WISPY_WINDOWS) || defined(WISPY_LINUX)
       bstate = update_blockbreaker(bb, td->ctrl, td->player, dt);
@@ -142,9 +142,9 @@ void game_screen(w_state *state) {
       DrawText(TextFormat("FPS: %i", GetFPS()), 50, 50, 30, WHITE);
       EndTextureMode();
 #if defined(WISPY_WINDOWS)
-      LeaveCriticalSection(&td->chunk_view->csec);
+      LeaveCriticalSection(&td->terrain->view->csec);
 #elif defined(WISPY_LINUX)
-      pthread_mutex_unlock(&td->chunk_view->mutex);
+      pthread_mutex_unlock(&td->terrain->view->mutex);
 #endif
     }
 

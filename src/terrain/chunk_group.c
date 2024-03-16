@@ -14,7 +14,7 @@ w_chunkgroup *create_chunkgroup(unsigned int position) {
 
   grp->position = position - CHUNK_GROUP_MID_LEN;
   for (unsigned int x = 0; x < CHUNK_GROUP_LEN; x++) {
-    grp->chunks[x] = create_chunk(grp->position + x, false);
+    grp->chunks[x] = load_chunk(grp->position + x);
   }
 
   LOG("creating chunk group: %u", grp->position);
@@ -33,13 +33,13 @@ void destroy_chunkgroup(w_chunkgroup *grp) {
     if (grp->chunks[i]->handle != INVALID_HANDLE_VALUE) {
       WaitForSingleObject(grp->chunks[i]->handle, INFINITE);
     }
-#elif defined(WISPY_LINUX)
+#elif defined(WISPY_LINUX) || defined(WISPY_ANDROID)
     if (grp->chunks[i]->handle != 0) {
       pthread_join(grp->chunks[i]->handle, NULL);
     }
 #endif
 
-    free(grp->chunks[i]);
+    unload_chunk(grp->chunks[i]);
   }
   free(grp);
 }
@@ -48,10 +48,10 @@ void next_chunkgroup(w_chunkgroup *grp) {
   grp->position += CHUNK_GROUP_MID_LEN;
   LOG("loading next chunk group: %d", grp->position);
   for (unsigned int x = 0; x < CHUNK_GROUP_MID_LEN; x++) {
-    free(grp->chunks[x]);
+    unload_chunk_async(grp->chunks[x]);
     grp->chunks[x] = grp->chunks[x + CHUNK_GROUP_MID_LEN];
     grp->chunks[x + CHUNK_GROUP_MID_LEN] =
-        create_chunk(grp->position + CHUNK_GROUP_MID_LEN + x, true);
+        load_chunk_async(grp->position + CHUNK_GROUP_MID_LEN + x);
   }
 }
 
@@ -59,9 +59,9 @@ void prev_chunkgroup(w_chunkgroup *grp) {
   grp->position -= CHUNK_GROUP_MID_LEN;
   LOG("loading prev chunk group: %d", grp->position);
   for (unsigned int x = 0; x < CHUNK_GROUP_MID_LEN; x++) {
-    free(grp->chunks[x + CHUNK_GROUP_MID_LEN]);
+    unload_chunk_async(grp->chunks[x + CHUNK_GROUP_MID_LEN]);
     grp->chunks[x + CHUNK_GROUP_MID_LEN] = grp->chunks[x];
-    grp->chunks[x] = create_chunk(grp->position + x, true);
+    grp->chunks[x] = load_chunk_async(grp->position + x);
   }
 }
 
@@ -84,4 +84,21 @@ w_chunk *get_chunkgroup_chunk(w_chunkgroup *grp, unsigned int position) {
     return NULL;
   }
   return grp->chunks[position - grp->position];
+}
+
+w_block *get_chunkgroup_block(w_chunkgroup *grp, Vector2 position) {
+  if (position.x < grp->position * CHUNK_W ||
+      position.x >= (grp->position + CHUNK_GROUP_LEN) * CHUNK_W ||
+      position.y < 0 || position.y >= CHUNK_H) {
+    return NULL;
+  }
+
+  w_chunk *chunk = get_chunkgroup_chunk(grp, position.x / CHUNK_W);
+  if (chunk == NULL) {
+    return NULL;
+  }
+
+  return &chunk->blocks[(int)position.y * CHUNK_W +
+                        ((int)(position.x - chunk->position * CHUNK_W) /
+                         CHUNK_W)];
 }

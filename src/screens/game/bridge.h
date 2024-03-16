@@ -3,9 +3,7 @@
 #include "../../stdafx.h"
 #include "../../entities/player.h"
 #include "../../terrain/block.h"
-#include "../../terrain/chunk.h"
-#include "../../terrain/chunk_group.h"
-#include "../../terrain/chunk_view.h"
+#include "../../terrain/terrain.h"
 
 #include "../../core/utils/camera.h"
 #include "../../core/controls.h"
@@ -15,8 +13,7 @@ typedef struct w_bridge {
   bool is_active;
   bool force_update;
 
-  w_chunkgroup *chunk_group;
-  w_chunkview *chunk_view;
+  w_terrain* terrain;
   w_controls *ctrl;
 
   w_player *player;

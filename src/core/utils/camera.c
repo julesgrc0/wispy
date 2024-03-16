@@ -45,6 +45,9 @@ void destroy_camera(w_camera *camera) {
     LOG("camera (null) already destroyed");
     return;
   }
+  if (camera->matrix != NULL) {
+    free(camera->matrix);
+  }
   free(camera);
 }
 
@@ -119,7 +122,5 @@ void begin_camera(w_camera *camera) {
   rlLoadIdentity();
   rlMultMatrixf(camera->matrix);
 }
-void end_camera() {
-  EndMode2D();
-}
+void end_camera() { EndMode2D(); }
 #endif
