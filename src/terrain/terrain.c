@@ -18,10 +18,13 @@ w_terrain *create_terrain(unsigned int start_position) {
     if (mkdir(terrain_path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == 0)
 #endif
     {
+      LOG("failed to create terrain folder: %s", terrain_path);
       free(terrain_path);
       free(terrain);
       return NULL;
     }
+
+    LOG("created terrain folder: %s", terrain_path);
   }
   free(terrain_path);
 

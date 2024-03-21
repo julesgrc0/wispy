@@ -86,7 +86,12 @@ void save_config(w_config *config) {
 
   config_path[0] = 0;
 
-  strcat(config_path, GetApplicationDirectory());
+#if defined(WISPY_ANDROID)
+  strcat(config_path, GetAndroidApp()->activity->internalDataPath);
+  strcat(config_path, "/");
+#else
+    strcat(config_path, GetApplicationDirectory());
+#endif
   strcat(config_path, CONFIG_NAME);
 
   json_object *root = json_object_new_object();
