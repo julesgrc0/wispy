@@ -40,10 +40,5 @@ public class MainActivity extends NativeActivity {
             | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
             | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
         );
-
-        // get internal data path:
-        String internalDataPath = getFilesDir().getAbsolutePath();
-        // log it to the console:
-        System.out.println("WISPY_PATH Internal data path: " + internalDataPath);
     }
 }
