@@ -52,6 +52,7 @@
 #define WISPY_LINUX
 
 #include <pthread.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 #elif defined(__ANDROID__)

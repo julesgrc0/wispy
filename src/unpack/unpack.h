@@ -3,6 +3,7 @@
 #include "../stdafx.h"
 
 #define MAX_UNCOMPRESSE_TRY 4
+
 #if defined(WISPY_WINDOWS)
 #define RESOURCE_NAME "ASSETS_PACK"
 #elif defined(WISPY_LINUX)
