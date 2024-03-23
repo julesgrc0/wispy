@@ -7,17 +7,9 @@ void menu_screen(w_state *state) {
 
   bool is_active = true;
 
-  Texture block_textures[6] = {
-      get_texture_by_id(state, "blocks\\grass.png"),
-      get_texture_by_id(state, "blocks\\dirt.png"),
-      get_texture_by_id(state, "blocks\\stone.png"),
-      get_texture_by_id(state, "blocks\\mineral.png"),
-      get_texture_by_id(state, "blocks\\mineral_or.png"),
-      get_texture_by_id(state, "blocks\\mineral_iron.png")};
-
-  w_chunkgroup *grp = create_chunkgroup(CHUNK_GROUP_MID_LEN);
-  w_chunkview *view = create_chunkview(grp->chunks[0]);
-  w_camera *camera = create_camera(0, CHUNK_MID_H * CUBE_H);
+  Texture block_textures[3] = {get_texture_by_id(state, "blocks\\grass.png"),
+                               get_texture_by_id(state, "blocks\\dirt.png"),
+                               get_texture_by_id(state, "blocks\\stone.png")};
 
   w_guicontext *ctx = create_gui();
   ctx->font_size = 25;
@@ -48,48 +40,30 @@ void menu_screen(w_state *state) {
       ctx, Vector2Add(title_text->position, VEC(0, title_text->font_size + 10)),
       (char *)TextFormat("made by @julesgrc0 - %s", WISPY_VERSION), 20, WHITE);
 
-  float angle = 0.0;
+  // TODO: pre-render the cubes to a texture
+  unsigned int cubes[RENDER_CUBE_COUNT * RENDER_CUBE_COUNT] = {0};
+  for (unsigned int y = 0; y < RENDER_CUBE_COUNT; y++) {
+    for (unsigned int x = 0; x < RENDER_CUBE_COUNT; x++) {
+        cubes[x + y * RENDER_CUBE_COUNT] = GetRandomValue(0, 2);
+    }
+  }
   while (!WindowShouldClose() && is_active) {
-
-    float speed = GetFrameTime() * 0.1f;
-    angle += speed;
-    angle = fmodf(angle, 360.f);
-
-#if defined(WISPY_ANDROID)
-    camera->position.x += sinf(angle) * 1000.f * speed;
-    camera->position.y += cosf(angle) * 1000.f * speed;
-#else
-    add_camera_vec(camera, VEC(sinf(angle) * 1000.f * speed,
-                               cosf(angle) * 1000.f * speed));
-#endif
-
-    update_chunkview(view, grp, camera, update_renderblock);
-    update_chunkview_lighting(view, get_camera_center(camera),
-                              DEFAULT_LIGHT_RADIUS * 0.75);
 
     BeginTextureMode(state->render);
     ClearBackground(BLACK);
     DrawRectangleGradientV(0, 0, RENDER_W, RENDER_H, (Color){66, 135, 245, 255},
                            (Color){142, 184, 250, 255});
 
-#if defined(WISPY_WINDOWS) || defined(WISPY_LINUX)
-    begin_camera(camera);
-#endif
-
-    for (unsigned int i = 0; i < view->len; i++) {
-      DrawTexturePro(block_textures[view->blocks[i].block.type - 1],
-                     view->blocks[i].src,
-#if defined(WISPY_ANDROID)
-                     get_rect_to_camera(view->blocks[i].dst, camera),
-#else
-                     view->blocks[i].dst,
-#endif
-                     VEC_ZERO, 0, view->blocks[i].light);
+    for (unsigned int y = 0; y < RENDER_CUBE_COUNT; y++) {
+      for (unsigned int x = 0; x < RENDER_CUBE_COUNT; x++) {
+        DrawTexturePro(
+            block_textures[
+              cubes[x + y * RENDER_CUBE_COUNT]
+            ], CUBE_SRC_RECT,
+            RECT((float)x * CUBE_W, (float)y * CUBE_H, CUBE_W, CUBE_H),
+            VEC_ZERO, 0, WHITE);
+      }
     }
-
-#if defined(WISPY_WINDOWS) || defined(WISPY_LINUX)
-    end_camera();
-#endif
 
     if (update_button(play_button)) {
       is_active = false;
@@ -112,17 +86,12 @@ void menu_screen(w_state *state) {
     EndDrawing();
   }
 
-  destroy_chunkgroup(grp);
-  destroy_chunkview(view);
-
   destroy_text(credit_text);
   destroy_text(title_text);
   destroy_button(play_button);
   destroy_button(setting_button);
   destroy_button(exit_button);
   destroy_gui(ctx);
-
-  destroy_camera(camera);
 
   if (is_active) {
     state->state = FS_EXIT;

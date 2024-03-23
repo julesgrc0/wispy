@@ -1,12 +1,11 @@
 #pragma once
 #include "../stdafx.h"
 
-#define BLOCK_BACKGROUND_MASK 0x80
+#define MAX_BLOCK_VALUE_TYPE 6
+#define BLOCK_IS_BACKGROUND(b) (b > MAX_BLOCK_VALUE_TYPE)
+#define BLOCK_SET_BACKGROUND(b) (b + MAX_BLOCK_VALUE_TYPE)
+#define BLOCK_TYPE(b) (b % MAX_BLOCK_VALUE_TYPE)
 
-#define BLOCK_IS_BACKGROUND(block_type) (block_type & BLOCK_BACKGROUND_MASK)
-#define BLOCK_SET_BACKGROUND(block_type) (block_type | BLOCK_BACKGROUND_MASK)
-#define BLOCK_UNSET_BACKGROUND(block_type) (block_type & ~BLOCK_BACKGROUND_MASK)
-#define BLOCK_TYPE(block_type) (block_type & ~BLOCK_BACKGROUND_MASK)
 
 #define CUBE_SRC_RECT                                                          \
   (Rectangle) { 0, 0, 8, 8 }

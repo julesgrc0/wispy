@@ -8,6 +8,7 @@
 #include "../../core/utils/camera.h"
 #include "../../core/controls.h"
 #include "../../core/state.h"
+#include "../../core/config.h"
 
 typedef struct w_bridge {
   bool is_active;
@@ -29,7 +30,7 @@ typedef struct w_bridge {
 
 } w_bridge;
 
-w_bridge *create_bridge();
+w_bridge *create_bridge(w_config* cfg);
 void destroy_bridge(w_bridge *td);
 
 void physics_update_bridge(w_bridge *td);

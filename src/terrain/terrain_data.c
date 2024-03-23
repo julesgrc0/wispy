@@ -107,7 +107,7 @@ bool write_chunk_file(unsigned int position, w_block *blocks) {
   for (unsigned int i = 0; i < in_size; i++) {
 
     if (blocks[i].is_background) {
-      in_buffer[i] = BLOCK_SET_BACKGROUND(in_buffer[i]);
+      in_buffer[i] = BLOCK_SET_BACKGROUND(blocks[i].type);
     } else {
       in_buffer[i] = blocks[i].type;
     }

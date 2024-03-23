@@ -1,6 +1,7 @@
 #pragma once
 #include "../gui/gui.h"
 #include "../stdafx.h"
+#include "config.h"
 
 #pragma pack(push, 1)
 typedef struct w_controls {
@@ -10,9 +11,12 @@ typedef struct w_controls {
       unsigned int jump : 1;
       unsigned int left : 1;
       unsigned int right : 1;
+
+      // -- NOT USED --
       unsigned int up : 1;
       unsigned int down : 1;
       unsigned int shift : 1;
+      // --------------
     };
     uint8_t key;
   };
@@ -22,10 +26,12 @@ typedef struct w_controls {
   bool is_jumping;
   bool is_breaking;
 #endif
+
+  w_config *cfg;
 } w_controls;
 #pragma pack(pop)
 
-w_controls *create_controls();
+w_controls *create_controls(w_config *cfg);
 void destroy_controls(w_controls *kb);
 
 void update_controls(w_controls *kb);

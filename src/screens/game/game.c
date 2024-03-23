@@ -17,7 +17,7 @@ void game_screen(w_state *state) {
       get_texture_by_id(state, "player\\player_walk2.png"),
   };
 
-  w_bridge *td = create_bridge();
+  w_bridge *td = create_bridge(state->config);
   if (td == NULL)
     return;
 
@@ -38,7 +38,7 @@ void game_screen(w_state *state) {
   }
 
   w_guijoystick *js = create_joystick(
-      ctx, VEC(PERCENT_W(0.25), PERCENT_H(0.95)), PERCENT_W(0.1));
+      ctx, state->config->joysitck_position, PERCENT_W(0.1));
   if (js == NULL) {
     destroy_bridge(td);
     destroy_blockbreaker(bb);
@@ -46,7 +46,7 @@ void game_screen(w_state *state) {
     return;
   }
 
-  w_guiiconbutton *break_button = create_iconbutton(ctx, VEC(RENDER_W - PERCENT_W(0.05), PERCENT_H(0.75)),
+  w_guiiconbutton *break_button = create_iconbutton(ctx, cfg->break_position,
                                             PERCENT_W(0.05), break_icon);
   if (break_button == NULL) {
     destroy_bridge(td);
@@ -57,7 +57,7 @@ void game_screen(w_state *state) {
     return;
   }
 
-  w_guiiconbutton *jump_button = create_iconbutton(ctx, VEC(PERCENT_W(0.85), RENDER_H - PERCENT_H(0.05)),
+  w_guiiconbutton *jump_button = create_iconbutton(ctx, cfg->jump_position,
                                            PERCENT_W(0.05), player_textures[3]);
   if (jump_button == NULL) {
     destroy_bridge(td);

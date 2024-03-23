@@ -1,6 +1,6 @@
 #include "bridge.h"
 
-w_bridge *create_bridge() {
+w_bridge *create_bridge(w_config* cfg) {
   w_bridge *td = malloc(sizeof(w_bridge));
   if (td == NULL) {
     LOG("failed to allocate memory for bridge");
@@ -32,7 +32,7 @@ w_bridge *create_bridge() {
   td->camera->target_position = get_camera_vec(td->camera);
 #endif
 
-  td->ctrl = create_controls();
+  td->ctrl = create_controls(cfg);
   if (td->ctrl == NULL) {
     destroy_bridge(td);
     return NULL;

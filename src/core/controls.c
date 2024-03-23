@@ -1,10 +1,11 @@
 #include "controls.h"
 
-w_controls *create_controls() {
+w_controls *create_controls(w_config *cfg) {
   w_controls *kb = (w_controls *)malloc(sizeof(w_controls));
   if (kb == NULL)
     return NULL;
   memset(kb, 0, sizeof(w_controls));
+  kb->cfg = cfg;
   return kb;
 }
 
@@ -21,13 +22,10 @@ void update_controls(w_controls *kb) {
     kb->right = kb->joystick.x > 0.5;
   }
 #else
-  kb->left = IsKeyDown(KEY_LEFT);
-  kb->right = IsKeyDown(KEY_RIGHT);
-  kb->up = IsKeyDown(KEY_UP);
-  kb->down = IsKeyDown(KEY_DOWN);
-  kb->jump = IsKeyDown(KEY_SPACE);
-  kb->inventory = IsKeyDown(KEY_RIGHT_ALT) || IsKeyDown(KEY_LEFT_SHIFT);
-  kb->shift = IsKeyDown(KEY_RIGHT_SHIFT) || IsKeyDown(KEY_LEFT_SHIFT);
+  kb->left = IsKeyDown(kb->cfg->left_key);
+  kb->right = IsKeyDown(kb->cfg->right_key);
+  kb->jump = IsKeyDown(kb->cfg->jump_key);
+  kb->inventory = IsKeyDown(kb->cfg->inventory_key);
 #endif
 }
 
@@ -46,21 +44,20 @@ bool check_collision_touch(Vector2 position, float size) {
   return !Vector2Equals(get_collision_touch(position, size), VEC_ZERO);
 }
 
-Vector2 get_nearest_touch(Vector2 position)
-{
-    const int touch_count = GetTouchPointCount();
-    Vector2 nearest = VEC_ZERO;
-    float distance = 0;
-    for (int i = 0; i < touch_count; i++) {
-        Vector2 point =
-            VEC(FORMAT_W(GetTouchPosition(i).x), FORMAT_H(GetTouchPosition(i).y));
-        float d = Vector2Distance(point, position);
-        if (d < distance || distance == 0) {
-          distance = d;
-          nearest = point;
-        }
+Vector2 get_nearest_touch(Vector2 position) {
+  const int touch_count = GetTouchPointCount();
+  Vector2 nearest = VEC_ZERO;
+  float distance = 0;
+  for (int i = 0; i < touch_count; i++) {
+    Vector2 point =
+        VEC(FORMAT_W(GetTouchPosition(i).x), FORMAT_H(GetTouchPosition(i).y));
+    float d = Vector2Distance(point, position);
+    if (d < distance || distance == 0) {
+      distance = d;
+      nearest = point;
     }
-    return nearest;
+  }
+  return nearest;
 }
 
 Vector2 get_collision_touch(Vector2 position, float size) {

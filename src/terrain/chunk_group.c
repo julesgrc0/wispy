@@ -93,7 +93,7 @@ w_block *get_chunkgroup_block(w_chunkgroup *grp, Vector2 position) {
     return NULL;
   }
 
-  w_chunk *chunk = get_chunkgroup_chunk(grp, position.x / CHUNK_W);
+  w_chunk *chunk = get_chunkgroup_chunk(grp, (unsigned int)(position.x / CHUNK_W));
   if (chunk == NULL) {
     return NULL;
   }
