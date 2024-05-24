@@ -40,13 +40,18 @@ void menu_screen(w_state *state) {
       ctx, Vector2Add(title_text->position, VEC(0, title_text->font_size + 10)),
       (char *)TextFormat("made by @julesgrc0 - %s", WISPY_VERSION), 20, WHITE);
 
-  // TODO: pre-render the cubes to a texture
+  
+  
+  /// TODO: pre-render to a texture
   unsigned int cubes[RENDER_CUBE_COUNT * RENDER_CUBE_COUNT] = {0};
   for (unsigned int y = 0; y < RENDER_CUBE_COUNT; y++) {
     for (unsigned int x = 0; x < RENDER_CUBE_COUNT; x++) {
-        cubes[x + y * RENDER_CUBE_COUNT] = GetRandomValue(0, 2);
+      /// TODO: fix sin wave
+      cubes[x + y * RENDER_CUBE_COUNT] = (int)(sin(x / 100.0f) * 1.5f + 1.5f);
     }
   }
+
+
   while (!WindowShouldClose() && is_active) {
 
     BeginTextureMode(state->render);
@@ -65,20 +70,23 @@ void menu_screen(w_state *state) {
       }
     }
 
+    /// TODO: move to home view (start)
     if (update_button(play_button)) {
       is_active = false;
     }
     if (update_button(setting_button)) {
-      // TODO: Implement settings screen
+      /// TODO: Implement settings screen
     }
     if (update_button(exit_button)) {
       state->state = FS_EXIT;
       break;
     }
-
+    
     update_text(title_text);
     update_text(credit_text);
+
     EndTextureMode();
+
 
     BeginDrawing();
     ClearBackground(BLACK);

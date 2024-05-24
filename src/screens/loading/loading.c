@@ -91,7 +91,7 @@ void loading_screen(w_state *state) {
   const char *loading_text = "Loading...";
   const char *error_text = "Failed to load resources !";
 
-  // TODO: use gui label
+  /// TODO: use gui label
 
   Vector2 loading_pos = {
       .x = (GetScreenWidth() - MeasureText(loading_text, text_size)) / 2.f,
