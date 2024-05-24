@@ -1,7 +1,7 @@
 #pragma once
 #include "../stdafx.h"
 
-#define MAX_BLOCK_VALUE_TYPE 6
+#define MAX_BLOCK_VALUE_TYPE 10
 #define BLOCK_IS_BACKGROUND(b) (b > MAX_BLOCK_VALUE_TYPE)
 #define BLOCK_SET_BACKGROUND(b) (b + MAX_BLOCK_VALUE_TYPE)
 #define BLOCK_TYPE(b) (b % MAX_BLOCK_VALUE_TYPE)
