@@ -11,37 +11,13 @@ void menu_screen(w_state *state) {
                                get_texture_by_id(state, "blocks\\dirt.png"),
                                get_texture_by_id(state, "blocks\\stone.png")};
 
-  w_guicontext *ctx = create_gui();
-  ctx->font_size = 25;
-  ctx->margin_height = 10;
-  ctx->margin_width = 40;
+  w_menu_view *home_view = create_menu_home(state);
+  w_menu_view *maps_view = create_menu_maps(state);
+  w_menu_view *settings_view = create_menu_settings(state);
 
-  w_guibutton *play_button =
-      create_button(ctx, VEC(PERCENT_W(0.5f), PERCENT_H(0.45f)), WHITE, "Play");
-  w_guibutton *setting_button = create_button(
-      ctx,
-      VEC(.x = play_button->position.x + play_button->size.x / 2,
-          .y = play_button->rect.y + play_button->rect.height * 2, ),
-      WHITE, "Settings");
-  setting_button->default_color = Fade(WHITE, 0.5);
-  setting_button->hover_color = Fade(WHITE, 0.5);
+  w_menu_view *current_view = home_view;
+  w_menu_state view_state = MENU_STATE_HOME;
 
-  w_guibutton *exit_button = create_button(
-      ctx,
-      VEC(.x = play_button->position.x + play_button->size.x / 2,
-          .y = setting_button->rect.y + setting_button->rect.height * 2),
-      WHITE, "Exit");
-
-  w_guitext *title_text = create_text(
-      ctx, VEC(PERCENT_W(0.5f), PERCENT_H(0.2f)), "Wispy", 120, WHITE);
-  center_text(title_text, true, true);
-
-  w_guitext *credit_text = create_text(
-      ctx, Vector2Add(title_text->position, VEC(0, title_text->font_size + 10)),
-      (char *)TextFormat("made by @julesgrc0 - %s", WISPY_VERSION), 20, WHITE);
-
-  
-  
   /// TODO: pre-render to a texture
   unsigned int cubes[RENDER_CUBE_COUNT * RENDER_CUBE_COUNT] = {0};
   for (unsigned int y = 0; y < RENDER_CUBE_COUNT; y++) {
@@ -51,8 +27,7 @@ void menu_screen(w_state *state) {
     }
   }
 
-
-  while (!WindowShouldClose() && is_active) {
+  while (!WindowShouldClose() && is_active && view_state != MENU_STATE_EXIT) {
 
     BeginTextureMode(state->render);
     ClearBackground(BLACK);
@@ -62,31 +37,28 @@ void menu_screen(w_state *state) {
     for (unsigned int y = 0; y < RENDER_CUBE_COUNT; y++) {
       for (unsigned int x = 0; x < RENDER_CUBE_COUNT; x++) {
         DrawTexturePro(
-            block_textures[
-              cubes[x + y * RENDER_CUBE_COUNT]
-            ], CUBE_SRC_RECT,
+            block_textures[cubes[x + y * RENDER_CUBE_COUNT]], CUBE_SRC_RECT,
             RECT((float)x * CUBE_W, (float)y * CUBE_H, CUBE_W, CUBE_H),
             VEC_ZERO, 0, WHITE);
       }
     }
 
-    /// TODO: move to home view (start)
-    if (update_button(play_button)) {
+    view_state = current_view->update(current_view);
+    switch (view_state) {
+    case MENU_STATE_HOME:
+      current_view = home_view;
+      break;
+    case MENU_STATE_MAPS:
+      current_view = maps_view;
+      break;
+    case MENU_STATE_SETTINGS:
+      current_view = settings_view;
+      break;
+    case MENU_STATE_PLAY:
       is_active = false;
-    }
-    if (update_button(setting_button)) {
-      /// TODO: Implement settings screen
-    }
-    if (update_button(exit_button)) {
-      state->state = FS_EXIT;
       break;
     }
-    
-    update_text(title_text);
-    update_text(credit_text);
-
     EndTextureMode();
-
 
     BeginDrawing();
     ClearBackground(BLACK);
@@ -94,12 +66,9 @@ void menu_screen(w_state *state) {
     EndDrawing();
   }
 
-  destroy_text(credit_text);
-  destroy_text(title_text);
-  destroy_button(play_button);
-  destroy_button(setting_button);
-  destroy_button(exit_button);
-  destroy_gui(ctx);
+  destroy_menu_home(home_view);
+  destroy_menu_maps(maps_view);
+  destroy_menu_settings(settings_view);
 
   if (is_active) {
     state->state = FS_EXIT;
