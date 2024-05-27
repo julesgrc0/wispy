@@ -57,6 +57,8 @@ void menu_screen(w_state *state) {
     case MENU_STATE_PLAY:
       is_active = false;
       break;
+      case MENU_STATE_EXIT:
+        break;
     }
     EndTextureMode();
 

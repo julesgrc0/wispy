@@ -39,6 +39,6 @@ android {
         includeInApk = false
         includeInBundle = false
     }
-    ndkVersion = "26.2.11394342"
-    buildToolsVersion = "35.0.0 rc1"
+    ndkVersion = "26.2.11394342" // "27.0.11718014" because raylib does not support ndk27 (ALooper_pollAll need to be replaced with ALooper_pollOnce)
+    buildToolsVersion = "35.0.0 rc4"
 }
