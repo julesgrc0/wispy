@@ -21,22 +21,22 @@ w_menu_view *create_menu_home(w_state *state) {
   data->ctx->margin_width = 40;
 
   data->play_button = create_button(
-      data->ctx, VEC(PERCENT_W(0.5f), PERCENT_H(0.45f)), WHITE, "Play");
+      data->ctx, VEC(PERCENT_W(0.5f), PERCENT_H(0.40f)), WHITE, "Play");
+
   data->settings_button = create_button(
       data->ctx,
       VEC(.x = data->play_button->position.x + data->play_button->size.x / 2,
           .y =
               data->play_button->rect.y + data->play_button->rect.height * 2, ),
       WHITE, "Settings");
-  data->settings_button->default_color = Fade(WHITE, 0.5);
-  data->settings_button->hover_color = Fade(WHITE, 0.5);
 
-  data->exit_button = create_button(
-      data->ctx,
-      VEC(.x = data->play_button->position.x + data->play_button->size.x / 2,
-          .y = data->settings_button->rect.y +
-               data->settings_button->rect.height * 2),
-      WHITE, "Exit");
+  data->maps_button =
+      create_button(data->ctx,
+                    VEC(.x = data->settings_button->position.x +
+                             data->settings_button->size.x / 2,
+                        .y = data->settings_button->rect.y +
+                             data->settings_button->rect.height * 2, ),
+                    WHITE, "Maps");
 
   data->title_text = create_text(
       data->ctx, VEC(PERCENT_W(0.5f), PERCENT_H(0.2f)), "Wispy", 120, WHITE);
@@ -62,8 +62,8 @@ w_menu_state update_menu_home(w_menu_view *view) {
   if (update_button(data->settings_button)) {
     state = MENU_STATE_SETTINGS;
   }
-  if (update_button(data->exit_button)) {
-    state = MENU_STATE_EXIT;
+  if (update_button(data->maps_button)) {
+    state = MENU_STATE_MAPS;
   }
 
   update_text(data->title_text);
@@ -88,7 +88,7 @@ void destroy_menu_home(w_menu_view *view) {
 
   destroy_button(data->play_button);
   destroy_button(data->settings_button);
-  destroy_button(data->exit_button);
+  destroy_button(data->maps_button);
 
   destroy_gui(data->ctx);
 

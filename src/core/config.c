@@ -115,8 +115,6 @@ w_config *load_config() {
     cfg->break_position = VEC(RENDER_W - PERCENT_W(0.05), PERCENT_H(0.75));
     cfg->jump_position = VEC(PERCENT_W(0.85), RENDER_H - PERCENT_H(0.05));
 
-    cfg->place_position = {0};
-    cfg->inventory_position = {0};
 #endif
 
 #if defined(WISPY_ANDROID)

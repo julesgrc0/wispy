@@ -7,7 +7,6 @@ typedef struct w_menu_home_data {
   w_guibutton *play_button;
   w_guibutton *maps_button;
   w_guibutton *settings_button;
-  w_guibutton *exit_button;
 
   w_guitext *title_text;
   w_guitext *credit_text;
