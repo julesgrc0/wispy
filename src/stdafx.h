@@ -55,6 +55,9 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#elif defined(__APPLE__) 
+#define WISPY_MACOS
+
 #elif defined(__ANDROID__)
 #define WISPY_ANDROID
 

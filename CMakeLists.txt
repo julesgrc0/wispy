@@ -33,13 +33,13 @@ if(ANDROID)
 
   # change resource output path
   set(RESOURCE_PACK_DIR ${CMAKE_SOURCE_DIR}/android/app/src/main/assets/)
-  
+
   # set android flags
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3  -flto")
   if(CMAKE_ANDROID_ARCH_ABI STREQUAL "armeabi-v7a")
-      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mfloat-abi=softfp -mfpu=vfpv3-d16")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mfloat-abi=softfp -mfpu=vfpv3-d16")
   elseif(CMAKE_ANDROID_ARCH_ABI STREQUAL "arm64-v8a")
-      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mfix-cortex-a53-835769")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mfix-cortex-a53-835769")
   endif()
 endif()
 
@@ -55,15 +55,29 @@ endforeach()
 
 # pack assets to resource.pack
 if(ANDROID)
-    execute_process(
-            COMMAND python ${CMAKE_SOURCE_DIR}/tools/pack_assets.py ${CMAKE_SOURCE_DIR}/tools/mobile.json ${RESOURCE_PACK_DIR}
-            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    )
+  execute_process(
+    COMMAND python ${CMAKE_SOURCE_DIR}/tools/pack_assets.py ${CMAKE_SOURCE_DIR}/tools/mobile.json ${RESOURCE_PACK_DIR}
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  )
 else()
-    execute_process(
-            COMMAND python ${CMAKE_SOURCE_DIR}/tools/pack_assets.py ${CMAKE_SOURCE_DIR}/tools/desktop.json ${RESOURCE_PACK_DIR}
-            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    )
+  # search for python3 or python
+  find_program(PYTHON3 python3)
+  if(PYTHON3)
+    set(PYTHON_EXECUTABLE ${PYTHON3})
+  else()
+    find_program(PYTHON python)
+    if(PYTHON)
+      set(PYTHON_EXECUTABLE ${PYTHON})
+    else()
+      message(FATAL_ERROR "Python not found. Please install Python 3.")
+    endif()
+  endif()
+
+
+  execute_process(
+    COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/pack_assets.py ${CMAKE_SOURCE_DIR}/tools/desktop.json ${RESOURCE_PACK_DIR}
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  )
 endif()
 
 
@@ -77,38 +91,58 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 
-if(ANDROID)
-  # set android flags
-  set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
-  add_definitions(-D__ANDROID__)
-  
-  list(APPEND raylib_sources ${ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c)
-  include_directories(${ANDROID_NDK}/sources/android/native_app_glue)
-
-  add_library(${PROJECT_NAME} SHARED ${SOURCES})
-  target_link_libraries(${PROJECT_NAME} raylib zlibstatic json-c android log)
-elseif(UNIX AND NOT ANDROID)
-  add_executable(${PROJECT_NAME} ${SOURCES})
-  if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-    set(OBJCOPY_ARCH "elf64-x86-64")
-  else()
-    set(OBJCOPY_ARCH "elf32-i386")
-  endif()
-
-  add_custom_target(link_resource
-  COMMAND  objcopy --prefix-symbol=w --localize-hidden --rename-section .data=.rdata,CONTENTS,ALLOC,LOAD,READONLY,DATA --input-target binary --binary-architecture i386 --output-target ${OBJCOPY_ARCH} ${RESOURCE_PACK_DIR}resource.pack ${CMAKE_BINARY_DIR}/resource.o --verbose
-  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-  )
-  add_dependencies(${PROJECT_NAME} link_resource)
-  target_link_libraries(${PROJECT_NAME} PRIVATE raylib zlibstatic json-c pthread ${CMAKE_BINARY_DIR}/resource.o)
-elseif(WIN32)
+# create executable
+if(WIN32)
   list(APPEND SOURCES "src/resource.rc")
 
   add_executable(${PROJECT_NAME} WIN32 ${SOURCES})
   target_link_libraries(${PROJECT_NAME} PRIVATE raylib zlibstatic json-c)
+elseif(UNIX)
+  if(ANDROID)
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
+    add_definitions(-D__ANDROID__)
+
+    list(APPEND raylib_sources ${ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c)
+    include_directories(${ANDROID_NDK}/sources/android/native_app_glue)
+
+    add_library(${PROJECT_NAME} SHARED ${SOURCES})
+    target_link_libraries(${PROJECT_NAME} raylib zlibstatic json-c android log)
+  elseif(APPLE)
+    add_executable(${PROJECT_NAME} ${SOURCES})
+
+    target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR})
+
+    find_library(COCOA_LIBRARY Cocoa)
+    find_library(IOKIT_LIBRARY IOKit)
+    find_library(COREVIDEO_LIBRARY CoreVideo)
+    find_library(OPENGL_LIBRARY OpenGL)
+    find_library(COREAUDIO_LIBRARY CoreAudio)
+    find_library(COREFOUNDATION_LIBRARY CoreFoundation)
+
+    target_link_libraries(${PROJECT_NAME} PRIVATE
+      raylib zlibstatic json-c pthread
+      ${COCOA_LIBRARY} ${IOKIT_LIBRARY} ${COREVIDEO_LIBRARY} ${OPENGL_LIBRARY} ${COREAUDIO_LIBRARY} ${COREFOUNDATION_LIBRARY}
+    )
+  else()
+    add_executable(${PROJECT_NAME} ${SOURCES})
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+      set(OBJCOPY_ARCH "elf64-x86-64")
+    else()
+      set(OBJCOPY_ARCH "elf32-i386")
+    endif()
+
+    add_custom_target(link_resource
+      COMMAND objcopy --prefix-symbol=w --localize-hidden --rename-section .data=.rdata,CONTENTS,ALLOC,LOAD,READONLY,DATA --input-target binary --binary-architecture i386 --output-target ${OBJCOPY_ARCH} ${RESOURCE_PACK_DIR}resource.pack ${CMAKE_BINARY_DIR}/resource.o --verbose
+      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    )
+    add_dependencies(${PROJECT_NAME} link_resource)
+    target_link_libraries(${PROJECT_NAME} PRIVATE raylib zlibstatic json-c pthread ${CMAKE_BINARY_DIR}/resource.o)
+  endif()
 else()
   message(FATAL_ERROR "Unsupported platform")
 endif()
+
+
 
 # compress executable with upx
 if(W_BUILD_MINSIZE)

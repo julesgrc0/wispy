@@ -13,7 +13,7 @@ typedef struct w_config {
 
   unsigned int max_fps : 10;
 
-#if defined(WISPY_WINDOWS) || defined(WISPY_LINUX)
+#if defined(WISPY_WINDOWS) || defined(WISPY_LINUX) || defined(WISPY_MACOS)
   int jump_key;
   int left_key;
   int right_key;

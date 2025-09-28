@@ -37,6 +37,21 @@
       }
     },
     {
+      "name": "macos-base",
+      "hidden": true,
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/out/${presetName}",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "OFF"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      }
+    },
+    {
       "name": "debug-base",
       "hidden": true,
       "cacheVariables": {
@@ -74,6 +89,7 @@
         "strategy": "external"
       }
     },
+
     {
       "name": "x64-debug-windows",
       "displayName": "x64 Debug Windows",
@@ -134,6 +150,37 @@
       "name": "x86-relminsize-linux",
       "displayName": "x86 MinSizeRel Linux",
       "inherits": ["linux-base", "relminsize-base", "x86-base"]
+    },
+
+    {
+      "name": "x64-debug-macos",
+      "displayName": "x64 Debug MacOS",
+      "inherits": ["macos-base", "debug-base", "x64-base"]
+    },
+    {
+      "name": "x86-debug-macos",
+      "displayName": "x86 Debug MacOS",
+      "inherits": ["macos-base", "debug-base", "x86-base"]
+    },
+    {
+      "name": "x64-release-macos",
+      "displayName": "x64 Release MacOS",
+      "inherits": ["macos-base", "release-base", "x64-base"]
+    },
+    {
+      "name": "x86-release-macos",
+      "displayName": "x86 Release MacOS",
+      "inherits": ["macos-base", "release-base", "x86-base"]
+    },
+    {
+      "name": "x64-relminsize-macos",
+      "displayName": "x64 MinSizeRel MacOS",
+      "inherits": ["macos-base", "relminsize-base", "x64-base"]
+    },
+    {
+      "name": "x86-relminsize-macos",
+      "displayName": "x86 MinSizeRel MacOS",
+      "inherits": ["macos-base", "relminsize-base", "x86-base"]
     }
   ],
   "buildPresets": [
@@ -167,6 +214,19 @@
       "inherits": ["base-build"]
     },
     {
+      "name": "x64-release-macos",
+      "displayName": "x64 Release MacOS",
+      "configurePreset": "x64-release-macos",
+      "inherits": ["base-build"]
+    },
+    {
+      "name": "x86-release-macos",
+      "displayName": "x86 Release MacOS",
+      "configurePreset": "x86-release-macos",
+      "inherits": ["base-build"]
+    },
+
+    {
       "name": "x64-debug-windows",
       "displayName": "x64 Debug Windows",
       "configurePreset": "x64-debug-windows",
@@ -188,6 +248,18 @@
       "name": "x86-debug-linux",
       "displayName": "x86 Debug Linux",
       "configurePreset": "x86-debug-linux",
+      "inherits": ["base-build"]
+    },
+    {
+      "name": "x64-debug-macos",
+      "displayName": "x64 Debug MacOS",
+      "configurePreset": "x64-debug-macos",
+      "inherits": ["base-build"]
+    },
+    {
+      "name": "x86-debug-macos",
+      "displayName": "x86 Debug MacOS",
+      "configurePreset": "x86-debug-macos",
       "inherits": ["base-build"]
     }
   ]

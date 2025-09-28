@@ -4,83 +4,100 @@ import time
 import zlib
 import json
 
-from io import TextIOWrapper
+ASSETS_FOLDER_NAME = "assets"
+TMP_FILE = "resource.tmp"
+PACK_FILE = "resource.pack"
+HEADER_FILE = "resource.pack.h"
 
 
-def write_to_pack(out_file: TextIOWrapper, folder_path: str, redirect_files: dict[str, str]) -> int:
+def write_pack_file(folder_path: str, redirect_files: dict[str, str]) -> int:
     total_size = 0
-    null = 0
+    null_byte = (0).to_bytes(1, "little")
+    tmp_file_path = TMP_FILE
 
-    for root, _, files in os.walk(folder_path):
-        for file in files:
-            file_path = os.path.join(root, file)
-            relative_path = os.path.relpath(file_path, folder_path)
+    with open(tmp_file_path, "wb") as out_file:
+        for root, _, files in os.walk(folder_path):
+            for file in files:
+                file_path = os.path.join(root, file)
+                relative_path = os.path.relpath(file_path, folder_path)
 
-            if file in redirect_files.keys():
-                if redirect_files[file] == "none":
+                if file in redirect_files:
+                    target = redirect_files[file]
+                    if target == "none":
+                        print(f"[+] SKIP {file} (ignored)")
+                        continue
+                    relative_path = os.path.relpath(
+                        os.path.join(root, target), folder_path)
+                    file_path = os.path.join(root, target)
+                    print(f"[+] REDIRECT {file} => {target}")
+                elif file in redirect_files.values():
                     print(f"[+] SKIP {file} (ignored)")
                     continue
 
-                file_path = os.path.join(root, file)
-                relative_path = os.path.relpath(os.path.join(
-                    root, redirect_files[file]), folder_path)
+                file_size = os.path.getsize(file_path)
+                total_size += file_size
 
-                print(f"[+] REDIRECT {file} => {redirect_files[file]}")
-            elif file in redirect_files.values():
-                print(f"[+] SKIP {file} (ignored)")
-                continue
+                # Write: path\0 + size(4 bytes) + file content
+                out_file.write(relative_path.encode("utf-8") + null_byte)
+                out_file.write(file_size.to_bytes(4, "little"))
+                with open(file_path, "rb") as f:
+                    out_file.write(f.read())
 
-            file_size = os.path.getsize(file_path)
-            total_size += file_size
-
-            out_file.write(relative_path.encode("utf-8"))
-            out_file.write(null.to_bytes(
-                length=1, byteorder="little", signed=False))  # end of string
-            out_file.write(file_size.to_bytes(
-                # sizeof(unsigned int) = 4
-                length=4, byteorder="little", signed=False))
-            print(f"[+] {file_path:100}{file_size} o{' ' * 10}({relative_path})")
-
-            with open(file_path, "rb") as file:
-                out_file.write(file.read())
+                print(
+                    f"[+] {file_path:100} {file_size} bytes ({relative_path})")
 
     return total_size
 
 
-def main(args: list[str]) -> int:
-    redirect_files = {} if len(args) < 1 else json.load(open(args[0]))
+def create_header_file(pack_path: str):
+    with open(pack_path, "rb") as f:
+        data = f.read()
 
+    hex_bytes = [f"0x{b:02X}" for b in data]
+
+    lines = []
+    for i in range(0, len(hex_bytes), 16):
+        lines.append(", ".join(hex_bytes[i:i+16]))
+
+    array_content = ",\n    ".join(lines)
+    header_content = f"""#pragma once
+unsigned char resource_pack[] = {{
+    {array_content}
+}};
+unsigned int resource_pack_len = {len(data)};
+"""
+
+    with open(HEADER_FILE, "w") as f:
+        f.write(header_content)
+    print(f"[+] Header file generated: {HEADER_FILE}")
+
+
+def main(args: list[str]):
+    redirect_files = json.load(open(args[0])) if args else {}
     base_dir = os.path.dirname(os.path.abspath(__file__))
+    assets_dir = os.path.join(os.path.dirname(base_dir), ASSETS_FOLDER_NAME)
     out_dir = base_dir if len(args) < 2 else args[1]
-    assets_dir = os.path.join(os.path.dirname(base_dir), "assets")
-
-    out_tmp = os.path.join(base_dir, "resource.tmp")
-    out_gz = os.path.join(out_dir, "resource.pack")
+    pack_path = os.path.join(out_dir, PACK_FILE)
 
     print("[PACK]: Start packing...")
-    print(f"[I] {'filename':100}size{' '*10}id\n")
+    print(f"[I] {'filename':100} size {' ' * 5} id\n")
+    start_time = time.time()
 
-    start_t = time.time()
-    total_size = 0
-    with open(out_tmp, "wb+") as fp:
-        total_size = write_to_pack(fp, assets_dir, redirect_files)
-        fp.close()
+    total_size = write_pack_file(assets_dir, redirect_files)
 
-    with open(out_tmp, 'rb') as fp_in:
-        with open(out_gz, 'wb') as fp_out:
-            fp_out.write(zlib.compress(fp_in.read()))
-            fp_out.close()
-        fp_in.close()
+    with open(TMP_FILE, "rb") as f_in, open(pack_path, "wb") as f_out:
+        f_out.write(zlib.compress(f_in.read()))
 
-    if os.path.exists(out_tmp):
-        os.remove(out_tmp)
+    os.remove(TMP_FILE)
+    gz_size = os.path.getsize(pack_path)
 
-    print(f"\n[PACK]: packed in {round((time.time() - start_t) * 1000)} ms")
-    gz_size = os.path.getsize(out_gz)
-    print(
-        f"[PACK]: compression {round(100 - (gz_size/total_size)*100, 2)}% (from {total_size} to {gz_size})")
+    print(f"\n[PACK]: Packed in {int((time.time() - start_time) * 1000)} ms")
+    print(f"[PACK]: Compression {round(100 - (gz_size / total_size) * 100, 2)}% "
+          f"(from {total_size} to {gz_size} bytes)")
+    print(f"[PACK]: Generated file: {pack_path}")
+
+    create_header_file(pack_path)
     print("[PACK]: End")
-    return 0
 
 
 if __name__ == "__main__":

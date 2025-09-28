@@ -62,7 +62,7 @@
     {
       "id": "platform",
       "type": "pickString",
-      "options": ["windows", "linux"],
+      "options": ["windows", "linux", "macos"],
       "default": "windows",
       "description": "Platform"
     }

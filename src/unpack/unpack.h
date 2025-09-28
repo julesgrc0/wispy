@@ -9,6 +9,8 @@
 #elif defined(WISPY_LINUX)
 extern char w_binary___tools_resource_pack_start;
 extern char w_binary___tools_resource_pack_end;
+#elif defined(WISPY_MACOS)
+#include "resource.pack.h"
 #elif defined(WISPY_ANDROID)
 #define RESOURCE_NAME "resource.pack"
 #endif

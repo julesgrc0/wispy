@@ -1,7 +1,7 @@
 #pragma once
 #include "../../stdafx.h"
 
-#if defined(WISPY_WINDOWS) || defined(WISPY_LINUX)
+#if defined(WISPY_WINDOWS) || defined(WISPY_LINUX) || defined(WISPY_MACOS)
 #define camera_x(camera) (camera->matrix[12])
 #define camera_y(camera) (camera->matrix[13])
 #endif
