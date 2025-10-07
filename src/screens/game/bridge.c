@@ -76,7 +76,7 @@ void destroy_bridge(w_bridge *td) {
   if (td->handle != INVALID_HANDLE_VALUE && td->handle != NULL) {
     WaitForSingleObject(td->handle, INFINITE);
   }
-#elif defined(WISPY_LINUX)
+#elif defined(WISPY_LINUX) || defined(WISPY_MACOS)
   if (td->handle != 0) {
     pthread_join(td->handle, NULL);
   }
@@ -140,7 +140,7 @@ void update_bridge(w_bridge *td) {
   if (td->time_end.QuadPart - td->time_start.QuadPart >=
       td->time_frequency.QuadPart * PHYSICS_TICK) {
     QueryPerformanceCounter(&td->time_start);
-#elif defined(WISPY_LINUX)
+#elif defined(WISPY_LINUX) || defined(WISPY_MACOS)
   clock_gettime(CLOCK_MONOTONIC, &td->time_end);
   if ((td->time_end.tv_sec - td->time_start.tv_sec) +
           (td->time_end.tv_nsec - td->time_start.tv_nsec) / 1000000000.0 >=

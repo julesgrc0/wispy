@@ -58,8 +58,9 @@
 #elif defined(__APPLE__) 
 #define WISPY_MACOS
 
-#include <sys/stat.h> 
 #include <pthread.h>
+#include <sys/stat.h>
+
 
 #elif defined(__ANDROID__)
 #define WISPY_ANDROID

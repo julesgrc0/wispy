@@ -33,7 +33,7 @@ void destroy_chunkgroup(w_chunkgroup *grp) {
     if (grp->chunks[i]->handle != INVALID_HANDLE_VALUE) {
       WaitForSingleObject(grp->chunks[i]->handle, INFINITE);
     }
-#elif defined(WISPY_LINUX) || defined(WISPY_ANDROID)
+#elif defined(WISPY_LINUX) || defined(WISPY_ANDROID) || defined(WISPY_MACOS)
     if (grp->chunks[i]->handle != 0) {
       pthread_join(grp->chunks[i]->handle, NULL);
     }

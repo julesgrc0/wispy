@@ -18,7 +18,7 @@ w_chunkview *create_chunkview(w_chunk *current) {
 
 #if defined(WISPY_WINDOWS)
   InitializeCriticalSection(&chunk_view->csec);
-#elif defined(WISPY_LINUX)
+#elif defined(WISPY_LINUX) || defined(WISPY_MACOS)
   if (pthread_mutex_init(&chunk_view->mutex, NULL) != 0) {
     free(chunk_view->blocks);
     free(chunk_view);
@@ -40,7 +40,7 @@ void destroy_chunkview(w_chunkview *chunk_view) {
   LOG("destroying chunk view");
 #if defined(WISPY_WINDOWS)
   DeleteCriticalSection(&chunk_view->csec);
-#elif defined(WISPY_LINUX)
+#elif defined(WISPY_LINUX) || defined(WISPY_MACOS)
   if (pthread_mutex_destroy(&chunk_view->mutex) != 0) {
     LOG("failed to close mutex (chunk view)");
   }
@@ -55,7 +55,7 @@ void update_renderblock_threadsafe(w_chunkview *chunk_view,
                                    w_renderblock *blocks, size_t len) {
 #if defined(WISPY_WINDOWS)
   EnterCriticalSection(&chunk_view->csec);
-#elif defined(WISPY_LINUX)
+#elif defined(WISPY_LINUX) || defined(WISPY_MACOS)
   pthread_mutex_lock(&chunk_view->mutex);
 #endif
 
@@ -63,7 +63,7 @@ void update_renderblock_threadsafe(w_chunkview *chunk_view,
 
 #if defined(WISPY_WINDOWS)
   LeaveCriticalSection(&chunk_view->csec);
-#elif defined(WISPY_LINUX)
+#elif defined(WISPY_LINUX) || defined(WISPY_MACOS)
   pthread_mutex_unlock(&chunk_view->mutex);
 #endif
 }
@@ -78,8 +78,8 @@ void update_renderblock(w_chunkview *chunk_view, w_renderblock *blocks,
 bool update_chunkview(w_chunkview *chunk_view, w_chunkgroup *grp,
                       w_camera *camera,
                       void (*update_renderblock_callback)(w_chunkview *,
-                                                 w_renderblock *,
-                                                 size_t)){
+                                                          w_renderblock *,
+                                                          size_t)) {
   Rectangle view = get_camera_view_with_gap(camera);
   if (view.x < 0) {
     view.width += view.x;

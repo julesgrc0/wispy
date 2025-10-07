@@ -15,7 +15,7 @@ typedef struct w_chunkview {
 
 #if defined(WISPY_WINDOWS)
   CRITICAL_SECTION csec;
-#elif defined(WISPY_LINUX)
+#elif defined(WISPY_LINUX) || defined(WISPY_MACOS)
   pthread_mutex_t mutex;
 #endif
 

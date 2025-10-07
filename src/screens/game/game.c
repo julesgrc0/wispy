@@ -91,7 +91,7 @@ void game_screen(w_state *state) {
 
 #if defined(WISPY_WINDOWS)
     if (TryEnterCriticalSection(&td->terrain->view->csec))
-#elif defined(WISPY_LINUX)
+#elif defined(WISPY_LINUX) || defined(WISPY_MACOS)
     if (pthread_mutex_trylock(&td->terrain->view->mutex) == 0)
 #endif
     {
@@ -102,7 +102,7 @@ void game_screen(w_state *state) {
                              (Color){66, 135, 245, 255},
                              (Color){142, 184, 250, 255});
 
-#if defined(WISPY_WINDOWS) || defined(WISPY_LINUX)
+#if defined(WISPY_WINDOWS) || defined(WISPY_LINUX)  || defined(WISPY_MACOS)
       begin_camera(td->camera);
 #endif
 
@@ -117,7 +117,7 @@ void game_screen(w_state *state) {
 #endif
             VEC_ZERO, 0, td->terrain->view->blocks[i].light);
       }
-#if defined(WISPY_WINDOWS) || defined(WISPY_LINUX)
+#if defined(WISPY_WINDOWS) || defined(WISPY_LINUX)  || defined(WISPY_MACOS)
       bstate = update_blockbreaker(bb, td->ctrl, td->player, dt);
 #endif
       if (bstate == BS_BREAKING) {
@@ -126,7 +126,7 @@ void game_screen(w_state *state) {
         td->force_update = true;
       }
 
-#if defined(WISPY_WINDOWS) || defined(WISPY_LINUX)
+#if defined(WISPY_WINDOWS) || defined(WISPY_LINUX)  || defined(WISPY_MACOS)
       end_camera();
 #endif
       DrawTexturePro(player_textures[td->player->state], td->player->src,
@@ -143,7 +143,7 @@ void game_screen(w_state *state) {
       EndTextureMode();
 #if defined(WISPY_WINDOWS)
       LeaveCriticalSection(&td->terrain->view->csec);
-#elif defined(WISPY_LINUX)
+#elif defined(WISPY_LINUX)  || defined(WISPY_MACOS)
       pthread_mutex_unlock(&td->terrain->view->mutex);
 #endif
     }

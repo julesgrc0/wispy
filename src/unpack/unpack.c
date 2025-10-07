@@ -40,7 +40,6 @@ w_asset *unpack_assets(size_t *size)
   in_size = &w_binary___tools_resource_pack_end -
             &w_binary___tools_resource_pack_start;
 #elif defined(WISPY_MACOS)
-
   char *in_buffer = (char *)resource_pack;
   in_size = resource_pack_len;
 #elif defined(WISPY_ANDROID)
