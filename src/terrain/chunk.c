@@ -29,7 +29,7 @@ w_chunk *load_chunk_async(unsigned int position) {
 #if defined(WISPY_WINDOWS)
   chunk->handle = CreateThread(NULL, 0, chunk_thread, &ct, 0, NULL);
   if (chunk->handle == NULL || chunk->handle == INVALID_HANDLE_VALUE)
-#elif defined(WISPY_LINUX) || defined(WISPY_ANDROID)
+#elif defined(WISPY_LINUX) || defined(WISPY_ANDROID) || defined(WISPY_MACOS)
   if (pthread_create(&chunk->handle, NULL, chunk_thread, &ct) != 0)
 #endif
   {
@@ -65,7 +65,7 @@ void unload_chunk_async(w_chunk *chunk) {
 #if defined(WISPY_WINDOWS)
   chunk->handle = CreateThread(NULL, 0, chunk_thread, &ct, 0, NULL);
   if (chunk->handle == NULL || chunk->handle == INVALID_HANDLE_VALUE)
-#elif defined(WISPY_LINUX) || defined(WISPY_ANDROID)
+#elif defined(WISPY_LINUX) || defined(WISPY_ANDROID) || defined(WISPY_MACOS)
   if (pthread_create(&chunk->handle, NULL, chunk_thread, &ct) != 0)
 #endif
   {

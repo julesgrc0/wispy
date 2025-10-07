@@ -9,7 +9,7 @@ typedef struct w_chunk {
 
 #if defined(WISPY_WINDOWS)
   HANDLE handle;
-#elif defined(WISPY_LINUX) || defined(WISPY_ANDROID)
+#elif defined(WISPY_LINUX) || defined(WISPY_ANDROID) || defined(WISPY_MACOS)
   pthread_t handle;
 #endif
 
@@ -36,6 +36,6 @@ bool create_chunk_blocks(w_chunk* chunk);
 
 #if defined(WISPY_WINDOWS)
 DWORD WINAPI chunk_thread(PVOID arg);
-#elif defined(WISPY_LINUX) || defined(WISPY_ANDROID)
+#elif defined(WISPY_LINUX) || defined(WISPY_ANDROID) || defined(WISPY_MACOS)
 void *chunk_thread(void *arg);
 #endif
