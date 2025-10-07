@@ -106,7 +106,7 @@ w_config *load_config() {
     cfg->fullscreen = 1;
     cfg->msaa4x = 1;
 
-#if defined(WISPY_WINDOWS) || defined(WISPY_LINUX)
+#if defined(WISPY_WINDOWS) || defined(WISPY_LINUX) || defined(WISPY_MACOS)
     cfg->jump_key = KEY_SPACE;
     cfg->left_key = KEY_LEFT;
     cfg->right_key = KEY_RIGHT;
