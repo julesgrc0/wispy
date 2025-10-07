@@ -140,19 +140,48 @@ elseif(UNIX)
     )
 
   else()
-    add_executable(${PROJECT_NAME} ${SOURCES})
+    # if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    #   set(OBJCOPY_ARCH "elf64-x86-64")
+    # else()
+    #   set(OBJCOPY_ARCH "elf32-i386")
+    # endif()
+
+    # add_custom_target(link_resource
+    #   COMMAND objcopy --prefix-symbol=w --localize-hidden --rename-section .data=.rdata,CONTENTS,ALLOC,LOAD,READONLY,DATA --input-target binary --binary-architecture i386 --output-target ${OBJCOPY_ARCH} ${RESOURCE_PACK_DIR}resource.pack ${CMAKE_BINARY_DIR}/resource.o --verbose
+    #   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    # )
+    # add_dependencies(${PROJECT_NAME} link_resource)
+    # target_link_libraries(${PROJECT_NAME} PRIVATE raylib zlibstatic json-c pthread ${CMAKE_BINARY_DIR}/resource.o)
+
     if(CMAKE_SIZEOF_VOID_P EQUAL 8)
       set(OBJCOPY_ARCH "elf64-x86-64")
     else()
       set(OBJCOPY_ARCH "elf32-i386")
     endif()
 
-    add_custom_target(link_resource
-      COMMAND objcopy --prefix-symbol=w --localize-hidden --rename-section .data=.rdata,CONTENTS,ALLOC,LOAD,READONLY,DATA --input-target binary --binary-architecture i386 --output-target ${OBJCOPY_ARCH} ${RESOURCE_PACK_DIR}resource.pack ${CMAKE_BINARY_DIR}/resource.o --verbose
-      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    add_custom_command(
+      OUTPUT ${CMAKE_BINARY_DIR}/resource.o
+      COMMAND objcopy
+      --prefix-symbol=w
+      --localize-hidden
+      --rename-section .data=.rdata,CONTENTS,ALLOC,LOAD,READONLY,DATA
+      --input-target binary
+      --binary-architecture i386
+      --output-target ${OBJCOPY_ARCH}
+      ${RESOURCE_PACK_DIR}/resource.pack
+      ${CMAKE_BINARY_DIR}/resource.o
+      --verbose
+      DEPENDS ${RESOURCE_PACK_DIR}/resource.pack
+      COMMENT "Embedding resource.pack into resource.o"
     )
-    add_dependencies(${PROJECT_NAME} link_resource)
-    target_link_libraries(${PROJECT_NAME} PRIVATE raylib zlibstatic json-c pthread ${CMAKE_BINARY_DIR}/resource.o)
+    add_library(resource_obj OBJECT ${CMAKE_BINARY_DIR}/resource.o)
+    add_dependencies(resource_obj resource_obj)
+
+    add_executable(${PROJECT_NAME} ${SOURCES})
+    target_link_libraries(${PROJECT_NAME}
+      PRIVATE raylib zlibstatic json-c pthread
+      $<TARGET_OBJECTS:resource_obj>
+    )
   endif()
 else()
   message(FATAL_ERROR "Unsupported platform")
