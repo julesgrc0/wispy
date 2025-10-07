@@ -1,70 +1,91 @@
 {
-  "version": "2.0.0",
-  "tasks": [
-    {
-      "type": "shell",
-      "label": "Install Dependencies",
-      "command": [
-        "sudo apt-get update -y",
-        "&& sudo apt install -y build-essential libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev",
-        "&& wget https://github.com/Kitware/CMake/releases/download/v3.29.0-rc2/cmake-3.29.0-rc2.tar.gz && tar -xvf cmake-3.29.0-rc2.tar.gz && cd cmake-3.29.0-rc2 && ./bootstrap && make -j4 && sudo make install"
-      ],
-      "group": "build"
-    },
-    {
-      "type": "shell",
-      "label": "Configure",
-      "command": [
-        "cmake -S . -B out --preset=${input:arch}-${input:type}-${input:platform}"
-      ],
-      "options": {
-        "cwd": "${workspaceFolder}"
-      },
-      "problemMatcher": ["$msCompile"],
-      "group": "build"
-    },
-    {
-      "type": "shell",
-      "label": "Build Debug",
-      "command": ["cmake --build out --config debug  --target wispy"],
-      "options": {
-        "cwd": "${workspaceFolder}"
-      },
-      "problemMatcher": ["$msCompile"],
-      "group": "build"
-    },
-    {
-      "type": "shell",
-      "label": "Build Release",
-      "command": ["cmake --build out --config release --target wispy"],
-      "options": {
-        "cwd": "${workspaceFolder}"
-      },
-      "problemMatcher": ["$msCompile"],
-      "group": "build"
-    }
-  ],
-  "inputs": [
-    {
-      "id": "arch",
-      "type": "pickString",
-      "options": ["x64", "x86"],
-      "default": "x64",
-      "description": "Architecture"
-    },
-    {
-      "id": "type",
-      "type": "pickString",
-      "options": ["debug", "release", "relminsize"],
-      "default": "debug",
-      "description": "Build type"
-    },
-    {
-      "id": "platform",
-      "type": "pickString",
-      "options": ["windows", "linux", "macos"],
-      "default": "windows",
-      "description": "Platform"
-    }
-  ]
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "Install Dependencies",
+            "command": [
+                "sudo apt-get update -y",
+                "&& sudo apt install -y build-essential libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev",
+                "&& wget https://github.com/Kitware/CMake/releases/download/v3.29.0-rc2/cmake-3.29.0-rc2.tar.gz && tar -xvf cmake-3.29.0-rc2.tar.gz && cd cmake-3.29.0-rc2 && ./bootstrap && make -j4 && sudo make install"
+            ],
+            "group": "build"
+        },
+        {
+            "type": "shell",
+            "label": "Configure",
+            "command": [
+                "cmake -S . -B out --preset=${input:arch}-${input:type}-${input:platform}"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "group": "build"
+        },
+        {
+            "type": "shell",
+            "label": "Build Debug",
+            "command": [
+                "cmake --build out --config debug  --target wispy"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "group": "build"
+        },
+        {
+            "type": "shell",
+            "label": "Build Release",
+            "command": [
+                "cmake --build out --config release --target wispy"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "group": "build"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "arch",
+            "type": "pickString",
+            "options": [
+                "x64",
+                "x86"
+            ],
+            "default": "x64",
+            "description": "Architecture"
+        },
+        {
+            "id": "type",
+            "type": "pickString",
+            "options": [
+                "debug",
+                "release",
+                "relminsize"
+            ],
+            "default": "debug",
+            "description": "Build type"
+        },
+        {
+            "id": "platform",
+            "type": "pickString",
+            "options": [
+                "windows",
+                "linux",
+                "macos"
+            ],
+            "default": "windows",
+            "description": "Platform"
+        }
+    ]
 }

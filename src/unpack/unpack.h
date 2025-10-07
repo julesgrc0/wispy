@@ -10,7 +10,10 @@
 extern char w_binary___tools_resource_pack_start;
 extern char w_binary___tools_resource_pack_end;
 #elif defined(WISPY_MACOS)
-#include "resource.pack.h"
+extern unsigned char _Users_julesgrc0_pc_Dev_wispy_tools_resource_pack[];
+extern unsigned int _Users_julesgrc0_pc_Dev_wispy_tools_resource_pack_len;
+#define resource_pack _Users_julesgrc0_pc_Dev_wispy_tools_resource_pack
+#define resource_pack_len _Users_julesgrc0_pc_Dev_wispy_tools_resource_pack_len
 #elif defined(WISPY_ANDROID)
 #define RESOURCE_NAME "resource.pack"
 #endif

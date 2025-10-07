@@ -96,7 +96,7 @@ def main(args: list[str]):
           f"(from {total_size} to {gz_size} bytes)")
     print(f"[PACK]: Generated file: {pack_path}")
 
-    create_header_file(pack_path)
+    # create_header_file(pack_path)
     print("[PACK]: End")
 
 

@@ -30,19 +30,21 @@ w_asset *unpack_assets(size_t *size)
 {
   *size = 0;
   size_t in_size = 0;
-  
+
 #if defined(WISPY_WINDOWS)
   if (hInstance == NULL)
     return NULL;
   char *in_buffer = load_resource(hInstance, &in_size);
 #elif defined(WISPY_LINUX)
   char *in_buffer = &w_binary___tools_resource_pack_start;
-  in_size = &w_binary___tools_resource_pack_end - &w_binary___tools_resource_pack_start;
+  in_size = &w_binary___tools_resource_pack_end -
+            &w_binary___tools_resource_pack_start;
 #elif defined(WISPY_MACOS)
-  char* in_buffer = (char*)resource_pack;
+
+  char *in_buffer = (char *)resource_pack;
   in_size = resource_pack_len;
-#elif defined(WISPY_ANDROID) 
-  char *in_buffer = (char *)LoadFileData(RESOURCE_NAME, (int*)&in_size);
+#elif defined(WISPY_ANDROID)
+  char *in_buffer = (char *)LoadFileData(RESOURCE_NAME, (int *)&in_size);
 #endif
 
   if (in_buffer == NULL)
@@ -55,8 +57,8 @@ w_asset *unpack_assets(size_t *size)
 
   size_t try_index = 0;
   for (; try_index < MAX_UNCOMPRESSE_TRY; try_index++) {
-    if (uncompress((Bytef*)out_buffer, (uLongf *)&out_size, (const Bytef*)in_buffer,
-                   (uLong)in_size) != Z_OK) {
+    if (uncompress((Bytef *)out_buffer, (uLongf *)&out_size,
+                   (const Bytef *)in_buffer, (uLong)in_size) != Z_OK) {
       out_size *= 2;
       void *new_outbuff = realloc(out_buffer, out_size);
       if (new_outbuff == NULL) {

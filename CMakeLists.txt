@@ -108,21 +108,37 @@ elseif(UNIX)
     add_library(${PROJECT_NAME} SHARED ${SOURCES})
     target_link_libraries(${PROJECT_NAME} raylib zlibstatic json-c android log)
   elseif(APPLE)
-    add_executable(${PROJECT_NAME} ${SOURCES})
+    set(RESOURCE_C "${CMAKE_BINARY_DIR}/resource.c")
+    add_custom_command(
+      OUTPUT ${RESOURCE_C}
+      COMMAND xxd -i ${RESOURCE_PACK_DIR}resource.pack > ${RESOURCE_C}
+      DEPENDS ${RESOURCE_PACK_DIR}resource.pack
+      COMMENT "Embedding resource.pack into C source (xxd)"
+    )
+    add_custom_target(generate_resource ALL DEPENDS ${RESOURCE_C})
+    list(APPEND SOURCES ${RESOURCE_C})
 
-    target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR})
+    add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${SOURCES})
+    add_dependencies(${PROJECT_NAME} generate_resource)
 
-    find_library(COCOA_LIBRARY Cocoa)
-    find_library(IOKIT_LIBRARY IOKit)
-    find_library(COREVIDEO_LIBRARY CoreVideo)
-    find_library(OPENGL_LIBRARY OpenGL)
-    find_library(COREAUDIO_LIBRARY CoreAudio)
-    find_library(COREFOUNDATION_LIBRARY CoreFoundation)
 
     target_link_libraries(${PROJECT_NAME} PRIVATE
-      raylib zlibstatic json-c pthread
-      ${COCOA_LIBRARY} ${IOKIT_LIBRARY} ${COREVIDEO_LIBRARY} ${OPENGL_LIBRARY} ${COREAUDIO_LIBRARY} ${COREFOUNDATION_LIBRARY}
+      raylib
+      zlibstatic
+      json-c
+      "-framework Cocoa"
+      "-framework IOKit"
+      "-framework CoreVideo"
+      "-framework CoreAudio"
+      "-framework AudioToolbox"
+      "-framework OpenGL"
     )
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+      MACOSX_BUNDLE_BUNDLE_NAME ${PROJECT_NAME}
+      MACOSX_BUNDLE_GUI_IDENTIFIER "com.julesgrc0.${PROJECT_NAME}"
+      MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/Info.plist"
+    )
+
   else()
     add_executable(${PROJECT_NAME} ${SOURCES})
     if(CMAKE_SIZEOF_VOID_P EQUAL 8)
