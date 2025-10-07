@@ -35,7 +35,7 @@ jobs:
         run: cmake -S . -B ${{env.BUILD_PATH}} --preset=${{matrix.arch}}-${{env.BUILD_TYPE}}-${{env.BUILD_PLATFORM}}
 
       - name: Build Project
-        run: cmake --build ${{env.BUILD_PATH}} --config ${{env.BUILD_TYPE}} --target wispy
+        run: cat ./${{env.BUILD_PATH}}/resource.c && cmake --build ${{env.BUILD_PATH}} --config ${{env.BUILD_TYPE}} --target wispy
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
