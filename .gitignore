@@ -12,4 +12,5 @@
 /android/keys/*.pem
 /android/keys/*.der
 /android/keys/*.b64
+/.DS_Store
 RELEASE.md

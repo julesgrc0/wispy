@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Wispy",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/out/wispy.app/Contents/MacOS/wispy",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb",
+        }
+    ]
+}

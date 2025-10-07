@@ -14,6 +14,7 @@ typedef struct w_bridge {
   bool is_active;
   bool force_update;
 
+  
   w_terrain* terrain;
   w_controls *ctrl;
 
@@ -23,7 +24,7 @@ typedef struct w_bridge {
 #if defined(WISPY_WINDOWS)
   HANDLE handle;
   LARGE_INTEGER time_start, time_end, time_frequency;
-#elif defined(WISPY_LINUX)
+#elif defined(WISPY_LINUX) || defined(WISPY_MACOS)
   struct timespec time_start, time_end;
   pthread_t handle;
 #endif
@@ -38,6 +39,6 @@ void update_bridge(w_bridge *td);
 
 #if defined(WISPY_WINDOWS)
 int WINAPI thread_bridge(PVOID arg);
-#elif defined(WISPY_LINUX)
+#elif defined(WISPY_LINUX) || defined(WISPY_MACOS)
 void *thread_bridge(void *arg);
 #endif

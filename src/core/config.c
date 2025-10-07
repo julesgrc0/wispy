@@ -57,7 +57,7 @@ w_config *load_config() {
     cfg->max_fps = (unsigned int)json_object_get_uint64(js_max_fps);
     json_object_put(js_max_fps);
 
-#if defined(WISPY_WINDOWS) || defined(WISPY_LINUX)
+#if defined(WISPY_WINDOWS) || defined(WISPY_LINUX) || defined(WISPY_MACOS)
     json_object *js_jump_key = json_object_object_get(root, "jump_key");
     cfg->jump_key = (int)json_object_get_int(js_jump_key);
     json_object_put(js_jump_key);
@@ -98,6 +98,7 @@ w_config *load_config() {
     json_object_put(js_inventory_object);
 #endif
 
+    json_object_get(root);
     json_object_put(root);
     UnloadFileText(config_data);
   } else {
@@ -170,7 +171,7 @@ void save_config(w_config *config) {
   json_object *js_max_fps = json_object_new_uint64(config->max_fps);
   json_object_object_add(root, "max_fps", js_max_fps);
 
-#if defined(WISPY_WINDOWS) || defined(WISPY_LINUX)
+#if defined(WISPY_WINDOWS) || defined(WISPY_LINUX) || defined(WISPY_MACOS)
   json_object *js_jump_key = json_object_new_int(config->jump_key);
   json_object_object_add(root, "jump_key", js_jump_key);
 

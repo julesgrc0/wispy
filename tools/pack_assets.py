@@ -8,7 +8,7 @@ ASSETS_FOLDER_NAME = "assets"
 TMP_FILE = "resource.tmp"
 PACK_FILE = "resource.pack"
 HEADER_FILE = "resource.pack.h"
-
+PNG_SIGNATURE = b'\x89PNG\r\n\x1a\n'
 
 def write_pack_file(folder_path: str, redirect_files: dict[str, str]) -> int:
     total_size = 0
@@ -19,15 +19,18 @@ def write_pack_file(folder_path: str, redirect_files: dict[str, str]) -> int:
         for root, _, files in os.walk(folder_path):
             for file in files:
                 file_path = os.path.join(root, file)
-                relative_path = os.path.relpath(file_path, folder_path)
+
+                parent_dir = os.path.basename(os.path.dirname(file_path))
+                relative_path = f"{parent_dir}\\{file}"
+
 
                 if file in redirect_files:
                     target = redirect_files[file]
                     if target == "none":
                         print(f"[+] SKIP {file} (ignored)")
                         continue
-                    relative_path = os.path.relpath(
-                        os.path.join(root, target), folder_path)
+                    relative_path = f"{parent_dir}\\{target}"
+                    
                     file_path = os.path.join(root, target)
                     print(f"[+] REDIRECT {file} => {target}")
                 elif file in redirect_files.values():
@@ -48,6 +51,34 @@ def write_pack_file(folder_path: str, redirect_files: dict[str, str]) -> int:
 
     return total_size
 
+def test_pack_file(pack_path: str):
+    print("[PACK]: Testing pack file integrity")
+    with open(pack_path, "rb") as f:
+        data = zlib.decompress(f.read())
+
+    offset = 0
+
+    count = 0
+    error = 0
+    while offset < len(data):
+        end_path = data.index(b'\0', offset)
+        path = data[offset:end_path].decode("utf-8")
+        offset = end_path + 1
+
+        size = int.from_bytes(data[offset:offset+4], "little")
+        offset += 4
+
+        file_data = data[offset:offset+size]
+        offset += size
+
+        file_data_start = file_data[:8]
+        if file_data_start != PNG_SIGNATURE:
+            print(f"[PACK] File {path} is not valid")
+            error += 1
+        count += 1
+    print(f"[PACK]: Error rate {round((error / count) * 100, 2)}% ({error} errors)")
+    print(f"[PACK]: Tested {count} files")
+    
 
 def create_header_file(pack_path: str):
     with open(pack_path, "rb") as f:
@@ -96,7 +127,8 @@ def main(args: list[str]):
           f"(from {total_size} to {gz_size} bytes)")
     print(f"[PACK]: Generated file: {pack_path}")
 
-    # create_header_file(pack_path)
+    test_pack_file(pack_path)
+
     print("[PACK]: End")
 
 

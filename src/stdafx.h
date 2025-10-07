@@ -58,6 +58,9 @@
 #elif defined(__APPLE__) 
 #define WISPY_MACOS
 
+#include <sys/stat.h> 
+#include <pthread.h>
+
 #elif defined(__ANDROID__)
 #define WISPY_ANDROID
 
@@ -128,7 +131,7 @@ extern struct android_app *GetAndroidApp(void);
 #define RECT(...)                                                              \
   (Rectangle) { __VA_ARGS__ }
 
-#if defined(_DEBUG) && (defined(WISPY_LINUX) || defined(WISPY_WINDOWS))
+#if defined(_DEBUG) && (defined(WISPY_LINUX) || defined(WISPY_WINDOWS) || defined(WISPY_MACOS))
 #define LOG(...)                                                               \
   printf("INFO: ");                                                            \
   printf(__VA_ARGS__);                                                         \

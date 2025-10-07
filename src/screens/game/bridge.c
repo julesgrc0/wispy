@@ -41,7 +41,7 @@ w_bridge *create_bridge(w_config* cfg) {
   td->is_active = true;
   td->force_update = true;
 
-#if defined(WISPY_WINDOWS) || defined(WISPY_LINUX)
+#if defined(WISPY_WINDOWS) || defined(WISPY_LINUX) || defined(WISPY_MACOS)
 
   update_bridge(td);
 

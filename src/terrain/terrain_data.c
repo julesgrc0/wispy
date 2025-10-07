@@ -50,7 +50,7 @@ bool read_chunk_file(unsigned int position, w_block *blocks) {
   }
 
   int in_size = 0;
-  char *in_buffer = LoadFileData(chunk_path, &in_size);
+  unsigned char *in_buffer = LoadFileData(chunk_path, &in_size);
   if (in_buffer == NULL) {
     free(chunk_path);
     return false;

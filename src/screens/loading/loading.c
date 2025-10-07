@@ -27,10 +27,11 @@ void load_assets(w_state *state) {
 
     if (strcmp(ext, ".png") == 0) {
       Image image = LoadImageFromMemory(
-          ".png", (const unsigned char *)items[i].buffer, items[i].size);
+          ".png", (const unsigned char *)items[i].buffer, items[i].size);      
       state->textures[state->textures_len] = LoadTextureFromImage(image);
       SetTextureWrap(state->textures[state->textures_len], TEXTURE_WRAP_CLAMP);
-#if defined(WISPY_WINDOWS) || defined(WISPY_LINUX)
+
+#if defined(WISPY_WINDOWS) || defined(WISPY_LINUX) || defined(WISPY_MACOS)
       SetTextureFilter(state->textures[state->textures_len],
                        TEXTURE_FILTER_ANISOTROPIC_16X);
 #endif
